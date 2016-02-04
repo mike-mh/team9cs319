@@ -1,0 +1,16 @@
+<!doctype html>
+<html ng-app="sampleApp">
+  <!-- Include all javascript files needed here -->
+  <head>
+    <script src="/libs/angular-1.4.5.min.js"></script>
+    <script src="/libs/d3-v3.min.js"></script>
+    <script src="/app/components/components.js"></script>
+    <script src="/app/components/sample_table/table-ctrl.js"></script>
+    <script src="/app/components/sample_table/table.js"></script>
+    <script src="/app/sample_app.js"></script>
+
+  </head>
+  <body>
+    <sample-app-table></sample-app-table>
+  <body>
+</html>
