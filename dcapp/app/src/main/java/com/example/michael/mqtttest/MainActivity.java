@@ -102,8 +102,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
 
         // Get IMEI ID for the current device
-        telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        androidId = telephonyManager.getDeviceId();
+        final TelephonyManager telephonyManager = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+        androidId = ""+android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
         setContentView(R.layout.activity_main);
 
         initializeViews();
@@ -157,8 +157,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-        // Display alert menu to user to input IP address
-        openIpDialogBox();
+        // Display alert menu to user to inpt IP address
+        openIpDialogBox(this.findViewById(android.R.id.content));
 
     }
 
@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      *         After the user inputs an IP address, the BroadcastService is
      *         reset and given a new IP address to connect to.
      */
-    public void openIpDialogBox() {
+    public void openIpDialogBox(View view) {
         // Build alert box and render it into view
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setMessage(IP_NEEDED_ALERT_MESSAGE);

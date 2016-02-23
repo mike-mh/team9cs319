@@ -129,7 +129,7 @@
         <Button
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:onClick="open"
+            android:onClick="openIpDialogBox"
             android:text="@string/changeIp"
             android:layout_weight="0.33" />
     </LinearLayout>
