@@ -1,0 +1,19 @@
+{
+  "name": "dch",
+  "version": "0.0.0",
+  "description": "The DCH server",
+  "main": "dch.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "DCH",
+    "NodeJS",
+    "DCGUI"
+  ],
+  "author": "Michael Mitchell-Halter",
+  "license": "WTFPL",
+  "dependencies": {
+    "express": "~4.13.4"
+  }
+}
