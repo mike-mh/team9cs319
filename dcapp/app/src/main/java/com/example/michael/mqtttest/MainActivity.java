@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         // Get IMEI ID for the current device
         final TelephonyManager telephonyManager = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
-        androidId = ""+android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+        androidId = android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
         setContentView(R.layout.activity_main);
 
         initializeViews();
