@@ -1,0 +1,33 @@
+<!doctype html>
+<html ng-app="dcgui">
+  <!-- Include all javascript files needed here --> 
+  <head>
+    <meta charset="utf-8">
+    <!-- Load css files -->
+    <link rel="stylesheet" href="/libs/css/c3.css"  type="text/css">
+    <link rel="stylesheet" href="/libs/css/bootstrap.min.css">
+    
+    <!-- Load javascript files (order mattters!!) -->
+    <script src="/libs/javascript/angular-1.4.5.min.js"></script>
+    <script src="/libs/javascript/jquery.min.js"></script>
+    <script src="/libs/javascript/bootstrap.min.js"></script>
+    <script src="/libs/javascript/ui-bootstrap-tpls-1.1.2.min.js"></script>
+    <script src="/libs/javascript/d3-v3.min.js"></script>
+    <script src="/libs/javascript/c3.min.js"></script>
+    <script src="/app/shared/shared.js"></script>
+    <script src="/app/shared/drop-down-widget/drop-down-widget.js"></script>
+    <script src="/app/shared/data-analyzer/data-analyzer-service.js"></script>
+    <script src="/app/components/components.js"></script>
+    <script src="/app/components/alert/alert.js"></script>
+    <script src="/app/components/connected-devices/connected-devices.js"></script>
+    <script src="/app/components/acceleration-graph/acceleration-graph.js"></script>
+    <script src="/app/app.js"></script>
+  </head>
+  <body>
+
+    <!-- The beauty of AngularJS. A massive payload of HTML in one little package! -->
+    <connected-devices></connected-devices>
+    <acceleration-graph></acceleration-graph>
+  <body>
+</html>
+
