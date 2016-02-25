@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">DCAPP</string>
+    <string name="changeIp">Change Host Address</string>
+</resources>
