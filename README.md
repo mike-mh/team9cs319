@@ -38,7 +38,7 @@ Run:
 
 ## Run the DCH server
 
-To run DCH, navigate to the team9cs319/dch/dch.js and run:
+To run DCH, navigate to the team9cs319/dch/ directory and run:
 
 nodejs --harmony dch.js
 
