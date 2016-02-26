@@ -51,8 +51,6 @@
     // Use to generate the c3 chart
     var chart;
 
-    vm.test = 'Derp';
-
     // Configure graph data for chart rendernig
     graphData.data = {};
     graphData.data.x = 'x-axis';

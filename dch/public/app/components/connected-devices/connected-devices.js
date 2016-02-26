@@ -62,14 +62,9 @@
     }
 
     /**
-     * @desc - This callback function is called when $http service completes
-     *         its request for total connected devices with an error response.
-     *         This function is called when components is initializing to
-     *         display the data once DCGUI renders.
-     *
-     * @param response {object} - Response from the server.
-     *
-     * @return {promise} - Returns the promise from the HTTP request promise.
+     * @desc - This function is used to request the total connected devices
+     *         from the DCH server. Once the request completes, a callback is
+     *         executed based on whether or not the request was successful.
      */
     function requestTotalConnectedDevices() {
       let responsePromise = $http.get(CONNECTED_DEVICE_QUERY_PATH);
