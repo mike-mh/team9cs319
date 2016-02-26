@@ -30,17 +30,20 @@ Before running the app be sure to install the following dependancies. And no mat
 
 Run:
 
-'npm install mqtt'
-'npm install mongodb'
-'npm install mongoose'
-'npm install express'
+`npm install mqtt`
+
+`npm install mongodb`
+
+`npm install mongoose`
+
+`npm install express`
 
 
 ## Run the DCH server
 
 To run DCH, navigate to the team9cs319/dch/ directory and run:
 
-nodejs --harmony dch.js
+`nodejs --harmony dch.js`
 
 The harmony param is necessarry to ensure that NodeJS will register the special keywords used for variable declaration.
 
@@ -53,7 +56,7 @@ Be sure that your Mosquitto MQTT broker is running if you wish to have data publ
 
 If you wish to install and run DCAPP on a Vandrico Solutions smart watch, navigate to team9cs319/dcapp_apk/ and run:
 
-'adb install app-debug.apk'
+`adb install app-debug.apk`
 
 This works for all Android devices. The name of the ap is presently app-debug.apk but this will likely change.
 
