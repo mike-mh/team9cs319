@@ -102,16 +102,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
 
         // Get IMEI ID for the current device
-        final TelephonyManager telephonyManager = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
-        androidId = android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+        final TelephonyManager telephonyManager = (TelephonyManager) getBaseContext().
+                getSystemService(Context.TELEPHONY_SERVICE);
+        androidId = android.provider.Settings.Secure.getString(getContentResolver(),
+                android.provider.Settings.Secure.ANDROID_ID);
         setContentView(R.layout.activity_main);
 
         initializeViews();
 
-        // Register acceleration listeners to display data
+        // Register acceleration listeners to display data, using the linear acceleration,
+        // which discards the influence of the gravity
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
-            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        if (sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) != null) {
+            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
             sensorManager.registerListener(mainActivity,
                     accelerometer,
                     SensorManager.SENSOR_DELAY_NORMAL);
@@ -269,11 +272,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         publishRateView.setText(BROADCAST_RATE_DISPLAY_PREFIX +
                 (BroadcastService.publishRateMilliSec));
-
-        // Get acceleration values from event
-        lastReadX = event.values[X_ACCELERATION_INDEX];
-        lastReadY = event.values[Y_ACCELERATION_INDEX];
-        lastReadZ = event.values[Z_ACCELERATION_INDEX];
+        // Get acceleration values from event, absolute values, never negative ones
+        lastReadX = Math.abs(event.values[X_ACCELERATION_INDEX]);
+        lastReadY = Math.abs(event.values[Y_ACCELERATION_INDEX]);
+        lastReadZ = Math.abs(event.values[Z_ACCELERATION_INDEX]);
 
         // display the current x,y,z accelerometer values
         displayCurrentValues();
