@@ -1,9 +1,12 @@
 language: android
 android:
   components:
-    - build-tools-17.0.0
-    - android-17
-install: /bin/true
+    - build-tools-22.0.1
+    - android-22
+
+before_install:
+  - chmod +x dcapp/gradlew
+
 script: 
   - cd dcapp
   - ./gradlew test
