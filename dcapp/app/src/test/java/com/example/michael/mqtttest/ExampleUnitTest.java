@@ -15,7 +15,7 @@ public class ExampleUnitTest {
 
     @Test
     public void multiplication_isCorrect() throws Exception {
-        assertEquals(6, 1 * 5);
+        assertEquals(5, 1 * 5);
     }
 
     @Test
