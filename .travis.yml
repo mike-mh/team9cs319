@@ -3,6 +3,7 @@ android:
   components:
     - build-tools-17.0.0
     - android-17
+install: /bin/true
 script: 
   - cd dcapp
   - ./gradlew test
