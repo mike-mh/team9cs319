@@ -12,5 +12,4 @@ android:
 script: 
   - cd dcapp
   - gradle build
-  - chmod +x ./gradlew
-  - ./gradlew test
+
