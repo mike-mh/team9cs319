@@ -11,5 +11,5 @@ android:
 
 script: 
   - cd dcapp
-  - gradle build
+  - gradle build -q
 
