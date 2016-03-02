@@ -3,4 +3,5 @@ android:
   components:
     - build-tools-17.0.0
     - android-17
-script: cd dcapp
+script: 
+  - cd dcapp && ./gradlew test
