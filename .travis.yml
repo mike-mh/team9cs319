@@ -9,4 +9,6 @@ before_install:
 
 script: 
   - cd dcapp
+  - gradle build
+  - chmod +x ./gradlew
   - ./gradlew test
