@@ -20,7 +20,6 @@ before_script:
     - cd ..
 
 script: 
-  - cd dcapp
-  - gradle build -q
-  - npm test
+  - cd dcapp && gradle build -q
+  - cd ../dch && npm test
 
