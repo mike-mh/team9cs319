@@ -6,15 +6,15 @@
 describe('The acceleration-alert widget', function() {
   // Used to insert values into attributes as formatted string
   // See http://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
-  const ACCELERATION_ALERT_TAG =
+  var ACCELERATION_ALERT_TAG =
     '<acceleration-alert alert-type="{0}" alert-time-start="{1}" alert-time-end="{2}">' +
     '</acceleration-alert>';
   
-  let $controller;
-  let $compile;
-  let $rootScope;
+  var $controller;
+  var $compile;
+  var $rootScope;
 
-  let accelerationAlertElement;
+  var accelerationAlertElement;
 
   // Call the hosting module and HTML templates
   beforeEach(module('dcgui.components'));

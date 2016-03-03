@@ -4,18 +4,18 @@
  * Unit test for the acceleration-graph
  */
 describe('The acceleration-graph', function() {
-  const ACCELERATION_GRAPH_TAG = '<acceleration-graph></acceleration-graph>';
+  var ACCELERATION_GRAPH_TAG = '<acceleration-graph></acceleration-graph>';
 
   // Used to insert values into the URL params
   // See http://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
-  const GET_ACCELERATION_DATA_URL = 
+  var GET_ACCELERATION_DATA_URL = 
     '/get_data?watch_id={0}&start_time={1}&time_interval={2}';
 
-  let $controller;
-  let $compile;
-  let $rootScope;
+  var $controller;
+  var $compile;
+  var $rootScope;
 
-  let accelerationGraphElement;
+  var accelerationGraphElement;
 
   // Call the hosting module and HTML templates
   beforeEach(module('dcgui.components'));

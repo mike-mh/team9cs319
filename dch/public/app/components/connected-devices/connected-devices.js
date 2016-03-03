@@ -16,7 +16,7 @@
     // This is the object that is created and sent to the DOM to create
     // the view the user sees when the <sample-app-table> tag is parsed.
     // Note the directive uses the 'ConnectedDevicesController'
-    let directive = {
+    var directive = {
       templateUrl: '/app/components/connected-devices/connected-devices.html',
       controller: ConnectedDevicesController,
       controllerAs: 'connectedDevicesCtrl',
@@ -33,9 +33,9 @@
   function ConnectedDevicesController($http) {
     var vm = this;
 
-    const NO_DEVICE_DATA_DISPLAY = 'No data';
-    const SERVER_ERROR_DISPLAY = 'ERROR: Couldn\'t retrieve data';
-    const CONNECTED_DEVICE_QUERY_PATH = '/total_connected_devices';
+    var NO_DEVICE_DATA_DISPLAY = 'No data';
+    var SERVER_ERROR_DISPLAY = 'ERROR: Couldn\'t retrieve data';
+    var CONNECTED_DEVICE_QUERY_PATH = '/total_connected_devices';
 
     vm.totalConnectedDevices = NO_DEVICE_DATA_DISPLAY;
 
@@ -47,7 +47,7 @@
      * @param response {object} - Response from the server.
      */
     function successCallback(response) {
-      let connectedDevices = response.data;
+      var connectedDevices = response.data;
       vm.totalConnectedDevices = connectedDevices;
     }
 
@@ -67,7 +67,7 @@
      *         executed based on whether or not the request was successful.
      */
     function requestTotalConnectedDevices() {
-      let responsePromise = $http.get(CONNECTED_DEVICE_QUERY_PATH);
+      var responsePromise = $http.get(CONNECTED_DEVICE_QUERY_PATH);
 
       /*
        * After the request promise is completed, execute callbacks based on

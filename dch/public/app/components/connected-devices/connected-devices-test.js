@@ -4,17 +4,17 @@
  * Unit test for the connected-devices widget
  */
 describe('The connected-devices widget', function() {
-  const NO_DEVICE_DATA = 'No data';
-  const CONNECTED_DEVICES_TAG = '<connected-devices></connected-devices>';
-  const GET_CONNECTED_DEVICES_URL = '/total_connected_devices';
+  var NO_DEVICE_DATA = 'No data';
+  var CONNECTED_DEVICES_TAG = '<connected-devices></connected-devices>';
+  var GET_CONNECTED_DEVICES_URL = '/total_connected_devices';
 
-  let $controller;
-  let $compile;
-  let $rootScope;
-  let $httpBackend;
+  var $controller;
+  var $compile;
+  var $rootScope;
+  var $httpBackend;
 
-  let connectedDevicesElement;
-  let totalConnectedDevices;
+  var connectedDevicesElement;
+  var totalConnectedDevices;
 
   // Call the hosting module and HTML templates
   beforeEach(module('dcgui.components'));

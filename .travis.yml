@@ -12,11 +12,20 @@ android:
 before_script:
     - cd dch
     - npm install karma
-    - npm install mocha
-    - npm install karma-chrome-launcher
+    - npm install karma-firefox-launcher
     - npm install karma-ng-html2js-preprocessor
     - npm install karma-jasmine
+    - npm install jasmine-core
     - npm install angular-mocks
+    - npm install mocha
+    - npm install chai
+    - npm install should
+    - npm install assert
+    - npm install supertest
+    - npm install express
+    - npm install mongoose
+    - npm install mongodb
+    - npm install mqtt
     - cd ..
 
 script: 

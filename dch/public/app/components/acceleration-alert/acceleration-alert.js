@@ -15,7 +15,7 @@
     .directive('accelerationAlert', accelerationAlert);
 
   function accelerationAlert() {
-    let directive = {
+    var directive = {
       templateUrl: '/app/components/acceleration-alert/accerlation-alert.html',
       restrict: 'E',
     };
