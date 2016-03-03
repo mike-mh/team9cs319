@@ -1,0 +1,15 @@
+<div class="container" style='align:left'>
+
+
+	<label for="watchSelect">Select a watch ID:</label>
+
+ 	<select name="watchSelect" ng-model="selectedWatch.id">
+  		<option ng-repeat="watch in watches | unique: 'WATCH_ID'">{{watch.WATCH_ID}}</option>
+  	</select>
+ 
+	<div>
+		<button type="button" class="btn btn-success" >Get Data</button>
+	</div>
+
+
+</div>

@@ -31,6 +31,9 @@
   ConnectedDevicesController.$inject = ['$http'];
 
   function ConnectedDevicesController($http) {
+
+    console.log("hello");
+
     var vm = this;
 
     const NO_DEVICE_DATA_DISPLAY = 'No data';

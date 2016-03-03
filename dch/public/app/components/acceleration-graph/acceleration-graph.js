@@ -78,6 +78,7 @@
     };
     graphData.legend = {position: LABEL_POSITION}
 
+
     /**
      * @desc - This function is used during the c3 chart rendering to convert
      *         millisecond timestamps received from the server to a datetime
