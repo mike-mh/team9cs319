@@ -37,6 +37,5 @@ before_script:
 
 script: 
   - cd dcapp && gradle build -q
-  - cd ../dch && node ./dch.js &
   - cd ../dch && npm test
 
