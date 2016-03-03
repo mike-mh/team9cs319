@@ -1,0 +1,25 @@
+language: android
+android:
+  components:
+    - platform-tools
+    - tools
+    - build-tools-23.0.2
+    - android-23
+    - extra-google-google_play_services
+    - extra-google-m2repository
+    - extra-android-m2repository
+
+before_script:
+    - cd dch
+    - npm install karma
+    - npm install mocha
+    - npm install karma-chrome-launcher
+    - npm install karma-ng-html2js-preprocessor
+    - npm install karma-jasmine
+    - npm install angular-mocks
+    - cd ..
+
+script: 
+  - cd dcapp && gradle build -q
+  - cd ../dch && npm test
+
