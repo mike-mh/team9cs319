@@ -15,7 +15,7 @@
   function connectedDevices() {
     // This is the object that is created and sent to the DOM to create
     // the view the user sees when the <sample-app-table> tag is parsed.
-    // Note the directive uses the 'TableController'
+    // Note the directive uses the 'ConnectedDevicesController'
     let directive = {
       templateUrl: '/app/components/connected-devices/connected-devices.html',
       controller: ConnectedDevicesController,

@@ -13,10 +13,14 @@ before_script:
     - cd dch
     - npm install karma
     - npm install mocha
-    - npm install protractor
+    - npm install karma-chrome-launcher
+    - npm install karma-ng-html2js-preprocessor
+    - npm install karma-jasmine
+    - npm install angular-mocks
     - cd ..
 
 script: 
   - cd dcapp
   - gradle build -q
+  - npm test
 
