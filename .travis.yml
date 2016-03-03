@@ -16,6 +16,7 @@ before_script:
     - cd dch
     - npm install karma
     - npm install karma-firefox-launcher
+    - npm install karma-chrome-launcher
     - npm install karma-ng-html2js-preprocessor
     - npm install karma-jasmine
     - npm install jasmine-core
