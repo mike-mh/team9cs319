@@ -34,6 +34,7 @@
     "mocha": "latest",
     "mongodb": "latest",
     "mongoose": "latest",
+    "protractor": "latest",
     "should": "~8.2.2",
     "supertest": "latest"
   }

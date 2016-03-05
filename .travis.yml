@@ -40,8 +40,8 @@ before_script:
     - cd dch
     - npm install
     - npm install -g protractor@2.5.1
-    - webdriver-manager update --standalone
-    - webdriver-manager start 2>&1 &  
+    - node_modules/protractor/bin/webdriver-manager update --standalone
+    - node_modules/protractor/bin/webdriver-manager start 2>&1 &  
     - node dch.js &
     - cd ..
 
