@@ -140,7 +140,7 @@
         *         executed based on whether or not the request was successful.
         */
     	function requestData() {
-    		let responsePromise = $http.get(GET_DATA_QUERY_PATH);
+    		var responsePromise = $http.get(GET_DATA_QUERY_PATH);
 
    			responsePromise.then(successCallback, errorCallback);
     	}
