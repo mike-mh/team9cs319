@@ -39,7 +39,7 @@ before_script:
     - nvm install 0.12
     - nvm use 0.12
     - npm install
-    - npm install -g protractor
+    - npm install -g protractor@2.5.1
     - webdriver-manager update &
     - webdriver-manager start &
     - node dch.js &
