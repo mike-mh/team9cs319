@@ -77,6 +77,9 @@ public class BroadcastService extends Service {
     private static final int Y_ACCELERATION_INDEX = 1;
     private static final int Z_ACCELERATION_INDEX = 2;
 
+    private float[] gravity = { 0 , 0 , 0};
+    private final float alpha = (float) 0.8;
+
     @Nullable
     @Override
     // Comes with Service class. Not needed.
@@ -120,7 +123,7 @@ public class BroadcastService extends Service {
 
         sensorManager = (SensorManager) getApplicationContext()
                 .getSystemService(SENSOR_SERVICE);
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         accelerationListener = new AccelerationListener();
         sensorManager.registerListener(accelerationListener,
                 accelerometer,
@@ -161,7 +164,7 @@ public class BroadcastService extends Service {
         public void onSensorChanged(SensorEvent event) {
             this.event = event;
 
-            if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 // Kill function if not enough time has elapsed between
                 // acceleration events (Should re-work this)
                 if(tickAccumulator++ % (delayValue * 5 + 1) != 0) {
@@ -178,19 +181,24 @@ public class BroadcastService extends Service {
                     publishRateMilliSec = currentTimeMilliseconds - lastTimeCheck;
                     lastTimeCheck = currentTimeMilliseconds;
 
+                    // Isolate the force of gravity with the low-pass filter.
+                    gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[X_ACCELERATION_INDEX];
+                    gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[Y_ACCELERATION_INDEX];
+                    gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[Z_ACCELERATION_INDEX];
+
                     JSONObject accelerationJson = new JSONObject();
-                    //TODO: take the gravity away here
+
                     try {
                         accelerationJson.put(WATCH_ID_JSON_INDEX, androidId);
 
                         accelerationJson.put(ACC_X_JSON_INDEX,
-                                Math.abs(event.values[X_ACCELERATION_INDEX]));
+                                Math.abs(event.values[X_ACCELERATION_INDEX] - gravity[0]));
 
                         accelerationJson.put(ACC_Y_JSON_INDEX,
-                                Math.abs(event.values[Y_ACCELERATION_INDEX]));
+                                Math.abs(event.values[Y_ACCELERATION_INDEX] - gravity[1]));
 
                         accelerationJson.put(ACC_Z_JSON_INDEX,
-                                Math.abs(event.values[Z_ACCELERATION_INDEX]));
+                                Math.abs(event.values[Z_ACCELERATION_INDEX] - gravity[2]));
 
                         accelerationJson.put(TIMESTAMP_JSON_INDEX,
                                 currentTimeMilliseconds);
