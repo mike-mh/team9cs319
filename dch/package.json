@@ -4,7 +4,7 @@
   "description": "The DCH server",
   "main": "dch.js",
   "scripts": {
-    "test": "karma start karma.conf.js && mocha ./dch-test.js"
+    "test": "karma start karma.conf.js && mocha ./dch-test.js && protractor ./conf.js"
   },
   "keywords": [
     "DCH",
