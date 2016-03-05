@@ -26,13 +26,15 @@ before_install:
 services:
     - mongodb
 
-# Install all needed npm packages and set chrome browser
+# Install all needed npm packages and set chrome browser. Run an instance of
+# DCH to allow for MQTT testing
 before_script:
     - export CHROME_BIN=chromium-browser
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
     - cd dch
     - npm install
+    - node dch.js
     - cd ..
 
 # Run the tests
