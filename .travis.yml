@@ -10,6 +10,9 @@ android:
     - extra-google-m2repository
     - extra-android-m2repository
 
+node_js:
+    - "0.12"
+
 # Install and run Mosquitto MQTT and its required packages
 before_install:
     - sudo apt-get update -qq
