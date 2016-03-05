@@ -34,7 +34,7 @@ before_script:
     - sh -e /etc/init.d/xvfb start
     - cd dch
     - npm install
-    - node dch.js
+    - node dch.js &
     - cd ..
 
 # Run the tests
