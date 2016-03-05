@@ -15,10 +15,10 @@
 
   function DataAnalyzerService() {
     // This is for testing and demonstration. Remove later.
-    let currentDate = new Date();
-    let testTimeValue = currentDate.getTime();
+    var currentDate = new Date();
+    var testTimeValue = currentDate.getTime();
 
-    let dataAnalyzerService = {
+    var dataAnalyzerService = {
       getTestData: getTestData
     };
 
@@ -31,8 +31,8 @@
      * @return [array] - Array containing arrays of data.
      */
     function getTestData() {
-      let returnValue = [];
-      let storageObject = {};
+      var returnValue = [];
+      var storageObject = {};
 
       storageObject.xAxis = [];
       storageObject.xAcceleration = [];
@@ -54,7 +54,7 @@
       }
 
       var index = 0;
-      for(let array in storageObject) {
+      for(var array in storageObject) {
         returnValue[index] = storageObject[array];
         index++;
       }
