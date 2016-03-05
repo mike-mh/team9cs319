@@ -69,6 +69,27 @@ For DCGUI testing, Karma is capable of running tests on Opera, IE11, Edge, Chrom
 browsers: ['Chrome', 'IE', 'Opera'],
 ```
 
+Note that to run on Travis a browser 'CromeCanary' is used. To have Karma run on your own device, this browser should be removed.
+
+## Protractor Testing for DCGUI
+
+Protractor is a powerful automated end to end test tool frequently used for AngularJS apps. Tests written in Protractor physically call up an instance of the browser to be tested and executes sequential user interactions such as clicks and keystrokes and examines the DOM to confirm expected behavior.
+
+To install the protractor tool run:
+
+```
+npm install -g protractor@2.5.1
+```
+
+You can then run the protractor test by navigating to the DCH directory and running:
+```
+webdriver-manager update --standalone
+webdriver-manager start
+protractor ./conf.js
+
+```
+
+
 ## Installing DCAPP on your Android device
 
 If you wish to install and run DCAPP on a Vandrico Solutions smart watch, navigate to team9cs319/dcapp_apk/ and run:
