@@ -51,10 +51,14 @@
 
     function WatchFormController($http, $scope) {
 
+        $scope.watchSelected = false;
+        $scope.timeSelected = false;
+
         // This will store the user selected information.
     	$scope.selectedWatch =  {
     		id: '',
     		startTime: '',
+            interval: '',
     	}
 
     	var vm = this;	
@@ -63,6 +67,51 @@
     	const GET_DATA_QUERY_PATH = '/get_data/';
 
     	vm.watchFormData = NO_DEVICE_DATA_DISPLAY;
+
+        // This watches for if a watch has been selected by a user.
+        $scope.$watch('selectedWatch.id', function () {
+            if ($scope.selectedWatch.id === '') {
+                console.log('No watch selected');
+            } else {
+                console.log("Selected watch:", $scope.selectedWatch.id);
+                $scope.watchSelected = true;
+            }
+           
+        });
+
+        // This watches for if a time has been selected by a user.
+        $scope.$watch('selectedWatch.startTime', function() {
+            if($scope.selectedWatch.startTime === '' || $scope.selectedWatch.startTime === null) {
+                console.log('No time selected');
+            } else {
+                console.log("Selected time:", $scope.selectedWatch.startTime);
+                $scope.timeSelected = true;
+            }
+        })
+
+       /**
+        * @desc - This function validates and submits the watch form.
+        *
+        * @param - selectedWatch, startTime, interval - Object to post to 
+        *          DCH server to get watch data.
+        */
+        $scope.submitForm = function(watch, startTime, interval) {
+            console.log('Watch: ' + watch);   
+            console.log('Start Time: ' + startTime);
+            if (watch == null || watch == '') {
+                alert("Please select a watch.");
+            } 
+            else if (startTime == null || startTime == '') {
+                alert("Please select a start time.");
+            } 
+            else if (interval == null || interval == '') {
+                alert("Please select a time interval.")
+            }
+            else {
+                console.log("Requesting data.");
+                console.log($scope.selectedWatch);
+            }
+        }
 
        /**
         * @desc - This callback function is called when $http service completes

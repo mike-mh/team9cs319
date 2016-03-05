@@ -1,15 +1,36 @@
 <div class="container" style='align:left'>
 
-
+<form name = "myWatchForm" ng-submit="submitForm(selectedWatch.id, selectedWatch.startTime, selectedWatch.interval)">
 	<label for="watchSelect">Select a watch ID:</label>
 
  	<select name="watchSelect" ng-model="selectedWatch.id">
-  		<option ng-repeat="watch in watches | unique: 'WATCH_ID'">{{watch.WATCH_ID}}</option>
-  	</select>
+  		<option ng-repeat="watch in watches | unique: 'WATCH_ID'">
+        {{watch.WATCH_ID}}
+      </option>
+  </select>
+
+  	<div ng-show="watchSelected">
+  		<label for="timeSelect">Pick start time:</label>
+
+  		<select name="timeSelect" ng-model="selectedWatch.startTime">
+        <option value="March 1 2016, 1:00">March 1 2016, 1:00</option>
+        <option value="March 3 2016, 3:00">March 3 2016, 3:00</option>
+  		</select>
+  	</div>
+
+    <div ng-show="timeSelected">
+      <label for="intervalSelect">Pick a time interval:</label>
+
+      <select name="intervalSelect" ng-model="selectedWatch.interval">
+        <option value="5ms">Every 5 ms</option>
+        <option value="10ms">Every 10 ms </option>
+      </select>
+    </div>
  
 	<div>
-		<button type="button" class="btn btn-success" >Get Data</button>
+		<button type="submit" class="btn btn-success" >Get Data</button>
 	</div>
 
+</form>
 
 </div>
