@@ -2,6 +2,7 @@ package com.example.michael.mqtttest;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -13,6 +14,12 @@ import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+
+import static java.util.concurrent.TimeUnit.*;
 
 /**
  * @desc - This is the work horse for acceleration data broadcasting. When
@@ -42,8 +49,6 @@ public class BroadcastService extends Service {
     public static long publishRateMilliSec = 0;
 
 
-    // Use this to enable delays
-    private int tickAccumulator = 0;
     private long lastTimeCheck = System.currentTimeMillis();
     private MqttAndroidClient client;
     private int delayValue = 0;
@@ -52,6 +57,13 @@ public class BroadcastService extends Service {
     private Sensor accelerometer;
     private String hostIp;
     SensorEventListener accelerationListener;
+
+    private final ScheduledExecutorService publicationScheduler =
+            Executors.newScheduledThreadPool(1);
+
+    private float xAcceleration = 0;
+    private float yAcceleration = 0;
+    private float zAcceleration = 0;
 
     // More constants (probably should store in a class)
     private static final String TCP_PREFIX = "tcp://";
@@ -79,6 +91,74 @@ public class BroadcastService extends Service {
 
     private float[] gravity = { 0 , 0 , 0};
     private final float alpha = (float) 0.8;
+
+    private ScheduledFuture publicationHandle;
+    private final Runnable publishData = new Runnable() {
+        private boolean isConnecting = false;
+
+        @Override
+        public void run() {
+            if (client.isConnected()) {
+                isConnecting = false;
+                String data = "";
+
+                // Calculate the rate between publish events
+                long currentTimeMilliseconds = System.currentTimeMillis();
+                publishRateMilliSec = currentTimeMilliseconds - lastTimeCheck;
+                lastTimeCheck = currentTimeMilliseconds;
+
+                JSONObject accelerationJson = new JSONObject();
+
+                try {
+                    accelerationJson.put(WATCH_ID_JSON_INDEX, androidId);
+
+                    accelerationJson.put(ACC_X_JSON_INDEX,
+                            xAcceleration);
+
+                    accelerationJson.put(ACC_Y_JSON_INDEX,
+                            yAcceleration);
+
+                    accelerationJson.put(ACC_Z_JSON_INDEX,
+                            zAcceleration);
+
+                    accelerationJson.put(TIMESTAMP_JSON_INDEX,
+                            currentTimeMilliseconds);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                try {
+
+                    // Convert JSON to string and publish
+                    data = accelerationJson.toString();
+                    MQTTPublishHandler callback = new MQTTPublishHandler();
+
+                    client.publish(MQTT_ACCELERATION_CHANNEL,
+                            data.getBytes(),
+                            0,
+                            false,
+                            null,
+                            callback);
+
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    if(!isConnecting) {
+                        isConnecting = true;
+
+                        MQTTConnectionHandler callback =
+                                new MQTTConnectionHandler();
+
+                        client.connect(null, callback);
+                    }
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
 
     @Nullable
     @Override
@@ -129,6 +209,13 @@ public class BroadcastService extends Service {
                 accelerometer,
                 SensorManager.SENSOR_DELAY_NORMAL);
 
+        // Create new thread to boradcast data
+        delayValue = (delayValue == 0) ?
+                delayValue = 1:
+                delayValue;
+
+        publicationHandle = publicationScheduler.scheduleAtFixedRate(publishData, delayValue * 200, delayValue * 200, MILLISECONDS);
+
         return START_STICKY;
     }
 
@@ -141,6 +228,7 @@ public class BroadcastService extends Service {
     public void onDestroy() {
         broadcastServiceIsRunning = false;
 
+        publicationHandle.cancel(true);
         sensorManager.unregisterListener(accelerationListener);
         super.onDestroy();
     }
@@ -165,75 +253,16 @@ public class BroadcastService extends Service {
             this.event = event;
 
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                // Kill function if not enough time has elapsed between
-                // acceleration events (Should re-work this)
-                if(tickAccumulator++ % (delayValue * 5 + 1) != 0) {
-                    return;
-                }
 
-                // If client is connected, publish data. Otherwise, attempt
-                // to connect client.
-                if (client.isConnected()) {
-                    String data = "";
-
-                    // Calculate the rate between publish events
-                    long currentTimeMilliseconds = System.currentTimeMillis();
-                    publishRateMilliSec = currentTimeMilliseconds - lastTimeCheck;
-                    lastTimeCheck = currentTimeMilliseconds;
 
                     // Isolate the force of gravity with the low-pass filter.
                     gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[X_ACCELERATION_INDEX];
                     gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[Y_ACCELERATION_INDEX];
                     gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[Z_ACCELERATION_INDEX];
 
-                    JSONObject accelerationJson = new JSONObject();
-
-                    try {
-                        accelerationJson.put(WATCH_ID_JSON_INDEX, androidId);
-
-                        accelerationJson.put(ACC_X_JSON_INDEX,
-                                Math.abs(event.values[X_ACCELERATION_INDEX] - gravity[0]));
-
-                        accelerationJson.put(ACC_Y_JSON_INDEX,
-                                Math.abs(event.values[Y_ACCELERATION_INDEX] - gravity[1]));
-
-                        accelerationJson.put(ACC_Z_JSON_INDEX,
-                                Math.abs(event.values[Z_ACCELERATION_INDEX] - gravity[2]));
-
-                        accelerationJson.put(TIMESTAMP_JSON_INDEX,
-                                currentTimeMilliseconds);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-
-                        // Convert JSON to string and publish
-                        data = accelerationJson.toString();
-                        MQTTPublishHandler callback = new MQTTPublishHandler();
-
-                        client.publish(MQTT_ACCELERATION_CHANNEL,
-                                data.getBytes(),
-                                0,
-                                false,
-                                null,
-                                callback);
-
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    try {
-
-                        MQTTConnectionHandler callback =
-                                new MQTTConnectionHandler();
-
-                        client.connect(null, callback);
-
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
-                }
+                    xAcceleration = event.values[X_ACCELERATION_INDEX] - gravity[0];
+                    yAcceleration = event.values[Y_ACCELERATION_INDEX] - gravity[1];
+                    zAcceleration = event.values[Z_ACCELERATION_INDEX] - gravity[2];
             }
         }
 
