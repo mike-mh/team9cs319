@@ -35,6 +35,7 @@ module.exports = function(config) {
 
     // list of files to exclude
     exclude: [
+      'public/app/app-test-e2e.js'
     ],
 
 
