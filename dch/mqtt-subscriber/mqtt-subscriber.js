@@ -6,7 +6,7 @@
 var database = require('../db.js');
 var Data = database.model;
 
-var DECIPHER  = require('./encryption.js'); 
+var decipher  = require('./encryption.js'); 
 
 // the Airbnb style of "import { express } from 'express';" working.
 //MQTT constant
@@ -37,20 +37,22 @@ var sysClient = mqtt.connect(MQTT_BROKER_URL);
 // Initialize totalClients value
 sysClient.totalClients = '0';
 
-var checkFormat = function (stringData){
+var getDataObject = function (stringData){
   console.log('Checking format of JSON data');
   try{
-    var objectData = Object.keys(JSON.parse(stringData));
-    return (
+    var messageJson = JSON.parse(stringData);
+    var objectData = Object.keys(messageJson);
+    if (
       objectData.length == 5 && 
       objectData.indexOf(WATCH_ID) != -1 &&
       objectData.indexOf(TIMESTAMP) != -1 && 
       objectData.indexOf(X_ACCELERATION) != -1 &&
       objectData.indexOf(Y_ACCELERATION) != -1 &&
-      objectData.indexOf(Z_ACCELERATION) != -1
-    );
+      objectData.indexOf(Z_ACCELERATION) != -1) {
+      return messageJson;
+    }
   }catch(e){
-    return false;
+    return null;
   }
 }
 
@@ -75,15 +77,16 @@ sysClient.on(MQTT_CONNECT_EVENT, function () {
 dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
   // Print for debugging 
   console.log("MQTT message: "+message.toString());
-  var decrypted = DECIPHER.decryptText(message.toString());
-
-  if(checkFormat(decrypted)){
+  var decrypted = decipher.decryptText(message.toString());
+  var dataObject = getDataObject(decrypted);
+  if (dataObject){
+    // TODO should consider bulk insert
     // TODO add gradient field
     var data = Data(decrypted);
     Data.save(message.toString(), function(err){
-      if(err){
+      if (err) {
         console.log('There was an error inserting ' + data + ' into the database'); 
-      }else{
+      } else {
         console.log('Data saved to database'); 
       }
       console.log(message.toString()+" saved to database");
