@@ -40,15 +40,15 @@ sysClient.totalClients = '0';
 var checkFormat = function (stringData){
   console.log('Checking format of JSON data');
   try{
-      var objectData = Object.keys(JSON.parse(stringData));
-      if(objectData.length == 5 && 
-         objectData.indexOf(WATCH_ID) != -1 &&
-         objectData.indexOf(TIMESTAMP) != -1 && 
-         objectData.indexOf(X_ACCELERATION) != -1 &&
-         objectData.indexOf(Y_ACCELERATION) != -1 &&
-         objectData.indexOf(Z_ACCELERATION) != -1){
-           return true; 
-        }
+    var objectData = Object.keys(JSON.parse(stringData));
+    if (objectData.length == 5 && 
+      objectData.indexOf(WATCH_ID) != -1 &&
+      objectData.indexOf(TIMESTAMP) != -1 && 
+      objectData.indexOf(X_ACCELERATION) != -1 &&
+      objectData.indexOf(Y_ACCELERATION) != -1 &&
+      objectData.indexOf(Z_ACCELERATION) != -1) {
+      return true; 
+    }
   }catch(e){
     return false;
   }
@@ -77,10 +77,10 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
   // Print for debugging 
   console.log("MQTT message: "+message.toString());
   var decrypted = DECIPHER.decryptText(message.toString());
- 
- if(checkFormat(decrypted)){
-      let data = accelrationData(decrypted);
-      accelrationData.save(message.toString(), function(err){
+
+  if(checkFormat(decrypted)){
+    let data = accelrationData(decrypted);
+    accelrationData.save(message.toString(), function(err){
       if(err){
         console.log('There was an error inserting ' + data + ' into the database'); 
       }else{

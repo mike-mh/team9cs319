@@ -26,7 +26,7 @@ app.use(express.static(PUBLIC_DIR));
 
 //Decrypt the data here
 router.use(function(req, res, next) {
-  console.log('The data we get '+res);
+  console.log('The data we get '+ res);
   next(); // make sure we go to the next routes and don't stop here
 });
 
@@ -37,10 +37,10 @@ router.delete(DELETE_DATA_PATH, function(req, res) {
 
 router.get(GET_DATA_PATH, function(req, res){
   try{
-     var data = database.getData(req.params.watchId, req.params.StartTime, req.params.stopTime, req.params.frequency);
-	 res.json(data);
+    var data = database.getData(req.params.watchId, req.params.StartTime, req.params.stopTime, req.params.frequency);
+	  res.json(data);
 	}catch(e){
-	 console.log('There was an error getting data from database: ' + e);
+	  console.log('There was an error getting data from database: ' + e);
 	}
 });
 

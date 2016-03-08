@@ -23,7 +23,7 @@ var accelrationDataSCHEMA = new SCHEMA({
   acc_y: Number, 
   acc_z: Number, 
   timestamp: Number
-  });
+});
 
 module.exports.disconnect = function(){
   MONGOOSE.disconnect();
