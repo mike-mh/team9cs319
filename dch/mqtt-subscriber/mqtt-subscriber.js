@@ -79,7 +79,7 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
   var decrypted = DECIPHER.decryptText(message.toString());
 
   if(checkFormat(decrypted)){
-    let data = accelrationData(decrypted);
+    var data = accelrationData(decrypted);
     accelrationData.save(message.toString(), function(err){
       if(err){
         console.log('There was an error inserting ' + data + ' into the database'); 
