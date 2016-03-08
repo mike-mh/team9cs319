@@ -1,39 +1,55 @@
 'use strict';
 
 // These are the modules imported from 'node_modules' directory. Couldn't get
+
+//Database variables
+var database = require('../db.js');
+var accelrationData = database.model;
+
+var DECIPHER  = require('./encryption.js'); 
+
 // the Airbnb style of "import { express } from 'express';" working.
-const MongoClient = require('mongodb').MongoClient;
 let mqtt = require('mqtt');
 
-// MQTT constants
-const MQTT_BROKER_URL = 'tcp://localhost:1883';
-const MQTT_MESSAGE_EVENT = 'message';
-const MQTT_CONNECT_EVENT = 'connect';
+// MQTT var
+var MQTT_BROKER_URL = 'tcp://localhost:1883';
+var MQTT_MESSAGE_EVENT = 'message';
+var MQTT_CONNECT_EVENT = 'connect';
 
 // Channels (Should change DCAPP channel)
-const DCAPP_CHANNEL = '$SYS';
-const SYS_CHANNEL = '$SYS/broker/clients/total';
+var DCAPP_CHANNEL = '$SYS';
+var SYS_CHANNEL = '$SYS/broker/clients/total';
 
 // Console messages and errors
-const DCAPP_CLIENT_INIT_MESSAGE = 'Listening for acceleration data';
-const SYS_CLIENT_INIT_MESSAGE = 'Listening for total devices';
+var DCAPP_CLIENT_INIT_MESSAGE = 'Listening for acceleration data';
+var SYS_CLIENT_INIT_MESSAGE = 'Listening for total devices';
 
-// Database constants
-const MONGODB_URL = 'mongodb://localhost:27017/mqtt-database';
-const MQTT_COLLECTION = 'mqtt-data';
-const WATCH_ID = 'watch_id';
-const TIMESTAMP = 'timestamp';
-const X_ACCELERATION = 'x_acc';
-const Y_ACCELERATION = 'y_acc';
-const Z_ACCELERATION = 'z_acc';
 
-let dcappClient = mqtt.connect(MQTT_BROKER_URL);
-let sysClient = mqtt.connect(MQTT_BROKER_URL);
+
+var dcappClient = mqtt.connect(MQTT_BROKER_URL);
+var sysClient = mqtt.connect(MQTT_BROKER_URL);
 
 
 // Initialize totalClients value
 sysClient.totalClients = '0';
 
+var checkFormat = function (stringData){
+  console.log('Checking format of JSON data');
+  try{
+      var objectData = Object.keys(JSON.parse(stringData));
+      if(objectData.length == 5 && 
+         objectData.indexOf('timestamp') != -1 &&
+         objectData.indexOf('watch_id') != -1 && 
+         objectData.indexOf('acc_z') != -1 &&
+         objectData.indexOf('acc_y') != -1 &&
+         objectData.indexOf('acc_x') != -1){
+           return true; 
+        }
+  }catch(e){
+    return false;
+  }
+  return false;
+}
 
 // Signal dcappClient is listening for watch data
 dcappClient.on(MQTT_CONNECT_EVENT, function () {
@@ -55,28 +71,22 @@ sysClient.on(MQTT_CONNECT_EVENT, function () {
 // Acceleration data is received here and is plaved into MongoDB
 dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
   // Print for debugging 
-  console.log(message.toString());
-  // Connect to the db and insert received data
-  MongoClient.connect(
-    MONGODB_URL,
-    function(err, db) {
-      if(err) { return console.dir(err); }
-      let messageString = message.toString();
-      try {
-        let messageJson = JSON.parse(messageString);
-        let collection = db.collection(MQTT_COLLECTION);
-        let input = {
-          WATCH_ID: messageJson.watch_id,
-          TIMESTAMP: messageJson.timestamp,
-          X_ACCELERATION: messageJson.acc_x,
-          Y_ACCELERATION: messageJson.acc_y,
-          Z_ACCELERATION: messageJson.acc_z
-        };
-        collection.insert(input);
-      } catch (exception) {
-        console.log('Insert exception: ' + exception);
+  console.log("MQTT message: "+message.toString());
+  var decrypted = DECIPHER.decryptText(message.toString());
+ 
+ if(checkFormat(decrypted)){
+      let data = accelrationData(decrypted);
+      accelrationData.save(message.toString(), function(err){
+      if(err){
+        console.log('There was an error inserting ' + data + ' into the database'); 
+      }else{
+        console.log('Data saved to database'); 
       }
-  });
+      console.log(message.toString()+" saved to database");
+    });
+  }else{
+    console.log('The format of the requested json was not correct');
+  }
 });
 
 

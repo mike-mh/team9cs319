@@ -1,24 +1,26 @@
 
-"use strict"
+'use strict'
 //Import database stuff: connection, 
-var required = require('./DB.js');
-const accelrationData = required.model;
+var required = require('./db.js');
+var accelrationData = required.model;
 
 for(var i = 0; i < 10; i++){
 
 	for(var l = 0; l < 100; l++){
-			let x = {watchId: 'watch ' + i, X_ACCELERATION: (Math.random() * 100), Y_ACCELERATION:(Math.random() * 100), 
-			Z_ACCELERATION:(Math.random() * 100), 
+		var json_data = {
+      watch_id: 'watch ' + i, 
+      x_acc: (Math.random() * 100), 
+      y_acc:(Math.random() * 100), 
+			z_acc:(Math.random() * 100), 
 			TIMESTAMP: randomDate(new Date(2012,1,1,0,0,0,0), new Date(2016,1,1,0,0,0,0))}; 
 
-			var data = new accelrationData(x); 
+			var data = new accelrationData(json_data); 
 			data.save(function(){
-				console.log(JSON.stringify(x) + " added to database");
+				console.log(JSON.stringify(json_data) + " added to database");
 				if((i == 10) && (l == 100)){
 					required.disconnect();
 				}
-			});
-			//x = JSON.stringify(x);
+			});			
 	}
 }
 	
