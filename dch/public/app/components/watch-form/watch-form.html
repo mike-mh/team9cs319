@@ -13,8 +13,8 @@
   		<label for="timeSelect">Pick start time:</label>
 
   		<select name="timeSelect" ng-model="selectedWatch.startTime">
-        <option value="March 1 2016, 1:00">March 1 2016, 1:00</option>
-        <option value="March 3 2016, 3:00">March 3 2016, 3:00</option>
+        <option ng-repeat="time in times">
+          {{time}}
   		</select>
   	</div>
 
@@ -22,8 +22,9 @@
       <label for="intervalSelect">Pick a time interval:</label>
 
       <select name="intervalSelect" ng-model="selectedWatch.interval">
-        <option value="5ms">Every 5 m</option>
-        <option value="10ms">Every 10 m</option>
+        <option value="5">Every 5 minutes</option>
+        <option value="10">Every 10 minutes</option>
+        <option value="30">Every 30 minutes</option>
       </select>
     </div>
  

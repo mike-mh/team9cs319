@@ -53,6 +53,7 @@
 
         $scope.watchSelected = false;
         $scope.timeSelected = false;
+        $scope.times = [];
 
         // This will store the user selected information.
     	$scope.selectedWatch =  {
@@ -75,6 +76,9 @@
             } else {
                 console.log("Selected watch:", $scope.selectedWatch.id);
                 $scope.watchSelected = true;
+                $scope.selectedWatch.startTime = '';
+                $scope.selectedWatch.interval = '';
+                populateTimes($scope.watches[0]);
             }
            
         });
@@ -111,6 +115,24 @@
                 console.log("Requesting data.");
                 console.log($scope.selectedWatch);
             }
+            requestWatchData();
+        }
+
+       /**
+        * @desc - This function populates the start times for a 
+        *         selected watch at 5 minute intervals.
+        *         
+        * @param - watch {object} - the selected watch.
+        */
+
+        function populateTimes(watch) {
+            var milliseconds = watch.TIMESTAMP; 
+            for (var i=0; i<288; i++) {
+                var dateFromMilliseconds = new Date(milliseconds);
+                $scope.times[i] = dateFromMilliseconds.toString();
+                milliseconds = milliseconds + 300000;
+            }
+            console.log($scope.times);
         }
 
        /**
@@ -147,6 +169,36 @@
 
         // Request data from the DCH server.
     	requestData();
+
+        /**
+         * @desc - This function parses out the query string and requests 
+         *         the data from the DCH server. The watch id, start time,
+         *         and interval is provided by the user. Stop time is the
+         *         current date.       
+         */
+        function requestWatchData() {
+
+            var watch_id = removeSpaces($scope.selectedWatch.id);   
+
+            var start_time = new Date($scope.selectedWatch.startTime);
+            start_time = start_time.getTime();
+
+            var stop_time = new Date();
+            stop_time = stop_time.getTime();
+
+            var interval = $scope.selectedWatch.interval * 60000;
+
+            console.log(watch_id)
+            var query = '/getData/:'+watch_id+'/:'+start_time+'/:'+ stop_time+'/:'+interval;
+            console.log(query);
+
+        }
+
+        // Helper function to remove the spaces in a string.
+        function removeSpaces(field) {
+            field = field.replace(/\s+/g, '');
+            return field;
+        }
     }
 
 
