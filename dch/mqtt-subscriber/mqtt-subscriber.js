@@ -9,9 +9,9 @@ var accelrationData = database.model;
 var DECIPHER  = require('./encryption.js'); 
 
 // the Airbnb style of "import { express } from 'express';" working.
-let mqtt = require('mqtt');
+//MQTT constant
+var mqtt = require('mqtt');
 
-// MQTT var
 var MQTT_BROKER_URL = 'tcp://localhost:1883';
 var MQTT_MESSAGE_EVENT = 'message';
 var MQTT_CONNECT_EVENT = 'connect';
@@ -24,7 +24,11 @@ var SYS_CHANNEL = '$SYS/broker/clients/total';
 var DCAPP_CLIENT_INIT_MESSAGE = 'Listening for acceleration data';
 var SYS_CLIENT_INIT_MESSAGE = 'Listening for total devices';
 
-
+var WATCH_ID = 'watch_id';
+var TIMESTAMP = 'timestamp';
+var X_ACCELERATION = 'x_acc';
+var Y_ACCELERATION = 'y_acc';
+var Z_ACCELERATION = 'z_acc';
 
 var dcappClient = mqtt.connect(MQTT_BROKER_URL);
 var sysClient = mqtt.connect(MQTT_BROKER_URL);
@@ -38,11 +42,11 @@ var checkFormat = function (stringData){
   try{
       var objectData = Object.keys(JSON.parse(stringData));
       if(objectData.length == 5 && 
-         objectData.indexOf('timestamp') != -1 &&
-         objectData.indexOf('watch_id') != -1 && 
-         objectData.indexOf('acc_z') != -1 &&
-         objectData.indexOf('acc_y') != -1 &&
-         objectData.indexOf('acc_x') != -1){
+         objectData.indexOf(WATCH_ID) != -1 &&
+         objectData.indexOf(TIMESTAMP) != -1 && 
+         objectData.indexOf(X_ACCELERATION) != -1 &&
+         objectData.indexOf(Y_ACCELERATION) != -1 &&
+         objectData.indexOf(Z_ACCELERATION) != -1){
            return true; 
         }
   }catch(e){
@@ -101,3 +105,6 @@ sysClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
 
 // Export sysClient to DCH.js to have access to total conencted devices
 exports.sysClient = sysClient;
+
+// Export dcappClient to use for testing
+exports.dcappClient = dcappClient;

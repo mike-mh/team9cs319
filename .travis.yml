@@ -1,0 +1,44 @@
+# Get all necessarry Android tools
+language: android
+android:
+  components:
+    - platform-tools
+    - tools
+    - build-tools-23.0.2
+    - android-23
+    - extra-google-google_play_services
+    - extra-google-m2repository
+    - extra-android-m2repository
+
+# Install and run Mosquitto MQTT and its required packages
+before_install:
+    - sudo apt-get update -qq
+    - sudo apt-get -y install libc-ares-dev libssl-dev uuid-dev
+    - wget http://mosquitto.org/files/source/mosquitto-1.4.tar.gz
+    - tar xvzf mosquitto-1.4.tar.gz
+    - cd mosquitto-1.4
+    - make
+    - sudo make install
+    - mosquitto -c mosquitto.conf -d
+    - cd ..
+
+# Run MongoDB
+services:
+    - mongodb
+
+# Install all needed npm packages and set chrome browser. Run an instance of
+# DCH to allow for MQTT testing
+before_script:
+    - export CHROME_BIN=chromium-browser
+    - export DISPLAY=:99.0
+    - sh -e /etc/init.d/xvfb start
+    - cd dch
+    - npm install
+    - node dch.js &
+    - cd ..
+
+# Run the tests
+script: 
+  - cd dcapp && gradle build -q
+  - cd ../dch && npm test
+

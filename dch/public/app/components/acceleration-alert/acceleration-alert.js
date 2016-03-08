@@ -8,18 +8,15 @@
    *         directive will display an alert based on the attributes passed
    *         into this directive's attributes.
    *
-   * @example <alert alert-type="" alert-time-start="" alert-time-end=""></alert>
+   * @example <acceleration-alert alert-type="" alert-time-start="" alert-time-end=""></acceleration-alert>
    */
   angular
     .module('dcgui.components')
-    .directive('alert', alert);
+    .directive('accelerationAlert', accelerationAlert);
 
-  function connectedDevices() {
-    // This is the object that is created and sent to the DOM to create
-    // the view the user sees when the <sample-app-table> tag is parsed.
-    // Note the directive uses the 'TableController'
-    let directive = {
-      templateUrl: '/app/components/alert/alert.html',
+  function accelerationAlert() {
+    var directive = {
+      templateUrl: '/app/components/acceleration-alert/accerlation-alert.html',
       restrict: 'E',
     };
 

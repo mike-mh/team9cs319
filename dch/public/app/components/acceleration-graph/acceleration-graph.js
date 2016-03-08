@@ -18,7 +18,7 @@
     .directive('accelerationGraph', accelerationGraph);
 
   function accelerationGraph() {
-    let directive = {
+    var directive = {
       templateUrl: '/app/components/acceleration-graph/acceleration-graph.html',
       controller: DataGraphController,
       controllerAs: 'dataGraphController',
@@ -35,18 +35,18 @@
   function DataGraphController(DataAnalyzerService) {
     var vm = this;
 
-    const Y_AXIS_LABEL = 'Acceleration (m/s^2)';
-    const Y_AXIS_LABEL_POSITION = 'outer-middle';
-    const X_AXIS_TYPE = 'timeseries';
-    const LABEL_POSITION = 'inset'
-    const CONNECTED_DEVICE_QUERY_PATH = '/total_connected_devices';
-    const X_AXIS_COLUMN_INDEX = 0;
-    const X_ACCELERATION_COLUMN_INDEX = 1;
-    const Y_ACCELERATION_COLUMN_INDEX = 2;
-    const Z_ACCELERATION_COLUMN_INDEX = 3;
-    const GRADIENT_COLUMN_INDEX = 4;
+    var Y_AXIS_LABEL = 'Acceleration (m/s^2)';
+    var Y_AXIS_LABEL_POSITION = 'outer-middle';
+    var X_AXIS_TYPE = 'timeseries';
+    var LABEL_POSITION = 'inset'
+    var CONNECTED_DEVICE_QUERY_PATH = '/total_connected_devices';
+    var X_AXIS_COLUMN_INDEX = 0;
+    var X_ACCELERATION_COLUMN_INDEX = 1;
+    var Y_ACCELERATION_COLUMN_INDEX = 2;
+    var Z_ACCELERATION_COLUMN_INDEX = 3;
+    var GRADIENT_COLUMN_INDEX = 4;
 
-    let graphData = {};
+    var graphData = {};
 
     // Use to generate the c3 chart
     var chart;
@@ -86,7 +86,7 @@
      * @return {string} - The translated datetime string.
      */
     function convertMillisecondsToDateString(milliseconds) {
-          let dateFromMilliseconds = new Date(milliseconds);
+          var dateFromMilliseconds = new Date(milliseconds);
           return dateFromMilliseconds.toString();
     }
 
@@ -96,7 +96,7 @@
      */
     function renderDataGraph() {
       // Use test data for now
-      let retrievedData = DataAnalyzerService.getTestData();
+      var retrievedData = DataAnalyzerService.getTestData();
 
       // Populate columns with data
       graphData.data.columns[X_AXIS_COLUMN_INDEX].push.apply(
