@@ -21,7 +21,8 @@ var dataSchema = mongoose.Schema({
   watch_id: String, 
   acc_x: Number, 
   acc_y: Number, 
-  acc_z: Number, 
+  acc_z: Number,
+  gradient: Number, 
   timestamp: Number
 });
 
@@ -37,11 +38,12 @@ module.exports.disconnect = function(){
 module.exports.getData = function(watchID, startTime, stopTime, freq, callback){
   Data.aggregate(
     { $match: { watch_id: watchID, timestamp: { $gt: startTime, $lt: stopTime}}},
-    { $group: { 
-      _id: { $substract: ['$timestamp', { $mod: ['$timestamp', freq]}]},
+    { $group: 
+      { _id: { $substract: ['$timestamp', { $mod: ['$timestamp', freq]}]},
         acc_x: {$avg: '$acc_x'},
         acc_y: {$avg: '$acc_y'},
         acc_z: {$avg: '$acc_z'},
+        gradient: {$avg: '$gradient'}
       }},
     { $project: { acc_z: 1, acc_y: 1, acc_z: 1, timestamp: '$_id'} },
     callback);

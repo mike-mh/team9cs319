@@ -56,6 +56,10 @@ var getDataObject = function (stringData){
   }
 }
 
+var getGradient = function (x, y, z) {
+  return Math.sqrt(x*x + y*y + z*z);
+}
+
 // Signal dcappClient is listening for watch data
 dcappClient.on(MQTT_CONNECT_EVENT, function () {
   dcappClient.subscribe(DCAPP_CHANNEL);
@@ -78,18 +82,18 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
   // Print for debugging 
   console.log("MQTT message: "+message.toString());
   var decrypted = decipher.decryptText(message.toString());
-  var dataObject = getDataObject(decrypted);
-  if (dataObject){
+  var dataObj = getDataObject(decrypted);
+  if (dataObj){
     // TODO should consider bulk insert
     // TODO add gradient field
-    var data = Data(decrypted);
-    Data.save(message.toString(), function(err){
+    dataObj.gradient = getGradient(dataObj.acc_x, dataObj.acc_y, dataObj.acc_z);
+    Data.create(dataObj, function(err, data){
+      // TODO we might want to delete the log or log only in debug mode
       if (err) {
         console.log('There was an error inserting ' + data + ' into the database'); 
       } else {
-        console.log('Data saved to database'); 
+        console.log(data.toString() + ' saved to database'); 
       }
-      console.log(message.toString()+" saved to database");
     });
   }else{
     console.log('The format of the requested json was not correct');
