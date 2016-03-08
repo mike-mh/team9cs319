@@ -65,6 +65,10 @@ public class BroadcastService extends Service {
     private float yAcceleration = 0;
     private float zAcceleration = 0;
 
+    // These variables are used for the gravity low-pass filter
+    private float[] gravity = { 0 , 0 , 0};
+    private final float alpha = (float) 0.8;
+
     // More constants (probably should store in a class)
     private static final String TCP_PREFIX = "tcp://";
 
@@ -89,8 +93,7 @@ public class BroadcastService extends Service {
     private static final int Y_ACCELERATION_INDEX = 1;
     private static final int Z_ACCELERATION_INDEX = 2;
 
-    private float[] gravity = { 0 , 0 , 0};
-    private final float alpha = (float) 0.8;
+    private static final int FASTEST_PUBLICATION_RATE = 200;
 
     private ScheduledFuture publicationHandle;
     private final Runnable publishData = new Runnable() {
@@ -210,11 +213,11 @@ public class BroadcastService extends Service {
                 SensorManager.SENSOR_DELAY_NORMAL);
 
         // Create new thread to boradcast data
-        delayValue = (delayValue == 0) ?
-                delayValue = 1:
-                delayValue;
-
-        publicationHandle = publicationScheduler.scheduleAtFixedRate(publishData, delayValue * 200, delayValue * 200, MILLISECONDS);
+        publicationHandle = publicationScheduler.scheduleAtFixedRate(
+                                publishData,
+                                FASTEST_PUBLICATION_RATE + delayValue * FASTEST_PUBLICATION_RATE,
+                                FASTEST_PUBLICATION_RATE + delayValue * FASTEST_PUBLICATION_RATE,
+                                MILLISECONDS);
 
         return START_STICKY;
     }
@@ -226,6 +229,9 @@ public class BroadcastService extends Service {
      *         should be disabled and the accelerationListener unregistered.
      */
     public void onDestroy() {
+        if (client != null) {
+            client.unregisterResources();
+        }
         broadcastServiceIsRunning = false;
 
         publicationHandle.cancel(true);
