@@ -41,18 +41,17 @@ var checkFormat = function (stringData){
   console.log('Checking format of JSON data');
   try{
     var objectData = Object.keys(JSON.parse(stringData));
-    if (objectData.length == 5 && 
+    return (
+      objectData.length == 5 && 
       objectData.indexOf(WATCH_ID) != -1 &&
       objectData.indexOf(TIMESTAMP) != -1 && 
       objectData.indexOf(X_ACCELERATION) != -1 &&
       objectData.indexOf(Y_ACCELERATION) != -1 &&
-      objectData.indexOf(Z_ACCELERATION) != -1) {
-      return true; 
-    }
+      objectData.indexOf(Z_ACCELERATION) != -1
+    );
   }catch(e){
     return false;
   }
-  return false;
 }
 
 // Signal dcappClient is listening for watch data
