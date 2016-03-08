@@ -3,23 +3,24 @@
 var database = require('./db.js');
 var mqttSubscriber = require('./mqtt-subscriber/mqtt-subscriber.js');
 
-const express = require('express');
-const app = express();
-const router = express.Router();
+var express = require('express');
+var app = express();
+var router = express.Router();
 
-const APP_PORT = 3000; 
+var APP_PORT = 3000; 
 
 
 //basic paths 
-const NO_PATH = '/';
-const API_BASE_PATH = '/api';
-const PUBLIC_DIR = 'public';
+var NO_PATH = '/';
+var API_BASE_PATH = '/api';
+var PUBLIC_DIR = 'public';
 //API paths
-const DELETE_DATA_PATH = '/deleteData/:watchId';
-const GET_WATCH_ID = '/getWatchID/:watchID'
-const TOTAL_CONNECTED_DEVICES = '/total_connected_devices';
-const GET_DATA_PATH = '/getData/:watchId/:StartTime/:stopTime/:frequency';
+var DELETE_DATA_PATH = '/deleteData/:watchId';
+var GET_WATCH_ID = '/getWatchID/:watchID'
+var TOTAL_CONNECTED_DEVICES = '/total_connected_devices';
+var GET_DATA_PATH = '/getData/:watchId/:StartTime/:stopTime/:frequency';
 
+var TOTAL_NODEJS_MQTT_CLIENTS = 2;
 //make the home directory to be public
 app.use(express.static(PUBLIC_DIR));
 
@@ -31,7 +32,7 @@ router.use(function(req, res, next) {
 
 router.delete(DELETE_DATA_PATH, function(req, res) {
 	//putd data for deleting data for a watch id
-  req.json({watchID: req.params.watchId});
+  res.json({watchID: req.params.watchId});
 });
 
 router.get(GET_DATA_PATH, function(req, res){
@@ -49,8 +50,8 @@ router.get(GET_WATCH_ID, function(req, res){
 });
 
 router.get(TOTAL_CONNECTED_DEVICES, function(req, res){
-  console.log('Total watch clients: ' + systemListener.totalClients);
-  var totalClients = parseInt(systemListener.totalClients);
+  console.log('Total watch clients: ' + mqttSubscriber.sysClient.totalClients);
+  var totalClients = parseInt(mqttSubscriber.sysClient.totalClients);
   var totalWatches = totalClients - TOTAL_NODEJS_MQTT_CLIENTS;
   return res.end(totalWatches.toString());
 });
