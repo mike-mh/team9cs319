@@ -34,21 +34,28 @@ module.exports.disconnect = function(){
   MONGOOSE.disconnect();
 };
 
-module.exports.getData = function(watchID, startTime, stopTime, freq){
-  //TODO: return string for gettingd data throw an error if there is a problem
-  var returnData = JSON.stringify({'watchId': ['watchi1', 'watch id 2', 'watch id 3']}); 
-  console.log("DB.js: " + returnData);
-  console.log("WatchID: "+watchID + "; StartTime "+ startTime + " StopTime" + stopTime + " Freq:"+ freq);
-  return returnData
+// callback takes in err, result as params
+module.exports.getData = function(watchID, startTime, stopTime, freq, callback){
+  Data.aggregate(
+  { $match: { watch_id: watchID, timestamp: { $gt: startTime, $lt: stopTime}}},
+  { $group: { 
+    _id: { $substract: ['$timestamp', { $mod: ['$timestamp', freq]}]},
+      acc_x: {$avg: '$acc_x'},
+      acc_y: {$avg: '$acc_y'},
+      acc_z: {$avg: '$acc_z'},
+    }},
+  { $project: { acc_z: 1, acc_y: 1, acc_z: 1, timestamp: '$_id'} },
+  callback);
 };
 
-module.exports.deleteData = function(watchId){
-  //TODO: throw an error if there is a problem deleting data otherwise return 1
+// The callback takes in an error parameter
+module.exports.deleteData = function(watchId, callback){
+  Data.remove({watch_id: watch_id}, callback);
 };
 
-module.exports.getWatchData = function(watchId){
-  //TODO: return json formated string with data otherwise throw an error
-  return "{watch_id: }"
+// callback takes in err, result as params
+module.exports.getWatchData = function(callback){
+  Data.aggregate({ $group: { _id: '$watch_id', start: {$min: '$timestamp'}}}, callback);
 };
 
 

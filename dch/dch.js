@@ -16,7 +16,7 @@ var API_BASE_PATH = '/api';
 var PUBLIC_DIR = 'public';
 //API paths
 var DELETE_DATA_PATH = '/deleteData/:watchId';
-var GET_WATCH_ID = '/getWatchID/:watchID'
+var GET_WATCH_ID = '/getWatchID'
 var TOTAL_CONNECTED_DEVICES = '/total_connected_devices';
 var GET_DATA_PATH = '/getData/:watchId/:StartTime/:stopTime/:frequency';
 
@@ -32,21 +32,36 @@ router.use(function(req, res, next) {
 
 router.delete(DELETE_DATA_PATH, function(req, res) {
   //putd data for deleting data for a watch id
-  res.json({watchID: req.params.watchId});
+  database.deleteData(req.params.watchId, function(err){
+    if (err) {
+      res.json({success: false});
+    } else {
+      res.json({success: true});
+    }
+  });
 });
 
 router.get(GET_DATA_PATH, function(req, res){
-  try{
-    var data = database.getData(req.params.watchId, req.params.StartTime, req.params.stopTime, req.params.frequency);
-    res.json(data);
-  }catch(e){
-    console.log('There was an error getting data from database: ' + e);
-  }
+  database.getData(req.params.watchId, req.params.StartTime, 
+    req.params.stopTime, req.params.frequency, function(err, result) {
+      if (err) {
+        //TODO: what should be the response in case of error
+        res.json({success: false});
+      } else {
+        res.json(result);
+      }
+    });
 });
 
 router.get(GET_WATCH_ID, function(req, res){
-  console.log('At get watch id');
-  //database.getData(watch_id, startTime, stopTime, freq);
+  database.getWatchData(function(err, result) {
+    if (err) {
+      //TODO: what should be the response in case of error
+      res.json({success: false});
+    } else {
+      res.json(result);
+    }
+  });
 });
 
 router.get(TOTAL_CONNECTED_DEVICES, function(req, res){
