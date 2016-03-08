@@ -14,6 +14,12 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.concurrent.*;
+import java.util.concurrent.TimeUnit;
+import android.util.Log;
+import java.util.concurrent.ScheduledExecutorService;
+
+
 /**
  * @desc - This is the work horse for acceleration data broadcasting. When
  *         this service is run,it will attempt to connect to an MQTT broker at
@@ -39,7 +45,7 @@ public class BroadcastService extends Service {
     public static String connectionStatus = "Disconnected";
 
     /* Use this to show the publish rate */
-    public static long publishRateMilliSec = 0;
+    public static long publishRateMilliSec = 5000;
 
 
     // Use this to enable delays
@@ -54,6 +60,7 @@ public class BroadcastService extends Service {
     SensorEventListener accelerationListener;
 
     // More constants (probably should store in a class)
+    private JSONObject accelerationJson;
     private static final String TCP_PREFIX = "tcp://";
 
     private static final String DEVICE_ID_INTENT_EXTRA = "AndroidId";
@@ -126,8 +133,69 @@ public class BroadcastService extends Service {
                 accelerometer,
                 SensorManager.SENSOR_DELAY_NORMAL);
 
+        //Scheduled to publish data at a fixed rate even when no change are made to data (device not moving)
+        ScheduledExecutorService scheduler =
+                Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(new Runnable() {
+
+            public void run() {
+                Log.i("publishMQTT", "publish!");
+                publishMQTT();
+            }
+        }, 5000, publishRateMilliSec, TimeUnit.MILLISECONDS);
+
+
         return START_STICKY;
     }
+
+
+    public void publishMQTT(){
+        if (client.isConnected()) {
+            String data = "";
+
+            // Calculate the rate between publish events
+            long currentTimeMilliseconds = System.currentTimeMillis();
+            publishRateMilliSec = currentTimeMilliseconds - lastTimeCheck;
+            lastTimeCheck = currentTimeMilliseconds;
+
+            try {
+                accelerationJson.put(TIMESTAMP_JSON_INDEX,
+                        currentTimeMilliseconds);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            try {
+
+                // Convert JSON to string and publish
+                data = accelerationJson.toString();
+                MQTTPublishHandler callback = new MQTTPublishHandler();
+
+                client.publish(MQTT_ACCELERATION_CHANNEL,
+                        data.getBytes(),
+                        0,
+                        false,
+                        null,
+                        callback);
+
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+
+                MQTTConnectionHandler callback =
+                        new MQTTConnectionHandler();
+
+                client.connect(null, callback);
+
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
 
     @Override
     /**
@@ -170,15 +238,11 @@ public class BroadcastService extends Service {
 
                 // If client is connected, publish data. Otherwise, attempt
                 // to connect client.
-                if (client.isConnected()) {
                     String data = "";
 
                     // Calculate the rate between publish events
-                    long currentTimeMilliseconds = System.currentTimeMillis();
-                    publishRateMilliSec = currentTimeMilliseconds - lastTimeCheck;
-                    lastTimeCheck = currentTimeMilliseconds;
 
-                    JSONObject accelerationJson = new JSONObject();
+                    accelerationJson = new JSONObject();
 
                     try {
                         accelerationJson.put(WATCH_ID_JSON_INDEX, androidId);
@@ -192,40 +256,11 @@ public class BroadcastService extends Service {
                         accelerationJson.put(ACC_Z_JSON_INDEX,
                                 event.values[Z_ACCELERATION_INDEX]);
 
-                        accelerationJson.put(TIMESTAMP_JSON_INDEX,
-                                currentTimeMilliseconds);
 
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    try {
 
-                        // Convert JSON to string and publish
-                        data = accelerationJson.toString();
-                        MQTTPublishHandler callback = new MQTTPublishHandler();
-
-                        client.publish(MQTT_ACCELERATION_CHANNEL,
-                                data.getBytes(),
-                                0,
-                                false,
-                                null,
-                                callback);
-
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    try {
-
-                        MQTTConnectionHandler callback =
-                                new MQTTConnectionHandler();
-
-                        client.connect(null, callback);
-
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
-                }
             }
         }
 
