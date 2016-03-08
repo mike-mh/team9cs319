@@ -1,5 +1,6 @@
 var MONGOOSE = require('mongoose'); //include mongose moduel 
 var SCHEMA = MONGOOSE.Schema;
+// TODO: set up a path for the test db
 var MONGODB_URL = 'mongodb://localhost:27017/accelration_user_data';
 
 MONGOOSE.connect(MONGODB_URL); 

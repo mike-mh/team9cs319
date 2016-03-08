@@ -31,7 +31,7 @@ describe('The DCH API', function() {
     });
 
     it('this is a demonstration', function(done) {
-      request(DCH_URL).get('/total_connected_devices')
+      request(DCH_URL).get('/api/total_connected_devices')
         .send()
         // end handles the response
         .end(function(err, res) {

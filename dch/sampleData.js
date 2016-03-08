@@ -26,9 +26,9 @@ for(var i = 0; i < 10; i++){
 
 
 function randomDate(start, end) {
- var date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-     //console.log(date);
-     return date.getTime();
-   }
+  var date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+  //console.log(date);
+  return date.getTime();
+}
 
 
