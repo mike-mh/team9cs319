@@ -31,17 +31,17 @@ router.use(function(req, res, next) {
 });
 
 router.delete(DELETE_DATA_PATH, function(req, res) {
-	//putd data for deleting data for a watch id
+  //putd data for deleting data for a watch id
   res.json({watchID: req.params.watchId});
 });
 
 router.get(GET_DATA_PATH, function(req, res){
   try{
     var data = database.getData(req.params.watchId, req.params.StartTime, req.params.stopTime, req.params.frequency);
-	  res.json(data);
-	}catch(e){
-	  console.log('There was an error getting data from database: ' + e);
-	}
+    res.json(data);
+  }catch(e){
+    console.log('There was an error getting data from database: ' + e);
+  }
 });
 
 router.get(GET_WATCH_ID, function(req, res){
@@ -59,8 +59,8 @@ router.get(TOTAL_CONNECTED_DEVICES, function(req, res){
 
 app.use(API_BASE_PATH, router);
 app.use('*', function(req, res){
-	res.sendStatus(404);
+  res.sendStatus(404);
 });
 app.listen(APP_PORT, function(){
-	console.log("The app is now listeing on port 3000");
+  console.log("The app is now listeing on port 3000");
 });
