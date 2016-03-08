@@ -26,6 +26,7 @@ const TIMESTAMP = 'timestamp';
 const X_ACCELERATION = 'x_acc';
 const Y_ACCELERATION = 'y_acc';
 const Z_ACCELERATION = 'z_acc';
+const GRADIENT
 
 let dcappClient = mqtt.connect(MQTT_BROKER_URL);
 let sysClient = mqtt.connect(MQTT_BROKER_URL);
@@ -65,6 +66,10 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
       try {
         let messageJson = JSON.parse(messageString);
         let collection = db.collection(MQTT_COLLECTION);
+        // TODO (Brenda):  
+        // 1. add gradient on insert later
+        // 2. have a table to record start time for device 
+        // Both are for performance purposes
         let input = {
           WATCH_ID: messageJson.watch_id,
           TIMESTAMP: messageJson.timestamp,

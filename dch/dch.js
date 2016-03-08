@@ -18,7 +18,7 @@ const PUBLIC_DIR = 'public';
 const DELETE_DATA_PATH = '/deleteData/:watchId';
 const GET_WATCH_ID = '/getWatchID'
 const TOTAL_CONNECTED_DEVICES = '/total_connected_devices';
-const GET_DATA_PATH = '/get/:watchiId/:StartTime/:stopTime/:frequence';
+const GET_DATA_PATH = '/get/:watchiId/:startTime/:stopTime/:frequence';
 
 //make the home directory to be public
 app.use(express.static(PUBLIC_DIR));
@@ -32,15 +32,17 @@ router.use(function(req, res, next) {
 
 router.delete(DELETE_DATA_PATH, function(req, res) {
 	//putd data for deleting data for a watch id
-    	req.json({watchID: req.params.watchId});
+    res.json({success: true});
 });
 
 router.get(GET_DATA_PATH, function(req, res){
 	try{
-		var data = database.getData(req.params.watchId, req.params.StartTime, req.params.stopTime,req.params.frequence );
+		var data = database.getData(req.params.watchId, req.params.startTime, 
+			req.params.stopTime, req.params.frequence);
 		res.json(data);
-	}catch(e){
+	} catch(e) {
 		console.log('There was an error getting data from database: ' + e);
+		// Brenda: maybe we should return something to let the client know
 	}
 });
 

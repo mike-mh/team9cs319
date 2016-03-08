@@ -18,6 +18,11 @@ mongoose.connection.on('disconnect', function(err) {
 	console.log('The database has been disconnected');
 });
 
+// TODO (Brenda):  
+// 1. add gradient on insert later
+// 2. have a table to record start time for device 
+// Both are for performance purposes
+
 const accelrationDataSchema = new Schema({
 	watch_id: String, 
 	acc_x: Number, 
@@ -26,29 +31,37 @@ const accelrationDataSchema = new Schema({
 	timestamp: Number
 	});
 
-module.exports.disconnect = function(){
-		mongoose.disconnect();
-};
-
-module.exports.getData = function(watch_id, startTime, stopTime, freq){
-//TODO: return string for gettingd data throw an error if there is a problem
-	var returnData = JSON.stringify("{watchId: ['watchi1', 'watch id 2', 'watch id 3']}"); 
-	console.log("DB.js: " + returnData);
-	return returnData
-};
-
-module.exports.deleteData = function(watch_id){
-	//TODO: throw an error if there is a problem deleting data otherwise return 1
-};
-
-module.exports.getWatchData = function(watch_id){
-	//TODO: return json formated string with data otherwise throw an error
-	return "{watch_id: }"
-};
-
 //create a model for the accelration data
-var accelrationData = mongoose.model('AccelrationData', accelrationDataSchema);
+var Data = mongoose.model('mqtt-data', accelrationDataSchema);
 module.exports.model = accelrationData;
+
+module.exports.disconnect = function(){
+	mongoose.disconnect();
+};
+
+module.exports.getData = function(watch_id, startTime, stopTime, freq, callback){
+	Data.aggregate(
+		{ $match: { watch_id: watch_id, timestamp: { $gt: startTime, $lt: stopTime}}},
+		{ $group: { 
+			_id: { $substract: ['$timestamp', { $mod: ['$timestamp', freq]}]},
+		    acc_x: {$avg: '$acc_x'},
+		    acc_y: {$avg: '$acc_y'},
+		    acc_z: {$avg: '$acc_z'},
+			}},
+		{ $project: { acc_z: 1, acc_y: 1, acc_z: 1, timestamp: '$_id'} },
+		callback);
+};
+
+// The callback takes in a parameter that indicates error
+module.exports.deleteData = function(watch_id, callback){
+	Data.remove({watch_id: watch_id}, callback);
+};
+
+module.exports.getWatchData = function(watch_id, callback){
+	Data.aggregate(
+		{ $group: { _id: '$watch_id', start: {$min: '$timestamp'}}},
+		callback);
+};
 
 
 
