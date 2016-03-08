@@ -4,7 +4,7 @@
 
 //Database variables
 var database = require('../db.js');
-var accelrationData = database.model;
+var Data = database.model;
 
 var DECIPHER  = require('./encryption.js'); 
 
@@ -79,8 +79,9 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
   var decrypted = DECIPHER.decryptText(message.toString());
 
   if(checkFormat(decrypted)){
-    var data = accelrationData(decrypted);
-    accelrationData.save(message.toString(), function(err){
+    // TODO add gradient field
+    var data = Data(decrypted);
+    Data.save(message.toString(), function(err){
       if(err){
         console.log('There was an error inserting ' + data + ' into the database'); 
       }else{

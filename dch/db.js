@@ -1,7 +1,7 @@
 var MONGOOSE = require('mongoose'); //include mongose moduel 
 var SCHEMA = MONGOOSE.Schema;
 // TODO: set up a path for the test db
-var MONGODB_URL = 'mongodb://localhost:27017/accelration_user_data';
+var MONGODB_URL = 'mongodb://localhost:27017/acc_data';
 
 MONGOOSE.connect(MONGODB_URL); 
 //Sucessfully connected to the databse
@@ -18,13 +18,17 @@ MONGOOSE.connection.on('disconnect', function(err) {
   console.log('The database has been disconnected');
 });
 
-var accelrationDataSCHEMA = new SCHEMA({
+var dataSchema = new SCHEMA({
   watch_id: String, 
   acc_x: Number, 
   acc_y: Number, 
   acc_z: Number, 
   timestamp: Number
 });
+
+//create a model for the accelration data
+var Data = MONGOOSE.model('Data', dataSchema);
+module.exports.model = Data;
 
 module.exports.disconnect = function(){
   MONGOOSE.disconnect();
@@ -46,10 +50,6 @@ module.exports.getWatchData = function(watchId){
   //TODO: return json formated string with data otherwise throw an error
   return "{watch_id: }"
 };
-
-//create a model for the accelration data
-var accelrationData = MONGOOSE.model('AccelrationData', accelrationDataSCHEMA);
-module.exports.model = accelrationData;
 
 
 
