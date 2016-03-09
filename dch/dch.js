@@ -59,19 +59,19 @@ router.delete(DELETE_DATA_PATH, function(req, res) {
 });
 
 router.get(GET_DATA_PATH, function(req, res){
-  db.getData(req.params.watchId, req.params.startTime,
-    req.params.stopTime, req.params.frequency,
+  db.getData(req.params.watchId, parseInt(req.params.startTime),
+    parseInt(req.params.stopTime), parseInt(req.params.frequency),
     standardCallback(res));
 });
 
 router.get(GET_IDLE_ALERT_PATH, function(req, res){
-  db.getIdleAlert(req.params.watchId, req.params.startTime,
-    req.params.stopTime, standardCallback(res));
+  db.getIdleAlert(req.params.watchId, parseInt(req.params.startTime),
+    parseInt(req.params.stopTime), standardCallback(res));
 });
 
 router.get(GET_SPIKE_ALERT_PATH, function(req, res){
-  db.getSpikeAlert(req.params.watchId, req.params.startTime,
-    req.params.stopTime, standardCallback(res));
+  db.getSpikeAlert(req.params.watchId, parseInt(req.params.startTime),
+    parseInt(req.params.stopTime), standardCallback(res));
 });
 
 router.get(GET_WATCH_IDS, function(req, res){
