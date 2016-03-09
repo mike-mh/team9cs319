@@ -76,8 +76,11 @@ exports.getIdleAlert = function(watchID, startTime, stopTime, callback) {
     }
   }, {
     $project: {
+      _id: 0,
       time: '$_id'
     }
+  }, {
+    $limit: 20
   }, callback);
 };
 
@@ -92,7 +95,7 @@ exports.getSpikeAlert = function(watchID, startTime, stopTime, callback) {
     gradient: {
       $gt: SPIKE_ACC_THRESHOLD
     }
-  }, callback);
+  }).select({_id: 0}).limit(20).exec(callback);
 };
 
 // callback takes in err, result as params
@@ -113,6 +116,8 @@ exports.getData = function(watchID, startTime, stopTime, freq, callback) {
       acc_z: {$avg: '$acc_z'},
       gradient: {$avg: '$gradient'}
     }
+  }, {
+    $limit: 300,
   }, callback);
 };
 
@@ -134,5 +139,5 @@ exports.getWatchData = function(callback){
 
 // callback takes in err, result as params
 exports.getRecent = function(callback){
-  Data.find().sort({timestamp: -1}).limit(100).exec(callback);
+  Data.find().sort({timestamp: -1}).select({_id: 0}).limit(100).exec(callback);
 };
