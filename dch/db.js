@@ -115,7 +115,7 @@ exports.getData = function(watchID, startTime, stopTime, freq, callback) {
     }
   }, {
     $project: {
-      acc_z: 1,
+      acc_x: 1,
       acc_y: 1,
       acc_z: 1,
       timestamp: '$_id'
