@@ -14,6 +14,10 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+
 /**
  * @desc - This is the work horse for acceleration data broadcasting. When
  *         this service is run,it will attempt to connect to an MQTT broker at
@@ -52,6 +56,7 @@ public class BroadcastService extends Service {
     private Sensor accelerometer;
     private String hostIp;
     SensorEventListener accelerationListener;
+    private Encryptor encryptor = new Encryptor();
 
     // More constants (probably should store in a class)
     private static final String TCP_PREFIX = "tcp://";
@@ -211,6 +216,15 @@ public class BroadcastService extends Service {
                         // Convert JSON to string and publish
                         data = accelerationJson.toString();
                         MQTTPublishHandler callback = new MQTTPublishHandler();
+                        try {
+                            data = encryptor.encryptData(data);
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        } catch (InvalidAlgorithmParameterException e) {
+                            e.printStackTrace();
+                        } catch (InvalidKeyException e) {
+                            e.printStackTrace();
+                        }
 
                         client.publish(MQTT_ACCELERATION_CHANNEL,
                                 data.getBytes(),
