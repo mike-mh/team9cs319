@@ -26,9 +26,9 @@ var SYS_CLIENT_INIT_MESSAGE = 'Listening for total devices';
 
 var WATCH_ID = 'watch_id';
 var TIMESTAMP = 'timestamp';
-var X_ACCELERATION = 'x_acc';
-var Y_ACCELERATION = 'y_acc';
-var Z_ACCELERATION = 'z_acc';
+var X_ACCELERATION = 'acc_x';
+var Y_ACCELERATION = 'acc_y';
+var Z_ACCELERATION = 'acc_z';
 
 var dcappClient = mqtt.connect(MQTT_BROKER_URL);
 var sysClient = mqtt.connect(MQTT_BROKER_URL);

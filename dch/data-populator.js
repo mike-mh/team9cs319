@@ -15,7 +15,7 @@ function logErr(err) {
 }
 
 function populate() {
-  for (var i = 0; i < 3; i++) {
+  for (var i = 0; i < 6; i++) {
     var arr = sample.genAllRandom('allRand'+i,
       1457500000000, 1457600000000, Math.pow(2, i), 500);
     db.bulkInsert(arr, logErr);
@@ -35,6 +35,7 @@ function populate() {
 // node data-populator.js
 // node data-populator.js genIncreasing a 1457500000000 1457600000000 20000 99
 // see sample-data.js for details on calling
+// TODO: figure out how to terminate
 if (args[0]) {
   db.bulkInsert(
     sample[args[0]](args[1],

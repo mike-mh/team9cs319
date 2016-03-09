@@ -4,7 +4,7 @@ var mongoose = require('mongoose'); //include mongose module
 // TODO: set up a path for the test db
 var MONGODB_URL = 'mongodb://localhost:27017/mqtt-data';
 var IDLE_TIME_THRESHOLD = 300000;
-var IDLE_ACC_THRESHOLD = 1;
+var IDLE_ACC_THRESHOLD = 2;
 var SPIKE_ACC_THRESHOLD = 20;
 
 mongoose.connect(MONGODB_URL);
@@ -67,7 +67,7 @@ exports.getIdleAlert = function(watchID, startTime, stopTime, callback) {
     }
   }, {
     $group: {
-      _id: {$substract: ['$timestamp', { $mod: ['$timestamp', IDLE_TIME_THRESHOLD]}]},
+      _id: {$subtract: ['$timestamp', { $mod: ['$timestamp', IDLE_TIME_THRESHOLD]}]},
       high: {$max: '$gradient'},
     }
   }, {
@@ -107,18 +107,11 @@ exports.getData = function(watchID, startTime, stopTime, freq, callback) {
     }
   }, {
     $group: {
-      _id: {$substract: ['$timestamp', { $mod: ['$timestamp', freq]}]},
+      _id: {$subtract: ['$timestamp', { $mod: ['$timestamp', freq]}]},
       acc_x: {$avg: '$acc_x'},
       acc_y: {$avg: '$acc_y'},
       acc_z: {$avg: '$acc_z'},
       gradient: {$avg: '$gradient'}
-    }
-  }, {
-    $project: {
-      acc_x: 1,
-      acc_y: 1,
-      acc_z: 1,
-      timestamp: '$_id'
     }
   }, callback);
 };
@@ -141,5 +134,5 @@ exports.getWatchData = function(callback){
 
 // callback takes in err, result as params
 exports.getRecent = function(callback){
-  Data.find().sort({timestamp: -1}).limit(300).exec(callback);
+  Data.find().sort({timestamp: -1}).limit(100).exec(callback);
 };

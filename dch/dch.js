@@ -25,12 +25,24 @@ var GET_RECENT = '/get-recent';
 
 
 var TOTAL_NODEJS_MQTT_CLIENTS = 2;
+
+function standardCallback(res) {
+  return function(err, result) {
+    if (err) {
+      //TODO: what should be the response in case of error
+      res.json({success: false});
+      console.log(err);
+    } else {
+      res.json(result);
+    }
+  };
+}
+
 //make the home directory to be public
 app.use(express.static(PUBLIC_DIR));
 
 //Decrypt the data here
 router.use(function(req, res, next) {
-  console.log('The data we get '+ res);
   next(); // make sure we go to the next routes and don't stop here
 });
 
@@ -39,6 +51,7 @@ router.delete(DELETE_DATA_PATH, function(req, res) {
   db.deleteData(req.params.watchId, function(err){
     if (err) {
       res.json({success: false});
+      console.log(err);
     } else {
       res.json({success: true});
     }
@@ -47,60 +60,26 @@ router.delete(DELETE_DATA_PATH, function(req, res) {
 
 router.get(GET_DATA_PATH, function(req, res){
   db.getData(req.params.watchId, req.params.startTime,
-    req.params.stopTime, req.params.frequency, function(err, result) {
-      if (err) {
-        //TODO: what should be the response in case of error
-        res.json({success: false});
-      } else {
-        res.json(result);
-      }
-    });
+    req.params.stopTime, req.params.frequency,
+    standardCallback(res));
 });
 
 router.get(GET_IDLE_ALERT_PATH, function(req, res){
   db.getIdleAlert(req.params.watchId, req.params.startTime,
-    req.params.stopTime, function(err, result) {
-      if (err) {
-        //TODO: what should be the response in case of error
-        res.json({success: false});
-      } else {
-        res.json(result);
-      }
-    });
+    req.params.stopTime, standardCallback(res));
 });
 
 router.get(GET_SPIKE_ALERT_PATH, function(req, res){
   db.getSpikeAlert(req.params.watchId, req.params.startTime,
-    req.params.stopTime, function(err, result) {
-      if (err) {
-        //TODO: what should be the response in case of error
-        res.json({success: false});
-      } else {
-        res.json(result);
-      }
-    });
+    req.params.stopTime, standardCallback(res));
 });
 
 router.get(GET_WATCH_IDS, function(req, res){
-  db.getWatchData(function(err, result) {
-    if (err) {
-      //TODO: what should be the response in case of error
-      res.json({success: false});
-    } else {
-      res.json(result);
-    }
-  });
+  db.getWatchData(standardCallback(res));
 });
 
 router.get(GET_RECENT, function(req, res){
-  db.getRecent(function(err, result) {
-    if (err) {
-      //TODO: what should be the response in case of error
-      res.json({success: false});
-    } else {
-      res.json(result);
-    }
-  });
+  db.getRecent(standardCallback(res));
 });
 
 router.get(TOTAL_CONNECTED_DEVICES, function(req, res){

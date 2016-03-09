@@ -21,9 +21,9 @@ function getRandomAccData(multiplier) {
   var z = Math.random() * multiplier;
   var gradient = getGradient(x, y, z);
   return {
-    x_acc: x,
-    y_acc: y,
-    z_acc: z,
+    acc_x: x,
+    acc_y: y,
+    acc_z: z,
     gradient: gradient
   };
 }
@@ -60,13 +60,13 @@ function genAllRandom(watchId, startTime, endTime, multiplier, count) {
 function genIncreasing(watchId, startTime, endTime, interval, rate) {
   var dataArr = [];
   var i = 0;
-  rate = rate * 0.001 || 0.1;
+  rate = rate * 0.001;
   for (var ts = startTime; ts < endTime; ts+=interval) {
     var data = {
       watch_id: watchId,
-      x_acc: i,
-      y_acc: i,
-      z_acc: i,
+      acc_x: i,
+      acc_y: i,
+      acc_z: i,
       gradient: getGradient(i,i,i),
       timestamp: ts
     }
