@@ -138,3 +138,8 @@ exports.getWatchData = function(callback){
     }
   }, callback);
 };
+
+// callback takes in err, result as params
+exports.getRecent = function(callback){
+  Data.find().sort({timestamp: -1}).limit(300).exec(callback);
+};

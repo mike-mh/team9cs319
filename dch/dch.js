@@ -19,8 +19,10 @@ var DELETE_DATA_PATH = '/delete-data/:watchId';
 var GET_WATCH_IDS = '/get-watch-ids'
 var TOTAL_CONNECTED_DEVICES = '/total-connected-devices';
 var GET_DATA_PATH = '/get-data/:watchId/:startTime/:stopTime/:frequency';
-var GET_IDLE_ALERT_PATH = '/idle-alert/:watchId/:startTime/:stopTime';
-var GET_SPIKE_ALERT_PATH = '/spike-alert/:watchId/:startTime/:stopTime';
+var GET_IDLE_ALERT_PATH = '/get-idle-alert/:watchId/:startTime/:stopTime';
+var GET_SPIKE_ALERT_PATH = '/get-spike-alert/:watchId/:startTime/:stopTime';
+var GET_RECENT = '/get-recent';
+
 
 var TOTAL_NODEJS_MQTT_CLIENTS = 2;
 //make the home directory to be public
@@ -81,6 +83,17 @@ router.get(GET_SPIKE_ALERT_PATH, function(req, res){
 
 router.get(GET_WATCH_IDS, function(req, res){
   db.getWatchData(function(err, result) {
+    if (err) {
+      //TODO: what should be the response in case of error
+      res.json({success: false});
+    } else {
+      res.json(result);
+    }
+  });
+});
+
+router.get(GET_RECENT, function(req, res){
+  db.getRecent(function(err, result) {
     if (err) {
       //TODO: what should be the response in case of error
       res.json({success: false});
