@@ -6,7 +6,7 @@
 var database = require('../db.js');
 var Data = database.model;
 
-var decipher  = require('./encryption.js'); 
+var decipher  = require('./encryption.js');
 
 // the Airbnb style of "import { express } from 'express';" working.
 //MQTT constant
@@ -43,9 +43,9 @@ var getDataObject = function (stringData){
     var messageJson = JSON.parse(stringData);
     var objectData = Object.keys(messageJson);
     if (
-      objectData.length == 5 && 
+      objectData.length == 5 &&
       objectData.indexOf(WATCH_ID) != -1 &&
-      objectData.indexOf(TIMESTAMP) != -1 && 
+      objectData.indexOf(TIMESTAMP) != -1 &&
       objectData.indexOf(X_ACCELERATION) != -1 &&
       objectData.indexOf(Y_ACCELERATION) != -1 &&
       objectData.indexOf(Z_ACCELERATION) != -1) {
@@ -56,6 +56,9 @@ var getDataObject = function (stringData){
   }
 }
 
+// TODO: this is duplicated in mqtt-subscriber maybe put this into db.js
+// to avoid duplication
+// get the magnitude of the vector <x,y,z>
 var getGradient = function (x, y, z) {
   return Math.sqrt(x*x + y*y + z*z);
 }
@@ -70,7 +73,7 @@ dcappClient.on(MQTT_CONNECT_EVENT, function () {
 // Signal sysClient is listening for MQTT totals
 sysClient.on(MQTT_CONNECT_EVENT, function () {
   sysClient.subscribe(SYS_CHANNEL);
-  
+
   // Lazy code. Decided to post message through DCAPP channel
   sysClient.publish(DCAPP_CHANNEL, SYS_CLIENT_INIT_MESSAGE);
 
@@ -79,7 +82,7 @@ sysClient.on(MQTT_CONNECT_EVENT, function () {
 
 // Acceleration data is received here and is plaved into MongoDB
 dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
-  // Print for debugging 
+  // Print for debugging
   console.log("MQTT message: "+message.toString());
   var decrypted = decipher.decryptText(message.toString());
   var dataObj = getDataObject(decrypted);
@@ -90,9 +93,9 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
     Data.create(dataObj, function(err, data){
       // TODO we might want to delete the log or log only in debug mode
       if (err) {
-        console.log('There was an error inserting ' + data + ' into the database'); 
+        console.log('There was an error inserting ' + data + ' into the database');
       } else {
-        console.log(data.toString() + ' saved to database'); 
+        console.log(data.toString() + ' saved to database');
       }
     });
   }else{
@@ -103,7 +106,7 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
 
 // Update sysClient.totalClients when connected device total changes
 sysClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
-  // message is Buffer 
+  // message is Buffer
   sysClient.totalClients = message.toString();
   // (use for debugging)
   console.log(sysClient.totalClients);
