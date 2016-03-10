@@ -41,17 +41,19 @@ var getDataObject = function (stringData){
   console.log('Checking format of JSON data');
   try{
     var messageJson = JSON.parse(stringData);
-    var objectData = Object.keys(messageJson);
+    
     if (
-      objectData.length == 5 &&
-      objectData.indexOf(WATCH_ID) != -1 &&
-      objectData.indexOf(TIMESTAMP) != -1 &&
-      objectData.indexOf(X_ACCELERATION) != -1 &&
-      objectData.indexOf(Y_ACCELERATION) != -1 &&
-      objectData.indexOf(Z_ACCELERATION) != -1) {
+      Object.keys(messageJson).length === 5 &&
+      messageJson[WATCH_ID] &&
+      messageJson[TIMESTAMP] &&
+      messageJson[X_ACCELERATION] &&
+      messageJson[Y_ACCELERATION] &&
+      messageJson[Z_ACCELERATION]) {
+      console.log('The data is correct');
       return messageJson;
     }
   }catch(e){
+    console.log('The data is not correct');
     return null;
   }
 }
@@ -84,7 +86,8 @@ sysClient.on(MQTT_CONNECT_EVENT, function () {
 dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
   // Print for debugging
   console.log("MQTT message: "+message.toString());
-  var decrypted = decipher.decryptText(message.toString());
+  var decrypted = decipher.decryptText(message);
+  console.log("Decrytped data: "+decrypted);
   var dataObj = getDataObject(decrypted);
   if (dataObj){
     // TODO should consider bulk insert
