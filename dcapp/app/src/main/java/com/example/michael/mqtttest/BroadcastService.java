@@ -58,9 +58,12 @@ public class BroadcastService extends Service {
     private String hostIp;
     SensorEventListener accelerationListener;
 
+    // This object is responsible
     private final ScheduledExecutorService publicationScheduler =
             Executors.newScheduledThreadPool(1);
 
+    // The acceleration values read form the device. Change each time an
+    // acceleration event occurs.
     private float xAcceleration = 0;
     private float yAcceleration = 0;
     private float zAcceleration = 0;
@@ -95,11 +98,21 @@ public class BroadcastService extends Service {
 
     private static final int FASTEST_PUBLICATION_RATE = 200;
 
+    // These are the threading components.
     private ScheduledFuture publicationHandle;
     private final Runnable publishData = new Runnable() {
         private boolean isConnecting = false;
 
         @Override
+        /**
+         * @desc - This is the work horse for broadcasting data and connecting
+         *         the application to DCH. If a connection has not been
+         *         established, or it has yet to establish a connection, it
+         *         attempt to create a connection to the specified IP address
+         *         and port until it is successful. After a conneciton is
+         *         established, it will broadcast the acceleration data stored
+         *         in this class in perpetuity at the pre-set intercal.
+         */
         public void run() {
             if (client.isConnected()) {
                 isConnecting = false;
@@ -148,6 +161,9 @@ public class BroadcastService extends Service {
                 }
             } else {
                 try {
+                    // Use the connecting flag to ensure that the client is
+                    // not attempting a connection while another thread is
+                    // trying to do so.
                     if(!isConnecting) {
                         isConnecting = true;
 
@@ -240,15 +256,9 @@ public class BroadcastService extends Service {
     }
 
     /**
-     * @desc - This class is responsible for ensuring a connection is
-     *         established with the MQTT broker and publishing data to the
-     *         MQTT broker as a JSON on each acceleration event. Delays
-     *         between broadcasts are calculated based on input from the
-     *         user which will kill the function before publishing data
-     *         if insufficient time has elapsed.
-     *
-     *         NOTE: See description for BroadcastService above. We should
-     *         change this in the future.
+     * @desc - This class is responsible for updating the acceleraiton values
+     *         stored in the class. It is also responsible for filtering out
+     *         gravity data from these values using a low-pass filter.
      */
     public class AccelerationListener implements SensorEventListener {
 
