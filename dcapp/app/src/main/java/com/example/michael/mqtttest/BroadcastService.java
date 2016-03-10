@@ -140,11 +140,6 @@ public class BroadcastService extends Service {
                     accelerationJson.put(TIMESTAMP_JSON_INDEX,
                             currentTimeMilliseconds);
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                try {
-
                     // Convert JSON to string and publish
                     data = accelerationJson.toString();
                     MQTTPublishHandler callback = new MQTTPublishHandler();
@@ -156,6 +151,8 @@ public class BroadcastService extends Service {
                             null,
                             callback);
 
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
