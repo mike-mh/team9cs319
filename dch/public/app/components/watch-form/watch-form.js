@@ -20,14 +20,14 @@
     	  keys = [];
 
     	  angular.forEach(collection, function(item) {
-    		  var key = item[keyname];
-    		  if(keys.indexOf(key) === -1) {
-    		    keys.push(key);
-    			output.push(item);
-    	   }
+    	    var key = item[keyname];
+    		if(keys.indexOf(key) === -1) {
+    		keys.push(key);
+    		output.push(item);
+    	  }
         });
-    	return output;
-       }
+      return output;
+      }
     });
 
     function watchForm() {
@@ -55,10 +55,10 @@
       vm.timeSelected = false;   
 
       // This will store the user selected information.
-      vm.selectedWatch =  {
-    	  id: '',
-    	  startTime: '',
-          interval: '',
+      vm.selectedWatch = {
+        id: '',
+    	startTime: '',
+        interval: '',
       }
 
       var NO_DEVICE_DATA_DISPLAY = 'No data';
@@ -158,7 +158,7 @@
       */
       function requestData() {
     	var responsePromise = $http.get(GET_DATA_QUERY_PATH);
-    		responsePromise.then(successCallback, errorCallback);
+    	responsePromise.then(successCallback, errorCallback);
       }
 
      /**
