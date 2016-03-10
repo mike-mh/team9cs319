@@ -62,6 +62,7 @@
       vm.updateWatch = function() {
         queryTimes(vm.watches[0])
         vm.watchSelected = true;
+        vm.selectedWatch.interval = '';
       }
 
      /**
