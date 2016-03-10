@@ -35,7 +35,7 @@
 
     var NO_DEVICE_DATA_DISPLAY = 'No data';
     var SERVER_ERROR_DISPLAY = 'ERROR: Couldn\'t retrieve data';
-    var CONNECTED_DEVICE_QUERY_PATH = '/total_connected_devices';
+    var CONNECTED_DEVICE_QUERY_PATH = '/api/total-connected-devices';
 
     vm.totalConnectedDevices = NO_DEVICE_DATA_DISPLAY;
 

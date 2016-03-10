@@ -301,9 +301,9 @@ public class BroadcastService extends Service {
                     gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[Y_ACCELERATION_INDEX];
                     gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[Z_ACCELERATION_INDEX];
 
-                    xAcceleration = event.values[X_ACCELERATION_INDEX] - gravity[0];
-                    yAcceleration = event.values[Y_ACCELERATION_INDEX] - gravity[1];
-                    zAcceleration = event.values[Z_ACCELERATION_INDEX] - gravity[2];
+                    xAcceleration = Math.abs(event.values[X_ACCELERATION_INDEX] - gravity[0]);
+                    yAcceleration = Math.abs(event.values[Y_ACCELERATION_INDEX] - gravity[1]);
+                    zAcceleration = Math.abs(event.values[Z_ACCELERATION_INDEX] - gravity[2]);
             }
         }
 

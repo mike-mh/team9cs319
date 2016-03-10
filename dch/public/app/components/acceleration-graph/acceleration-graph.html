@@ -1,17 +1,42 @@
-<div class="btn-group" uib-dropdown keyboard-nav>
-  <button id="simple-btn-keyboard-nav" type="button" class="btn btn-primary" uib-dropdown-toggle>
-    Select a watch ID
-    <span class="caret"></span>
-  </button>
+<div class="container" style='align:left'>
+  <div>
+    <label for="watchSelect">Select a watch ID:</label>
+    <select name="watchSelect" ng-model="accelerationGraphController.idToQuery">
+      <option ng-repeat="watch in accelerationGraphController.watchData">
+        {{ watch.id }}
+      </option>
+    </select>
+  </div>
 
-  <!-- Need to bind these buttons to functions later. This is just an example -->
-  <ul uib-dropdown-menu role="menu" aria-labelledby="simple-btn-keyboard-nav">
-    <li role="menuitem"><a href="#">91230984</a></li>
-    <li role="menuitem"><a href="#">12312334</a></li>
-    <li role="menuitem"><a href="#">45634345</a></li>
-  </ul>
-  <button type="button" class="btn btn-success">Get Data</button>
-</div>
+  <div ng-show="accelerationGraphController.idToQuery" ng-model="test" ng-change="accelerationGraphController.generateStartTimeOptions()">
+    <label for="intervalSelect">Select a time Interval:</label>
+    <select
+      name="intervalSelect"
+      ng-model="accelerationGraphController.intervalToQuery"
+      ng-change="accelerationGraphController.generateStartTimeOptions()">
+      <option
+        ng-repeat="interval in accelerationGraphController.INTERVAL_OPTIONS"
+        value="{{ interval }}">
+        {{ interval + ' minutes' }}
+      </option>
+    </select>
+  </div>
+
+  <div ng-show="accelerationGraphController.intervalToQuery">
+    <label for="startSelect">Select a start time:</label>
+    <select name="startSelect" ng-model="accelerationGraphController.startTimeToQuery">
+      <option
+        ng-repeat="time in accelerationGraphController.startTimeOptions">
+        {{ time }}
+      </option>
+    </select>
+  </div>
+
+  <div ng-click="accelerationGraphController.getAccelerationData()">
+    <button class="btn btn-success" >Get Data</button>
+  </div>
+
+</div> 
 
 <!-- This is where the c3 chart is rendered -->
 <div class="chart">
