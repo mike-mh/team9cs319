@@ -6,7 +6,7 @@
 describe('The connected-devices widget', function() {
   var NO_DEVICE_DATA = 'No data';
   var CONNECTED_DEVICES_TAG = '<connected-devices></connected-devices>';
-  var GET_CONNECTED_DEVICES_URL = '/api/total_connected_devices';
+  var GET_CONNECTED_DEVICES_URL = '/api/total-connected-devices';
 
   var $controller;
   var $compile;
