@@ -18,6 +18,8 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.view.View;
 
+import java.text.DecimalFormat;
+
 /**
  * @desc - The main entry point into DCAPP. Is responsible for rendering the
  * user intreface that the user will interact with. The primary responsibility
@@ -262,9 +264,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     // display the current x,y,z accelerometer values
     public void displayCurrentValues() {
-        currentX.setText(Float.toString(lastReadX));
-        currentY.setText(Float.toString(lastReadY));
-        currentZ.setText(Float.toString(lastReadZ));
+        DecimalFormat numberFormat = new DecimalFormat("#.0000");
+        currentX.setText(numberFormat.format(lastReadX));
+        currentY.setText(numberFormat.format(lastReadY));
+        currentZ.setText(numberFormat.format(lastReadZ));
     }
 
     @Override
