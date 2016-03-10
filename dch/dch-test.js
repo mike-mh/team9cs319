@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 var should = require('should');
 var assert = require('assert');
-var request = require('supertest');  
+var request = require('supertest');
 
 var DCH_URL = 'http://localhost:3000';
 
@@ -31,7 +31,7 @@ describe('The DCH API', function() {
     });
 
     it('this is a demonstration', function(done) {
-      request(DCH_URL).get('/total_connected_devices')
+      request(DCH_URL).get('/api/total-connected-devices')
         .send()
         // end handles the response
         .end(function(err, res) {
@@ -39,7 +39,7 @@ describe('The DCH API', function() {
             throw err;
           }
           // this is should.js syntax, very clear
-          // 
+          //
           // This is also incorrect. We should fix this! ;)
           res.text.should.equal('0');
           res.status.should.equal(200);
