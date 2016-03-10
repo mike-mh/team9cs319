@@ -13,22 +13,7 @@
     .directive('watchForm', watchForm)
     // This filter is temporary. Will later use the API to directly
     // retrieve the WatchIDs. Right now it simply removes duplicates
-    // of WatchIDs when populating the list of WatchIDs.
-    .filter('unique', function(){
-      return function(collection, keyname) {
-    	  var output = [],
-    	  keys = [];
-
-    	  angular.forEach(collection, function(item) {
-    	    var key = item[keyname];
-    		if(keys.indexOf(key) === -1) {
-    		keys.push(key);
-    		output.push(item);
-    	  }
-        });
-      return output;
-      }
-    });
+    // of WatchIDs when populating the list of WatchIDs.  
 
     function watchForm() {
       var directive = {
@@ -45,11 +30,12 @@
     	return directive;
     }
 
-    WatchFormController.$inject = ['$http'];
+    WatchFormController.$inject = ['$http', '$scope', 'WatchDataService'];
 
-    function WatchFormController($http) {
+    function WatchFormController($http, $scope, WatchDataService) {
       var vm = this;
 
+      vm.dataList = [];
       vm.times = [];
       vm.watchSelected = false;
       vm.timeSelected = false;   
@@ -57,12 +43,13 @@
       // This will store the user selected information.
       vm.selectedWatch = {
         id: '',
-    	startTime: '',
+    	  startTime: '',
+        stopTime: '',
         interval: '',
       }
 
       var NO_DEVICE_DATA_DISPLAY = 'No data';
-      var GET_DATA_QUERY_PATH = '/get_data/';
+      var GET_WATCH_IDS = '/api/get-watch-ids';
 
       vm.watchFormData = NO_DEVICE_DATA_DISPLAY;
 
@@ -117,38 +104,40 @@
       */
 
       function queryTimes(watch) {
-        // For now, this function gets the time of the first element
-        // in watches[]. Once the api call is defined, this will make
-        // a query to the DCH to grab the start time of the selected watch.
-        var milliseconds = watch.TIMESTAMP; 
+        var watchId = removeSpaces(vm.selectedWatch.id);
+        var result = vm.watches.filter(function(watch){
+          return watch._id == watchId;
+        })
+        vm.selectedWatch.stopTime = result[0].end;
+        console.log(result);
+        var milliseconds = result[0].start; 
         console.log(milliseconds);
         for (var i=0; i<288; i++) {
           var dateFromMilliseconds = new Date(milliseconds);
           vm.times[i] = dateFromMilliseconds.toString();
           milliseconds = milliseconds + 300000;
         }
-          console.log(vm.times);
       }
 
      /**
       * @desc - This callback function is called when $http service completes
-      *         its request for total connected devices successfully.
+      *         its request for watch ids successfully.
       *
       * @param response {object} - Response from the server.
       */
-      function successCallback(response) {
-    	vm.watches = response.data;
-    	console.log(vm.watches);
+      function idSuccessCallback(response) {
+    	  vm.watches = response.data;
+    	  console.log(vm.watches); 
       }
 
      /**
       * @desc - This callback function is called when $http service completes
-      *         its request for total connected devices with an error response.
+      *         its request for watch ids with an error response.
       *
       * @param response {object} - Response from the server.
       */
-      function errorCallback(response) {
-    	console.log(response);
+      function idErrorCallback(response) {
+    	  console.log(response);
       }
 
      /**
@@ -156,9 +145,33 @@
       *         DCH server. Once the request completes, a callback is
       *         executed based on whether or not the request was successful.
       */
-      function requestData() {
-    	var responsePromise = $http.get(GET_DATA_QUERY_PATH);
-    	responsePromise.then(successCallback, errorCallback);
+      function requestWatchIds() {
+    	  var responsePromise = $http.get(GET_WATCH_IDS);
+    	  responsePromise.then(idSuccessCallback, idErrorCallback);
+      }
+
+
+     /**
+      * @desc - This callback function is called when $http service completes
+      *         its request for selected watch data successfully.
+      *
+      * @param response {object} - Response from the server.
+      */
+      function dataSuccessCallback(response) {
+        vm.dataList = response.data;
+        console.log(vm.dataList);
+        WatchDataService.putData(vm.dataList);
+        $scope.$emit('populate-graph');
+      }
+
+     /**
+      * @desc - This callback function is called when $http service completes
+      *         its request for selected watch data with an error response.
+      *
+      * @param response {object} - Response from the server.
+      */
+      function dataErrorCallback(response) {
+        console.log(response);
       }
 
      /**
@@ -169,17 +182,15 @@
       */
       function requestWatchData() {
         var watchId = removeSpaces(vm.selectedWatch.id);   
-
         var startTime = new Date(vm.selectedWatch.startTime);
         startTime = startTime.getTime();
-
-        var stopTime = new Date();
-        stopTime = stopTime.getTime();
-
+        var stopTime = vm.selectedWatch.stopTime;
         var interval = vm.selectedWatch.interval * 60000;
-
-        var dataQuery = 'api/getData/:'+watchId+'/:'+startTime+'/:'+stopTime+'/:'+interval;
+        var dataQuery = '/api/get-data/'+watchId+'/'+startTime+'/'+stopTime+'/'+interval;
         console.log(dataQuery);
+
+        var responsePromise = $http.get(dataQuery);
+        responsePromise.then(dataSuccessCallback, dataErrorCallback);
 
       }
 
@@ -190,7 +201,7 @@
       }
 
       // Request data from the DCH server.
-      requestData();
+      requestWatchIds();
     }
 
 })();

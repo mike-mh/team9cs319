@@ -30,9 +30,9 @@
 
   }
 
-  DataGraphController.$inject = ['DataAnalyzerService'];
+  DataGraphController.$inject = ['WatchDataService', '$scope'];
 
-  function DataGraphController(DataAnalyzerService) {
+  function DataGraphController(WatchDataService, $scope) {
     var vm = this;
 
     var Y_AXIS_LABEL = 'Acceleration (m/s^2)';
@@ -96,7 +96,8 @@
      */
     function renderDataGraph() {
       // Use test data for now
-      var retrievedData = DataAnalyzerService.getTestData();
+      var retrievedData = WatchDataService.getData();
+      console.log(retrievedData);
 
       // Populate columns with data
       graphData.data.columns[X_AXIS_COLUMN_INDEX].push.apply(
@@ -122,8 +123,20 @@
       chart = c3.generate(graphData);
     }
 
-    // Render the chart
-    renderDataGraph();
+    /**
+     * @desc - This function clears the data in the c3 chart.
+     */
+    function clearDataGraph() {
+      // TODO
+      console.log('clear this data.')
+    }
+
+    // Listens to event populate-graph to render the c3 chart.
+    $scope.$on('populate-graph', function(event) {
+      clearDataGraph();
+      renderDataGraph();
+    });
+
   }
 
 })();

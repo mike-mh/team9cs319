@@ -4,8 +4,8 @@
     <div>
       <label for="watchSelect">Select a watch ID:</label>
  	    <select name="watchSelect" ng-model="watchFormCtrl.selectedWatch.id" ng-change="watchFormCtrl.updateWatch()">
-  	    <option ng-repeat="watch in watchFormCtrl.watches | unique: 'WATCH_ID'">
-        {{watch.WATCH_ID}}
+  	    <option ng-repeat="watch in watchFormCtrl.watches">
+        {{watch._id}}
         </option>
       </select>
     </div>
