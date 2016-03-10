@@ -2,6 +2,7 @@ package com.example.michael.mqtttest;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -13,6 +14,21 @@ import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+
+import static java.util.concurrent.TimeUnit.*;
 
 /**
  * @desc - This is the work horse for acceleration data broadcasting. When
@@ -42,8 +58,6 @@ public class BroadcastService extends Service {
     public static long publishRateMilliSec = 0;
 
 
-    // Use this to enable delays
-    private int tickAccumulator = 0;
     private long lastTimeCheck = System.currentTimeMillis();
     private MqttAndroidClient client;
     private int delayValue = 0;
@@ -52,6 +66,21 @@ public class BroadcastService extends Service {
     private Sensor accelerometer;
     private String hostIp;
     SensorEventListener accelerationListener;
+    private Encryptor encryptor = new Encryptor();
+
+    // This object is responsible
+    private final ScheduledExecutorService publicationScheduler =
+            Executors.newScheduledThreadPool(1);
+
+    // The acceleration values read form the device. Change each time an
+    // acceleration event occurs.
+    private float xAcceleration = 0;
+    private float yAcceleration = 0;
+    private float zAcceleration = 0;
+
+    // These variables are used for the gravity low-pass filter
+    private float[] gravity = { 0 , 0 , 0};
+    private final float alpha = (float) 0.8;
 
     // More constants (probably should store in a class)
     private static final String TCP_PREFIX = "tcp://";
@@ -76,6 +105,104 @@ public class BroadcastService extends Service {
     private static final int X_ACCELERATION_INDEX = 0;
     private static final int Y_ACCELERATION_INDEX = 1;
     private static final int Z_ACCELERATION_INDEX = 2;
+
+    private static final int FASTEST_PUBLICATION_RATE = 200;
+
+    // These are the threading components.
+    private ScheduledFuture publicationHandle;
+    private final Runnable publishData = new Runnable() {
+        private boolean isConnecting = false;
+
+        @Override
+        /**
+         * @desc - This is the work horse for broadcasting data and connecting
+         *         the application to DCH. If a connection has not been
+         *         established, or it has yet to establish a connection, it
+         *         attempt to create a connection to the specified IP address
+         *         and port until it is successful. After a conneciton is
+         *         established, it will broadcast the acceleration data stored
+         *         in this class in perpetuity at the pre-set intercal.
+         */
+        public void run() {
+            if (client.isConnected()) {
+                isConnecting = false;
+                String data = "";
+
+                // Calculate the rate between publish events
+                long currentTimeMilliseconds = System.currentTimeMillis();
+                publishRateMilliSec = currentTimeMilliseconds - lastTimeCheck;
+                lastTimeCheck = currentTimeMilliseconds;
+
+                JSONObject accelerationJson = new JSONObject();
+
+                try {
+                    accelerationJson.put(WATCH_ID_JSON_INDEX, androidId);
+
+                    accelerationJson.put(ACC_X_JSON_INDEX,
+                            xAcceleration);
+
+                    accelerationJson.put(ACC_Y_JSON_INDEX,
+                            yAcceleration);
+
+                    accelerationJson.put(ACC_Z_JSON_INDEX,
+                            zAcceleration);
+
+                    accelerationJson.put(TIMESTAMP_JSON_INDEX,
+                            currentTimeMilliseconds);
+
+                    // Convert JSON to string and publish
+                    data = accelerationJson.toString();
+                    MQTTPublishHandler callback = new MQTTPublishHandler();
+
+                    byte[] accelerationDataPayload = encryptor.encryptData(data);
+
+                    client.publish(MQTT_ACCELERATION_CHANNEL,
+                            accelerationDataPayload,
+                            0,
+                            false,
+                            null,
+                            callback);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                } catch (InvalidAlgorithmParameterException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeySpecException e) {
+                    e.printStackTrace();
+                } catch (BadPaddingException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (IllegalBlockSizeException e) {
+                    e.printStackTrace();
+                } catch (NoSuchPaddingException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    // Use the connecting flag to ensure that the client is
+                    // not attempting a connection while another thread is
+                    // trying to do so.
+                    if(!isConnecting) {
+                        isConnecting = true;
+
+                        MQTTConnectionHandler callback =
+                                new MQTTConnectionHandler();
+
+                        client.connect(null, callback);
+                    }
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
 
     @Nullable
     @Override
@@ -126,6 +253,13 @@ public class BroadcastService extends Service {
                 accelerometer,
                 SensorManager.SENSOR_DELAY_NORMAL);
 
+        // Create new thread to boradcast data
+        publicationHandle = publicationScheduler.scheduleAtFixedRate(
+                                publishData,
+                                FASTEST_PUBLICATION_RATE + delayValue * FASTEST_PUBLICATION_RATE,
+                                FASTEST_PUBLICATION_RATE + delayValue * FASTEST_PUBLICATION_RATE,
+                                MILLISECONDS);
+
         return START_STICKY;
     }
 
@@ -136,22 +270,20 @@ public class BroadcastService extends Service {
      *         should be disabled and the accelerationListener unregistered.
      */
     public void onDestroy() {
+        if (client != null) {
+            client.unregisterResources();
+        }
         broadcastServiceIsRunning = false;
 
+        publicationHandle.cancel(true);
         sensorManager.unregisterListener(accelerationListener);
         super.onDestroy();
     }
 
     /**
-     * @desc - This class is responsible for ensuring a connection is
-     *         established with the MQTT broker and publishing data to the
-     *         MQTT broker as a JSON on each acceleration event. Delays
-     *         between broadcasts are calculated based on input from the
-     *         user which will kill the function before publishing data
-     *         if insufficient time has elapsed.
-     *
-     *         NOTE: See description for BroadcastService above. We should
-     *         change this in the future.
+     * @desc - This class is responsible for updating the acceleraiton values
+     *         stored in the class. It is also responsible for filtering out
+     *         gravity data from these values using a low-pass filter.
      */
     public class AccelerationListener implements SensorEventListener {
 
@@ -162,70 +294,16 @@ public class BroadcastService extends Service {
             this.event = event;
 
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                // Kill function if not enough time has elapsed between
-                // acceleration events (Should re-work this)
-                if(tickAccumulator++ % (delayValue * 5 + 1) != 0) {
-                    return;
-                }
 
-                // If client is connected, publish data. Otherwise, attempt
-                // to connect client.
-                if (client.isConnected()) {
-                    String data = "";
 
-                    // Calculate the rate between publish events
-                    long currentTimeMilliseconds = System.currentTimeMillis();
-                    publishRateMilliSec = currentTimeMilliseconds - lastTimeCheck;
-                    lastTimeCheck = currentTimeMilliseconds;
+                    // Isolate the force of gravity with the low-pass filter.
+                    gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[X_ACCELERATION_INDEX];
+                    gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[Y_ACCELERATION_INDEX];
+                    gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[Z_ACCELERATION_INDEX];
 
-                    JSONObject accelerationJson = new JSONObject();
-
-                    try {
-                        accelerationJson.put(WATCH_ID_JSON_INDEX, androidId);
-
-                        accelerationJson.put(ACC_X_JSON_INDEX,
-                                event.values[X_ACCELERATION_INDEX]);
-
-                        accelerationJson.put(ACC_Y_JSON_INDEX,
-                                event.values[Y_ACCELERATION_INDEX]);
-
-                        accelerationJson.put(ACC_Z_JSON_INDEX,
-                                event.values[Z_ACCELERATION_INDEX]);
-
-                        accelerationJson.put(TIMESTAMP_JSON_INDEX,
-                                currentTimeMilliseconds);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-
-                        // Convert JSON to string and publish
-                        data = accelerationJson.toString();
-                        MQTTPublishHandler callback = new MQTTPublishHandler();
-
-                        client.publish(MQTT_ACCELERATION_CHANNEL,
-                                data.getBytes(),
-                                0,
-                                false,
-                                null,
-                                callback);
-
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    try {
-
-                        MQTTConnectionHandler callback =
-                                new MQTTConnectionHandler();
-
-                        client.connect(null, callback);
-
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
-                }
+                    xAcceleration = event.values[X_ACCELERATION_INDEX] - gravity[0];
+                    yAcceleration = event.values[Y_ACCELERATION_INDEX] - gravity[1];
+                    zAcceleration = event.values[Z_ACCELERATION_INDEX] - gravity[2];
             }
         }
 

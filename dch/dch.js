@@ -1,85 +1,99 @@
 'use strict';
 
-// These are the modules imported from 'node_modules' directory. Couldn't get
-// the Airbnb style of "import { express } from 'express';" working.
-var express = require('express');
-var mongoose = require('mongoose');
-var MongoClient = require('mongodb').MongoClient;
+var db = require('./db.js');
 var mqttSubscriber = require('./mqtt-subscriber/mqtt-subscriber.js');
 
-// Port to run app
-var PORT_APP = 3000;
+var express = require('express');
+var app = express();
+var router = express.Router();
 
-// This is the path to the application index and static root directory 
-var PUBLIC_DIRECTORY = 'public';
+var APP_PORT = 3000;
 
-// API paths
+
+//basic paths
 var NO_PATH = '/';
-var GET_DATA_PATH = '/get_data/';
-var DELETE_DATA_PATH = '/delete_data/';
-var TOTAL_CONNECTED_DEVICES_PATH = '/total_connected_devices/';
+var API_BASE_PATH = '/api';
+var PUBLIC_DIR = 'public';
+//API paths
+var DELETE_DATA_PATH = '/delete-data/:watchId';
+var GET_WATCH_IDS = '/get-watch-ids'
+var TOTAL_CONNECTED_DEVICES = '/total-connected-devices';
+var GET_DATA_PATH = '/get-data/:watchId/:startTime/:stopTime/:frequency';
+var GET_IDLE_ALERT_PATH = '/get-idle-alert/:watchId/:startTime/:stopTime';
+var GET_SPIKE_ALERT_PATH = '/get-spike-alert/:watchId/:startTime/:stopTime';
+var GET_RECENT = '/get-recent';
 
-// URLs
-var MONGODB_URL = 'mongodb://localhost:27017/mqtt-database';
-
-// Mongoose events
-var MONGOOSE_OPEN = 'open';
-
-// Mongoose Schema data. Didn't finish reading up on the intricacies of
-// Mongoose. This can be made more elaborate but it is enough to fetch all
-// data required as a single JSON object.
-var acccelerationCollectionDataTypes = {data: String};
-var accelerationCollection = {collection: 'mqtt-data'};
-var watchDataModelName = 'watchDataModel';
-
-// Conosle messages and errors
-var SERVER_INITIALIZED_MESSAGE = 'View page in browser at ' +
-  '"http://localhost:3000"';
-var DB_CONNECTION_ESTABLISHED_MESSAGE = 'Connection made with MongoDB';
 
 var TOTAL_NODEJS_MQTT_CLIENTS = 2;
 
-// Database schema and connection configurations
-var watchDataSchema = mongoose.Schema(
-  acccelerationCollectionDataTypes,
-  accelerationCollection
-);
+function standardCallback(res) {
+  return function(err, result) {
+    if (err) {
+      //TODO: what should be the response in case of error
+      res.json({success: false});
+      console.log(err);
+    } else {
+      res.json(result);
+    }
+  };
+}
 
-var watchDataModel = mongoose.model(watchDataModelName, watchDataSchema);
-var db = mongoose.connection;
+//make the home directory to be public
+app.use(express.static(PUBLIC_DIR));
 
-var app = express();
-var systemListener = mqttSubscriber.sysClient;
-
-// Connect Mongoose to the database
-mongoose.connect(MONGODB_URL);
-
-db.once(MONGOOSE_OPEN, function() {
-  console.log(DB_CONNECTION_ESTABLISHED_MESSAGE);
+//Decrypt the data here
+router.use(function(req, res, next) {
+  next(); // make sure we go to the next routes and don't stop here
 });
 
-// Tells the app to serve DCGUI files in the 'public' directory
-app.use(express.static(PUBLIC_DIRECTORY));
-app.get(NO_PATH, function (request, res) {
-  res.sendfile();
+router.delete(DELETE_DATA_PATH, function(req, res) {
+  //putd data for deleting data for a watch id
+  db.deleteData(req.params.watchId, function(err){
+    if (err) {
+      res.json({success: false});
+      console.log(err);
+    } else {
+      res.json({success: true});
+    }
+  });
 });
 
-// API functions
-app.get(GET_DATA_PATH, function (request, res) {
-  watchDataModel.find(function (err, data) {
-      return res.end(JSON.stringify(data));
-    });
+router.get(GET_DATA_PATH, function(req, res){
+  db.getData(req.params.watchId, parseInt(req.params.startTime),
+    parseInt(req.params.stopTime), parseInt(req.params.frequency),
+    standardCallback(res));
 });
 
-app.get(TOTAL_CONNECTED_DEVICES_PATH, function (request, res) {
-  // Message for debugging
-  console.log('Total watch clients: ' + systemListener.totalClients);
-  var totalClients = parseInt(systemListener.totalClients);
+router.get(GET_IDLE_ALERT_PATH, function(req, res){
+  db.getIdleAlert(req.params.watchId, parseInt(req.params.startTime),
+    parseInt(req.params.stopTime), standardCallback(res));
+});
+
+router.get(GET_SPIKE_ALERT_PATH, function(req, res){
+  db.getSpikeAlert(req.params.watchId, parseInt(req.params.startTime),
+    parseInt(req.params.stopTime), standardCallback(res));
+});
+
+router.get(GET_WATCH_IDS, function(req, res){
+  db.getWatchData(standardCallback(res));
+});
+
+router.get(GET_RECENT, function(req, res){
+  db.getRecent(standardCallback(res));
+});
+
+router.get(TOTAL_CONNECTED_DEVICES, function(req, res){
+  console.log('Total watch clients: ' + mqttSubscriber.sysClient.totalClients);
+  var totalClients = parseInt(mqttSubscriber.sysClient.totalClients);
   var totalWatches = totalClients - TOTAL_NODEJS_MQTT_CLIENTS;
   return res.end(totalWatches.toString());
 });
 
-// Start the application
-app.listen(PORT_APP, function () {
-  console.log(SERVER_INITIALIZED_MESSAGE);
+
+app.use(API_BASE_PATH, router);
+app.use('*', function(req, res){
+  res.sendStatus(404);
+});
+app.listen(APP_PORT, function(){
+  console.log("The app is now listeing on port 3000");
 });
