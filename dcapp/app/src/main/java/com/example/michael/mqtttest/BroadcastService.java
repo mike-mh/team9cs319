@@ -15,9 +15,18 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 import static java.util.concurrent.TimeUnit.*;
 
@@ -57,6 +66,7 @@ public class BroadcastService extends Service {
     private Sensor accelerometer;
     private String hostIp;
     SensorEventListener accelerationListener;
+    private Encryptor encryptor = new Encryptor();
 
     // This object is responsible
     private final ScheduledExecutorService publicationScheduler =
@@ -144,8 +154,10 @@ public class BroadcastService extends Service {
                     data = accelerationJson.toString();
                     MQTTPublishHandler callback = new MQTTPublishHandler();
 
+                    byte[] accelerationDataPayload = encryptor.encryptData(data);
+
                     client.publish(MQTT_ACCELERATION_CHANNEL,
-                            data.getBytes(),
+                            accelerationDataPayload,
                             0,
                             false,
                             null,
@@ -154,6 +166,22 @@ public class BroadcastService extends Service {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (MqttException e) {
+                    e.printStackTrace();
+                } catch (InvalidAlgorithmParameterException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeySpecException e) {
+                    e.printStackTrace();
+                } catch (BadPaddingException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (IllegalBlockSizeException e) {
+                    e.printStackTrace();
+                } catch (NoSuchPaddingException e) {
                     e.printStackTrace();
                 }
             } else {
