@@ -31,10 +31,7 @@ Before running the app be sure to install the following dependancies. And no mat
 Run:
 
 ```
-npm install mqtt
-npm install mongodb
-npm install mongoose
-npm install express
+npm install
 ```
 
 ## Run the DCH server
@@ -42,7 +39,7 @@ npm install express
 To run DCH, navigate to the team9cs319/dch/ directory and run:
 
 ```
-nodejs --harmony dch.js
+node dch.js
 ```
 
 The harmony param is necessarry to ensure that NodeJS will register the special keywords used for variable declaration.
@@ -50,6 +47,47 @@ The harmony param is necessarry to ensure that NodeJS will register the special 
 After DCH has launched successfully, you will have access to the DCGUI at the URL http://localhost:3000.
 
 Be sure that your Mosquitto MQTT broker is running if you wish to have data published by an Android device persist in MongoDB. DCH can still run without this broker but data will not persist.
+
+## Testing DCH and DCGUI
+
+After you have installed the neceearry packages with:
+
+```
+npm install
+```
+
+You can then run unit tests by running:
+
+```
+npm test
+```
+
+For DCGUI testing, Karma is capable of running tests on Opera, IE11, Edge, Chrome, Firefox and Safari browsers. To run tests for a specific browser installed. Then to test those browsers ensure that they are set in the 'karma.conf.js' file.
+
+```
+// Karma will run tests on IE11, Chrome and Opera
+browsers: ['Chrome', 'IE', 'Opera'],
+```
+
+Note that to run on Travis a browser 'CromeCanary' is used. To have Karma run on your own device, this browser should be removed.
+
+## Protractor Testing for DCGUI
+
+Protractor is a powerful automated end to end test tool frequently used for AngularJS apps. Tests written in Protractor physically call up an instance of the browser to be tested and executes sequential user interactions such as clicks and keystrokes and examines the DOM to confirm expected behavior.
+
+To install the protractor tool run:
+
+```
+npm install -g protractor@2.5.1
+```
+
+You can then run the protractor test by navigating to the DCH directory and running:
+```
+webdriver-manager update --standalone
+webdriver-manager start
+protractor ./conf.js
+
+```
 
 
 ## Installing DCAPP on your Android device
@@ -64,4 +102,17 @@ This works for all Android devices. The name of the ap is presently app-debug.ap
 
 If you wish to install DCAPP on your own Android device through Android Studio, you can accomplish this by importing the contents of team9cs319/dcapp/ into Android Studio as a project then with your device connected via USB select 'run'. But note, this will not work on the Vandrico Solutions watch.
 
+## Testing DCAPP
+
+To run unit tests on the DCAPP you ensure that you have Gradle installed on your devuce. navigate to the DCAPP directory and run:
+
+```
+gradle build test
+```
+
+If you wish to run gradke to only display test results run:
+
+```
+gradle build test -q
+```
 
