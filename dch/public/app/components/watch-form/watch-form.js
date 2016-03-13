@@ -38,7 +38,8 @@
       vm.dataList = [];
       vm.times = [];
       vm.watchSelected = false;
-      vm.timeSelected = false;   
+      vm.timeSelected = false; 
+      vm.dataRetrieved = false;  
 
       // This will store the user selected information.
       vm.selectedWatch = {
@@ -163,6 +164,7 @@
         console.log(vm.dataList);
         WatchDataService.putData(vm.dataList);
         $scope.$emit('populate-graph');
+        vm.dataRetrieved = true;
       }
 
      /**

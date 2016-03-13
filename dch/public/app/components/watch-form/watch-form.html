@@ -1,7 +1,22 @@
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <span class="navbar-brand-logo"><img src="imgs/dcapplogo.png" width="50px" height="50px"></span>
+      <span class="navbar-brand-text">Canary</span>
+    </div>
+    <div class="nav navbar-nav navbar-right">
+      <a class="glyphicon glyphicon-envelope"></a>
+    </div>
+  </div>
+</nav>
+
+<connected-devices id="total-devices"></connected-devices>
+
 <div class="container" style='align:left'>
+  <div class="panel panel-default">
   <form name = "myWatchForm" ng-submit="watchFormCtrl.submitForm(watchFormCtrl.selectedWatch.id, watchFormCtrl.selectedWatch.startTime, watchFormCtrl.selectedWatch.interval)">
 	  
-    <div>
+    <div class="panel-heading">
       <label for="watchSelect">Select a watch ID:</label>
  	    <select name="watchSelect" ng-model="watchFormCtrl.selectedWatch.id" ng-change="watchFormCtrl.updateWatch()">
   	    <option ng-repeat="watch in watchFormCtrl.watches">
@@ -10,7 +25,7 @@
       </select>
     </div>
 
-  	<div ng-show="watchFormCtrl.watchSelected">
+  	<div class="panel-heading" ng-show="watchFormCtrl.watchSelected">
   	  <label for="timeSelect">Pick start time:</label>
   		<select name="timeSelect" ng-model="watchFormCtrl.selectedWatch.startTime" ng-change="watchFormCtrl.updateTime()">
         <option ng-repeat="time in watchFormCtrl.times">
@@ -19,7 +34,7 @@
   		</select>
   	</div>
 
-    <div ng-show="watchFormCtrl.timeSelected">
+    <div class="panel-heading" ng-show="watchFormCtrl.timeSelected">
       <label for="intervalSelect">Pick a time interval:</label>
       <select name="intervalSelect" ng-model="watchFormCtrl.selectedWatch.interval">
         <option value="5">Every 5 minutes</option>
@@ -28,9 +43,10 @@
       </select>
     </div>
  
-	  <div>
+	  <div class="panel-heading">
 		  <button type="submit" class="btn btn-success" >Get Data</button>
 	  </div>
-
   </form>
 </div>
+</div>
+
