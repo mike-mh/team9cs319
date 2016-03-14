@@ -95,7 +95,7 @@
      *         object and uses it to render the c3 chart.
      */
     function renderDataGraph() {
-      // Use test data for now
+
       var retrievedData = WatchDataService.getData();
       console.log(retrievedData);
 
@@ -127,8 +127,20 @@
      * @desc - This function clears the data in the c3 chart.
      */
     function clearDataGraph() {
-      // TODO
-      console.log('clear this data.')
+      graphData.data.columns[X_AXIS_COLUMN_INDEX] = 
+        graphData.data.columns[X_AXIS_COLUMN_INDEX].splice(0, 1);
+
+      graphData.data.columns[X_ACCELERATION_COLUMN_INDEX] =
+        graphData.data.columns[X_ACCELERATION_COLUMN_INDEX].splice(0, 1);
+
+      graphData.data.columns[Y_ACCELERATION_COLUMN_INDEX] =
+        graphData.data.columns[Y_ACCELERATION_COLUMN_INDEX].splice(0, 1);
+
+      graphData.data.columns[Z_ACCELERATION_COLUMN_INDEX] =
+        graphData.data.columns[Z_ACCELERATION_COLUMN_INDEX].splice(0, 1);
+
+      graphData.data.columns[GRADIENT_COLUMN_INDEX] =
+        graphData.data.columns[GRADIENT_COLUMN_INDEX].splice(0, 1);
     }
 
     // Listens to event populate-graph to render the c3 chart.

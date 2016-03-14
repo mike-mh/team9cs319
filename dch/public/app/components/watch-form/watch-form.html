@@ -25,28 +25,30 @@
       </select>
     </div>
 
-  	<div class="panel-heading" ng-show="watchFormCtrl.watchSelected">
+    <div class="panel-heading" ng-show="watchFormCtrl.watchSelected">
+      <label for="intervalSelect">Pick a time interval:</label>
+      <select name="intervalSelect" ng-model="watchFormCtrl.selectedWatch.interval" ng-change="watchFormCtrl.updateInterval()">
+        <option ng-repeat="interval in watchFormCtrl.intervalOptions" value="{{interval}}">
+          {{'Every ' + interval + ' minutes'}}
+        </option>
+      </select>
+    </div>
+
+  	<div class="panel-heading" ng-show="watchFormCtrl.intervalSelected">
   	  <label for="timeSelect">Pick start time:</label>
-  		<select name="timeSelect" ng-model="watchFormCtrl.selectedWatch.startTime" ng-change="watchFormCtrl.updateTime()">
+  		<select name="timeSelect" ng-model="watchFormCtrl.selectedWatch.startTime">
         <option ng-repeat="time in watchFormCtrl.times">
           {{time}}
         </option>
   		</select>
   	</div>
 
-    <div class="panel-heading" ng-show="watchFormCtrl.timeSelected">
-      <label for="intervalSelect">Pick a time interval:</label>
-      <select name="intervalSelect" ng-model="watchFormCtrl.selectedWatch.interval">
-        <option value="5">Every 5 minutes</option>
-        <option value="10">Every 10 minutes</option>
-        <option value="30">Every 30 minutes</option>
-      </select>
-    </div>
+
  
 	  <div class="panel-heading">
 		  <button type="submit" class="btn btn-success" >Get Data</button>
 	  </div>
-  </form>
+  </form> 
 </div>
 </div>
 

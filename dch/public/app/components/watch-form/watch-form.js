@@ -38,8 +38,9 @@
       vm.dataList = [];
       vm.times = [];
       vm.watchSelected = false;
-      vm.timeSelected = false; 
+      vm.intervalSelected = false; 
       vm.dataRetrieved = false;  
+      vm.intervalOptions = [5, 10, 30];
 
       // This will store the user selected information.
       vm.selectedWatch = {
@@ -61,9 +62,50 @@
       *         watch.
       */
       vm.updateWatch = function() {
-        queryTimes(vm.watches[0])
         vm.watchSelected = true;
         vm.selectedWatch.interval = '';
+      }
+
+     /**
+      * @desc - This function is called when an interval selection
+      *         is updated by the user. 
+      */
+      vm.updateInterval = function() { 
+        queryTimes(); 
+        vm.intervalSelected = true;
+      }
+
+     /**
+      * @desc - This function populates the start times for a 
+      *         selected watch at 5 minute intervals.
+      *         
+      * @param - watch {object} - the selected watch.
+      */
+
+      function queryTimes() {
+        vm.times.splice(0, vm.times.length);
+        var id = vm.selectedWatch.id.trim();
+        var interval = vm.selectedWatch.interval;
+
+        var result = vm.watches.filter(function(watch){
+          return watch._id == id;
+        })
+        
+        // Set the stop time for the query.
+        vm.selectedWatch.stopTime = result[0].end;
+
+        var currentTime = result[0].start;
+        console.log(currentTime);
+        var endTime = result[0].end;
+        console.log(endTime);
+        var intervalInMilliseconds = 60000 * interval;
+
+        while(currentTime < endTime) {
+          var startIteration = new Date(currentTime);
+          var dateFromMilliseconds = startIteration.toString()
+          vm.times.push(dateFromMilliseconds);
+          currentTime += intervalInMilliseconds;
+        }
       }
 
      /**
@@ -98,28 +140,6 @@
           requestWatchData();
       }
 
-     /**
-      * @desc - This function populates the start times for a 
-      *         selected watch at 5 minute intervals.
-      *         
-      * @param - watch {object} - the selected watch.
-      */
-
-      function queryTimes(watch) {
-        var watchId = removeSpaces(vm.selectedWatch.id);
-        var result = vm.watches.filter(function(watch){
-          return watch._id == watchId;
-        })
-        vm.selectedWatch.stopTime = result[0].end;
-        console.log(result);
-        var milliseconds = result[0].start; 
-        console.log(milliseconds);
-        for (var i=0; i<288; i++) {
-          var dateFromMilliseconds = new Date(milliseconds);
-          vm.times[i] = dateFromMilliseconds.toString();
-          milliseconds = milliseconds + 300000;
-        }
-      }
 
      /**
       * @desc - This callback function is called when $http service completes
