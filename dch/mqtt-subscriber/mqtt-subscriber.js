@@ -99,6 +99,26 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
         console.log('There was an error inserting ' + data + ' into the database');
       } else {
         console.log(data.toString() + ' saved to database');
+
+        // Modify the accelerationChange object with new data.
+        var watchId = data.watch_id;
+
+        // Initialize the object if it has not yet been set.
+        if(database.accelerationChanges[watchId] === undefined) {
+          database.accelerationChanges[watchId] = {
+            acc_x: [],
+            acc_y: [],
+            acc_z: [],
+            gradient: [],
+            timestamp: [],
+          }
+        }
+
+        database.accelerationChanges[watchId].acc_x.push(data.acc_x);
+        database.accelerationChanges[watchId].acc_y.push(data.acc_y);
+        database.accelerationChanges[watchId].acc_z.push(data.acc_z);
+        database.accelerationChanges[watchId].gradient.push(data.gradient);
+        database.accelerationChanges[watchId].timestamp.push(data.timestamp);
       }
     });
   }else{

@@ -7,6 +7,23 @@ var IDLE_TIME_THRESHOLD = 300000;
 var IDLE_ACC_THRESHOLD = 2;
 var SPIKE_ACC_THRESHOLD = 20;
 
+// Alert polling interval in milliseconds
+var ALERT_POLLING_INTERVAL = 5000;
+
+/*
+ * Use these objects to encapsulate data retrieved from watches. This data is
+ * then broadcast through the SSE 
+ */
+// Acceleration events
+exports.accelerationChanges = {};
+
+// Battery stream events
+exports.batteryChanges = {};
+
+// Alert events. Think about checking for alerts every 5 seconds or so. We'll
+// need to adjust the polling rate to something the server can handle.
+exports.alertStream = {};
+
 mongoose.connect(MONGODB_URL);
 
 // CONNECTION EVENTS
@@ -141,3 +158,90 @@ exports.getWatchData = function(callback){
 exports.getRecent = function(callback){
   Data.find().sort({timestamp: -1}).select({_id: 0}).limit(100).exec(callback);
 };
+
+/**
+ * @desc - This funtion will delete an alert from the alert collection.
+ *
+ * @param alertId {string} - Id of the alert to be removed from MongoDB.
+ */
+exports.removeAlert = function(alertId) {
+  // TO-DO
+};
+
+/**
+ * @desc - Getter function for accelerationChanges. It will then reset the
+ *         acceleration object because that data will have been broadcast
+ *         already.
+ *
+ * @return {object} - The accelerationChanges object.
+ */
+exports.getAccelerationChanges = function() {
+  return accelerationChanges;
+};
+
+/**
+ * @desc -  Because acceleration changes will have already been broadcast,
+ *          this function clears the data still remaining so that new data can
+ *          be broadcast.
+ */
+exports.resetAccelerationChanges = function() {
+  for(var watchId in exports.accelerationChanges) {
+    var watch = exports.accelerationChanges[watchId];
+    for(var data in watch) {
+      watch[data] = [];
+    }
+  }
+}
+
+/**
+ * @desc - Getter function for batteryChanges. 
+ *
+ * @return {object} - The batteryChanges object.
+ */
+exports.getBatteryChanges = function() {
+  return batteryChanges;
+};
+
+/**
+ * @desc -  Because changes changes will have already been broadcast, this
+ *          function clears the data still remaining so that new data can
+ *          be broadcast.
+ */
+exports.resetBatteryChanges = function() {
+  for(var watchId in exports.batteryChanges) {
+    var watch = exports.batteryChanges[watchId];
+    for(var data in watch) {
+      watch[data] = [];
+    }
+  }
+}
+
+/**
+ * @desc - This funtion will analyze mongoDB for fall alerts and modifies the
+ *         'exports.alertStream' object to include new events (if they occur).
+ *         These alerts should then be stored in the database in the 'alerts'
+ *         collection.
+ */
+function analyzeForFalls() {
+  // TO-DO
+};
+
+/**
+ * @desc - This funtion will analyze mongoDB for extended idleness and
+ *         modifies the'exports.alertStream' object to include new events (if
+ *         they occur). These alerts should then be stored in the database in
+ *         the 'alerts' collection.
+ */
+function analyzeForIdleness() {
+  // TO-DO
+};
+
+// After the implementation is completed, all you need to do is set an
+// interval to the polling time specified and the polling will run forever
+
+/*
+setInterval(function() {
+  analyzeForFalls();
+  analyzeForIdleness();
+}, ALERT_POLLING_INTERVAL);
+*/
