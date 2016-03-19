@@ -27,29 +27,17 @@
     <script src="/app/components/acceleration-graph/data-graph-service.js"></script>
     <script src="/app/components/acceleration-graph/acceleration-graph.js"></script>
     <script src="/app/components/watch-form/watch-form.js"></script>
+    <script src="/app/components/navbar/canary-alerts/canary-alerts.js"></script>
+    <script src="/app/components/navbar/navbar.js"></script>
     <script src="/app/app.js"></script>
   </head>
   <body>
 
-    <!-- Navbars should stay in the index.html file or get its own module in components. Very dangerous to have in a submodule. -->
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <span class="navbar-brand-logo"><img src="imgs/dcapplogo.png" width="50px" height="50px"></span>
-          <span class="navbar-brand-text">Canary</span>
-        </div>
-        <div class="nav navbar-nav navbar-right">
-          <a class="glyphicon glyphicon-envelope"></a>
-        </div>
-      </div>
-    </nav>
-
-
     <!-- The beauty of AngularJS. A massive payload of HTML in one little package! -->
     <!-- The ids have been added for a protractor testing example -->
-
+    <navbar id="navbar-widget"></navbar>
     <watch-form id="watch-form"></watch-form>
-    <acceleration-graph id="/api/acceleration-graph/"></acceleration-graph>
+    <acceleration-graph id="acceleration-graph"></acceleration-graph>
     <script>
    /*   console.log("HERE!");
       var source = new EventSource("api/acceleration-sse/");
