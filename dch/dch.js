@@ -119,6 +119,8 @@ router.get(ACCELERATION_SSE, function(req, res) {
         data = JSON.stringify(db.accelerationChanges);
         console.log(data);
         writeSSEData(res, ACCELERATION_EVENT, data);
+
+        // Average all the data before broadcasting
       } catch (e) {
         console.log("Error parsing acceleration data to broadcast");
       }
@@ -182,6 +184,18 @@ function writeSSEData(broadcast, event, data) {
   // After data is broadcast, remove it.
   db.resetAccelerationChanges();
 };
+
+/**
+ * @desc - Helper function to averate acceleration data before it is broadcast
+ *
+ * @param data {object} - Data mqtt-subscriber sent to broadcast
+ */
+function averageAccelerationData(data) {
+  for(var watch in data) {
+    
+  }
+  return data;
+}
 
 app.use(API_BASE_PATH, router);
 app.use('*', function(req, res){

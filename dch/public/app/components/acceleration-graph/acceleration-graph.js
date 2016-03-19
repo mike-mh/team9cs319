@@ -30,53 +30,16 @@
 
   }
 
-  DataGraphController.$inject = ['WatchDataService', '$scope'];
+  DataGraphController.$inject = ['DataGraphService', 'WatchDataService', '$scope', '$window'];
 
-  function DataGraphController(WatchDataService, $scope) {
+  function DataGraphController(DataGraphService, WatchDataService, $scope, $window) {
     var vm = this;
+    vm.foo = 'bar';
 
-    var Y_AXIS_LABEL = 'Acceleration (m/s^2)';
-    var Y_AXIS_LABEL_POSITION = 'outer-middle';
-    var X_AXIS_TYPE = 'timeseries';
-    var LABEL_POSITION = 'inset'
-    var CONNECTED_DEVICE_QUERY_PATH = '/total_connected_devices';
-    var X_AXIS_COLUMN_INDEX = 0;
-    var X_ACCELERATION_COLUMN_INDEX = 1;
-    var Y_ACCELERATION_COLUMN_INDEX = 2;
-    var Z_ACCELERATION_COLUMN_INDEX = 3;
-    var GRADIENT_COLUMN_INDEX = 4;
-
-    var graphData = {};
-
-    // Use to generate the c3 chart
-    var chart;
-
-    // Configure graph data for chart rendernig
-    graphData.data = {};
-    graphData.data.x = 'x-axis';
-    graphData.data.columns = [
-      ['x-axis'],
-      ['x-acceleration'],
-      ['y-acceleration'],
-      ['z-acceleration'],
-      ['gradient']
-    ];
-    graphData.subchart = {show: true};
-    graphData.axis = {};
-    graphData.axis.x = {
-      type : X_AXIS_TYPE,
-      tick: {
-        // Takes all labels in 'x-axis' array and generates date string
-        format: convertMillisecondsToDateString
-      }
-    };
-    graphData.axis.y = {
-      label: {
-        text: Y_AXIS_LABEL,
-        position: Y_AXIS_LABEL_POSITION
-      }
-    };
-    graphData.legend = {position: LABEL_POSITION}
+    var chartRenderFunctionMap = {
+      'acceleration': DataGraphService.renderAccelerationGraph,
+      'battery': DataGraphService.renderBatteryChart
+    }
 
     /**
      * @desc - This function is used during the c3 chart rendering to convert
@@ -143,11 +106,34 @@
         graphData.data.columns[GRADIENT_COLUMN_INDEX].splice(0, 1);
     }
 
-    // Listens to event populate-graph to render the c3 chart.
-    $scope.$on('populate-graph', function(event) {
-      clearDataGraph();
-      renderDataGraph();
+    /**
+     * @desc - This function is triggered when the user clicks the 'Get Data'
+     *         button with real time updates disabled. It first removes
+     *         previous data from the graph then re-renders the chart.
+     */
+    function populateAccelerationGraph() {
+      //Clear previous data
+      DataGraphService.clearAccelerationGraph();
+      DataGraphService.renderAccelerationGraph();
+    }
+
+    /**
+     * @desc - Set active tab so that it is known whether to render
+     *         acceleration or battery graph.
+     *
+     * @param tabName {string} - The name of the tab selected.
+     */
+    vm.setActiveTab = function(tabName) {
+      //chartRenderFunctionMap(tabName);
+    }
+
+    vm.chosen = false;
+
+    vm.test = function() {
+    setTimeout(function() {
+      $window.alert('You\'ve selected the alert tab!');
     });
+    }
 
   }
 

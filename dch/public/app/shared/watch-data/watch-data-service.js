@@ -8,10 +8,15 @@
    *         so that it can be properly displayed. There is a test function
    *         used to allow for rendering of the acceleration graph but it's
    *         only for testing! We'll need to get rid of it.
+   *
+   * @ngInject
+   *   - $http
    */
   angular
     .module('dcgui.shared')
     .service('WatchDataService', WatchDataService);
+
+  WatchDataService.$inject = ['$http'];
 
   function WatchDataService() {
     var graphData = [];
