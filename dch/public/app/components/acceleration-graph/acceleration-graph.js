@@ -127,14 +127,13 @@
       //chartRenderFunctionMap(tabName);
     }
 
-    vm.chosen = false;
-
-    vm.test = function() {
-    setTimeout(function() {
-      $window.alert('You\'ve selected the alert tab!');
-    });
+    vm.showAcclerationStream = function() {
+      DataGraphService.startAccelerationStream();
     }
 
+    vm.stopAcclerationStream = function() {
+      DataGraphService.stopAccelerationStream()
+    }
   }
 
 })();

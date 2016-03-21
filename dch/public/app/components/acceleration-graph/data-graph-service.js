@@ -42,8 +42,8 @@
     var accelerationStream;
     var accelerationStreamData = {};
     var accelerationStreamGraphControl = {
-      'watchId' : '7fc32430c461bb7f',
-      'enabled' : true,
+      'watchId' : '',
+      'enabled' : false,
     }
 
     var accelerationGraphData = {};
@@ -85,7 +85,10 @@
 
     var dataGraphService = {
       renderAccelerationGraph: renderAccelerationGraph,
-      clearAccelerationGraph: clearAccelerationGraph
+      clearAccelerationGraph: clearAccelerationGraph,
+      setWatchIdToMonitor: setWatchIdToMonitor,
+      startAccelerationStream: startAccelerationStream,
+      stopAccelerationStream: stopAccelerationStream
     };
 
     // Initialize SSE stream
@@ -129,16 +132,15 @@
       // Data is stored in a particular sequence. E.g. x-axis is at index 0
       // and z-axis at index 2
       var currentIndex = 0;
-//      console.log(data);
       for(var watch in data) {
         var currentWatch = data[watch];
-// console.log(currentWatch);
         var currentArrayIndex = 0;
 
         // Set watch if not yet defiend
         if (!accelerationStreamData[watch]) {
           accelerationStreamData[watch] = [];
         }
+
         for(var array in currentWatch) {
           var sum = 0;
           var average = 0;
@@ -186,7 +188,6 @@
     function renderAccelerationGraph() {
       clearAccelerationGraph();
       var retrievedData = WatchDataService.getData();
-      console.log(retrievedData);
 
       // Populate columns with data
       accelerationGraphData.data.columns[X_AXIS_COLUMN_INDEX].push.apply(
@@ -217,12 +218,12 @@
      *         renders it to the chart if it is enabled.
      */
     function renderRealtimeAccelerationGraph() {
-      clearAccelerationGraph();
-
       // Only render when live streaming is set
       if (!accelerationStreamGraphControl.enabled) {
         return;
       }
+
+      clearAccelerationGraph();
 
       var currentWatch = accelerationStreamGraphControl.watchId;
       var watchData = accelerationStreamData[currentWatch];
@@ -296,5 +297,33 @@
           var dateFromMilliseconds = new Date(milliseconds);
           return dateFromMilliseconds.toString();
     }
+
+    /**
+     * @desc - Sets the ID of the watch to monitor.
+     *
+     * @param uuid {string} - The UUID of the device to monitor.
+     */
+    function setWatchIdToMonitor(uuid) {
+      accelerationStreamGraphControl.watchId = uuid;
+    }
+
+
+    /**
+     * @desc - Starts the rendering of acceleration stream and clears previous
+     *         data
+     */
+    function startAccelerationStream() {
+      clearAccelerationGraph();
+      accelerationStreamGraphControl.enabled = true;
+    }
+
+    /**
+     * @desc - Stops the rendering of acceleration stream and clears previous
+     *         data
+     */
+    function stopAccelerationStream() {
+      accelerationStreamGraphControl.enabled = false;
+    }
+
   }
 })();

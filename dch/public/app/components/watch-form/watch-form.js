@@ -55,6 +55,7 @@
     *         in the dropdown menus.
     */
     vm.updateWatch = function() {
+      DataGraphService.setWatchIdToMonitor(vm.selectedWatch.id.trim());
       vm.selectedWatch.interval = '';
       vm.selectedWatch.startTime = '';
     }

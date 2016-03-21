@@ -9,7 +9,39 @@
           <h4 class="modal-title">Alerts Received</h4>
         </div>
         <div class="modal-body">
-          <p>Some text in the modal.</p>
+          <table class="table table-striped">
+            <tr>
+              <td ng-repeat="columnHeader in canarayAlertsController.tableColumns">
+                {{columnHeader}}
+              </td>
+            <tr>
+            <tr ng-repeat="alert in canarayAlertsController.alerts">
+              <td>
+                <button>
+                  <i class="fa fa-remove"></i>
+                </button>
+              </td>
+              <td>
+                {{ alert.timestamp }}
+              </td>
+              <td>
+                {{ alert.watchId }}
+              </td>
+              <td>
+                {{ alert.alertType }}
+              </td>
+              <td>
+                {{ alert.alertText }}
+              </td>
+              <td>
+                <button>
+                  <i class="fa fa-remove"></i>
+                </button>
+              </td>
+            </tr>
+          </table>
+          <!-- We might not use this, but it's nice that if we need it, we got it. -->
+          <uib-pagination total-items="500" max-size="8" ng-model="bigCurrentPage" class="pagination-sm" boundary-links="true" force-ellipses="true"></uib-pagination>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -19,13 +51,13 @@
   </div>
 </div>
 <div style="padding: 5px;">
-<div class="alert alert-success" id="canary-alert">
+<div class="alert alert-success" id="canary-alert" style="width:300px;z-index:100;position:absolute;left:75%">
   <button type="button" class="close" data-dismiss="alert">x</button>
   <strong>CONNECTION DETECTED:</strong><br>
   <strong>DEVICE 67123876acf123</strong>
 </div>
 
-<div class="alert alert-danger" id="canary-alert">
+<div class="alert alert-danger" id="canary-alert" style="width:300px;z-index:100;position:absolute;left:75%">
   <button type="button" class="close" data-dismiss="alert">x</button>
   <strong>ALERT:</strong><br>
   <strong>DEVICE f653223417</strong><br>

@@ -30,9 +30,13 @@
     return directive;
   }
 
-  CanarayAlertsController.$inject = [];
+  CanarayAlertsController.$inject = ['CanaryAlertService'];
 
-  function CanarayAlertsController() {
+  function CanarayAlertsController(CanaryAlertService) {
+    var vm = this;
+
+    vm.tableColumns = ['MARK AS READ', 'TIME', 'WATCH ID', 'ALERT TYPE', 'ALERT', 'DELETE'];
+    vm.alerts = CanaryAlertService.getWatchAlerts().alerts;
   }
 
 })();

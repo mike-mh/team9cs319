@@ -6,6 +6,7 @@
     <!-- Load css files -->
     <link rel="stylesheet" href="/libs/css/c3.css"  type="text/css">
     <link rel="stylesheet" href="/libs/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/libs/css/font-awesome-4.5.0/css/font-awesome.min.css" type="text/css">
     <link rel="stylesheet" href="/libs/css/custom.css" type="text/css">
     
     <!-- Load javascript files (order mattters!!) -->
@@ -27,6 +28,7 @@
     <script src="/app/components/acceleration-graph/data-graph-service.js"></script>
     <script src="/app/components/acceleration-graph/acceleration-graph.js"></script>
     <script src="/app/components/watch-form/watch-form.js"></script>
+    <script src="/app/components/navbar/canary-alerts/canary-alerts-service.js"></script>
     <script src="/app/components/navbar/canary-alerts/canary-alerts.js"></script>
     <script src="/app/components/navbar/navbar.js"></script>
     <script src="/app/app.js"></script>
@@ -38,32 +40,7 @@
     <navbar id="navbar-widget"></navbar>
     <watch-form id="watch-form"></watch-form>
     <acceleration-graph id="acceleration-graph"></acceleration-graph>
-    <script>
-   /*   console.log("HERE!");
-      var source = new EventSource("api/acceleration-sse/");
 
-      console.log(source, false);
-      source.addEventListener("acceleration-event", function(event) {
-        console.log(event.data);
-        console.log('acc-event');
-      }, false);
-
-      source.onmessage = function(event) {
-        console.log(event.data);
-        console.log('message');
-      };
-
-      source.addEventListener("message", function(event) {
-        console.log('message');
-      }, false);
-
-
-      source.addEventListener("open", function(event) {
-        console.log("Connection open!");
-      }, false);
-
-      console.log("HERE!");*/
-    </script>
   <body>
 </html>
 
