@@ -232,7 +232,7 @@
         chart = c3.generate(accelerationGraphData);
       }
 
-      console.log(watchData);
+     // console.log(watchData);
 
       // Populate columns with data //FIX LATER! TERRIBLE!
       accelerationGraphData.data.columns[X_AXIS_COLUMN_INDEX].push.apply(

@@ -9,7 +9,7 @@ var decryptText = function(textToDecipher){
     var decipher = crypto.createDecipheriv('des-cbc', privateKey.substr(0, 8), iv);
     var dec = decipher.update(textToDecipher, 'base64', 'utf8');
     dec += decipher.final('utf8');
-    console.log('deciphered: ' + dec);
+    //console.log('deciphered: ' + dec);
     return dec;
   } catch (e) {
     return "";

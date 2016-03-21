@@ -126,5 +126,12 @@
     // Return the service as an object. Angular treats it as a Singleton.
     return canaryAlertService;
 
+    /**
+     * @desc - Initialize the alert stream
+     */
+    function initializeStream() {
+
+    }
+
   }
 })();

@@ -1,6 +1,7 @@
 'use strict'
 
 var mongoose = require('mongoose'); //include mongose module
+
 // TODO: set up a path for the test db
 var MONGODB_URL = 'mongodb://localhost:27017/mqtt-data';
 var IDLE_TIME_THRESHOLD = 300000;
@@ -9,6 +10,10 @@ var SPIKE_ACC_THRESHOLD = 20;
 
 // Alert polling interval in milliseconds
 var ALERT_POLLING_INTERVAL = 5000;
+
+// This array will hold all alerts found to be broadcasted. Resets after each
+// broadcast event through SSE
+exports.alerts = [];
 
 /*
  * Use these objects to encapsulate data retrieved from watches. This data is
@@ -59,9 +64,22 @@ var dataSchema = mongoose.Schema({
   timestamp: Number
 });
 
+var alertSchema = mongoose.Schema({
+  timestamp: Number,
+  watch_id: String,
+  alert_type: String,
+  alert_text: String
+});
+
+
 //create a model for the accelration data
 var Data = mongoose.model('Data', dataSchema);
+
+//create a model for the alert data
+var AlertData = mongoose.model('AlertData', alertSchema);
+
 exports.model = Data;
+exports.alertModel = AlertData
 
 exports.disconnect = function(){
   mongoose.disconnect();
