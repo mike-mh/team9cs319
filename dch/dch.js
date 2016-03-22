@@ -225,6 +225,7 @@ app.use(API_BASE_PATH, router);
 app.use('*', function(req, res){
   res.sendStatus(404);
 });
+
 app.listen(APP_PORT, function(){
   console.log("The app is now listeing on port 3000");
 });

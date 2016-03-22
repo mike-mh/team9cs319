@@ -137,6 +137,7 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
     // append an alert that a new device has connected and insert it into the
     // database
     if (connectedDeviceMap[watchId] !== undefined) {
+      console.log(connectedDeviceMap[watchId].toString());
       var timeout = connectedDeviceMap[watchId];
       clearTimeout(timeout);
       connectedDeviceMap[watchId] = setTimeout(generateDisconnectionAlert,
@@ -160,7 +161,7 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
         }
       });
 
-      // Insert the device into the map
+      // Reset the timeout
       connectedDeviceMap[watchId] = setTimeout(generateDisconnectionAlert,
                                                CONNECTION_TIMEOUT,
                                                watchId);
@@ -203,10 +204,8 @@ function generateDisconnectionAlert(uuid) {
   // This is a big architectural faux pas. If we have time, we should fix this
   database.alerts.push(disconnectionAlert);
 
-  // Remove the uuid from connected devices
-  if (connectedDeviceMap[uuid]) {
-    delete connectedDeviceMap[uuid];
-  }
+  // Remove the uuid timer from connected devices
+  connectedDeviceMap[uuid] = undefined;
 }
 
 // Update sysClient.totalClients when connected device total changes

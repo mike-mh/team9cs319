@@ -15,7 +15,7 @@
                 {{columnHeader}}
               </td>
             <tr>
-            <tr ng-repeat="alert in canarayAlertsController.alerts">
+            <tr ng-repeat="alert in canarayAlertsController.alerts.alerts">
               <td>
                 <button>
                   <i class="fa fa-remove"></i>
@@ -50,17 +50,12 @@
     </div>
   </div>
 </div>
-<div style="padding: 5px;">
-<div class="alert alert-success" id="canary-alert" style="width:300px;z-index:100;position:absolute;left:75%">
-  <button type="button" class="close" data-dismiss="alert">x</button>
-  <strong>CONNECTION DETECTED:</strong><br>
-  <strong>DEVICE 67123876acf123</strong>
+
+<div class="alert alert-success fade in" id="canary-alert" style="width:300px;z-index:100;position:absolute;left:75%" ng-hide="!canarayAlertsController.showAlertToast">
+  <strong>{{ canarayAlertsController.alertToastTime }}</strong><br>
+  <strong>{{ canarayAlertsController.alertToastWatchId }}</strong><br>
+  <strong>{{ canarayAlertsController.alertToastAlertType }}</strong><br>
+  {{ canarayAlertsController.alertToastAlertText }}
 </div>
 
-<div class="alert alert-danger" id="canary-alert" style="width:300px;z-index:100;position:absolute;left:75%">
-  <button type="button" class="close" data-dismiss="alert">x</button>
-  <strong>ALERT:</strong><br>
-  <strong>DEVICE f653223417</strong><br>
-  Fall detected!
-</div>
-</div>
+
