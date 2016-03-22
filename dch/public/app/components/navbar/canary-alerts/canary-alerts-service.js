@@ -35,31 +35,31 @@
     var testDate = new Date();
     var watchAlerts = {
       alerts: [
-       {
-          timestamp: testDate.toString(),
+       /*{
+          timestamp: 'Jan 16, 2016 17:35',
           watchId: '7982347af7982',
           alertType: 'Connection',
           alertText: 'Device has connected to network',
           read: false
+        {
+        },
+          timestamp: 'Jan 16, 2016 17:12',
+          watchId: '828731acf3',
+          alertType: 'ALERT',
+          alertText: 'Extreme acceleration spike detected',
+          read: false
         },
         {
-          timestamp: testDate.toString(),
-          watchId: '7982347af7982',
-          alertType: 'Connection',
+          timestamp: 'Jan 16, 2016 14:31',
+          watchId: '828731acf3',
+          alertType: 'BATTERY',
           alertText: 'Device has connected to network',
           read: false
         },
         {
-          timestamp: testDate.toString(),
+          timestamp: 'Jan 16, 2016 14:02',
           watchId: '7982347af7982',
-          alertType: 'Connection',
-          alertText: 'Device has connected to network',
-          read: false
-        },
-        {
-          timestamp: testDate.toString(),
-          watchId: '7982347af7982',
-          alertType: 'Connection',
+          alertType: 'CONNECTION',
           alertText: 'Device has connected to network',
           read: false
         },

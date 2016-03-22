@@ -63,6 +63,7 @@
      */
     function pushConnectionDataToQueue(connectionData) {
       alertsQueue.push(connectionData);
+      vm.alerts.push(connectionData);
       console.log(alertsQueue);
     }
 
