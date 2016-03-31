@@ -44,6 +44,9 @@ var sysClient = mqtt.connect(MQTT_BROKER_URL);
 var connectedDeviceMap = {
 }
 
+var idleDeviceMap = {
+}
+
 
 // Initialize totalClients value
 sysClient.totalClients = '0';
@@ -52,7 +55,7 @@ var getDataObject = function (stringData){
   //console.log('Checking format of JSON data');
   try{
     var messageJson = JSON.parse(stringData);
-    
+
     if (
       Object.keys(messageJson).length === 5 &&
       messageJson[WATCH_ID] &&
@@ -132,6 +135,54 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
     database.accelerationChanges[watchId].acc_z.push(dataObj.acc_z);
     database.accelerationChanges[watchId].gradient.push(dataObj.gradient);
     database.accelerationChanges[watchId].timestamp.push(dataObj.timestamp);
+
+    // Generate spike alert if necessary
+    if (dataObj.gradient > 20) {
+      var spikeAlert = {
+          timestamp: dataObj.timestamp,
+          watch_id: watchId,
+          alert_type: 'ACC_SPIKE',
+          alert_text: 'Device has gradient = ' + dataObj.gradient + "."
+      }
+
+      AlertData.create(spikeAlert, function(err, data) {
+        if (err) {
+          console.log('There was an error inserting ' + data + ' into the database');
+        } else {
+          console.log(data.toString() + ' saved to database');
+        }
+      });
+
+      // This is a big architectural faux pas. If we have time, should fix this
+      database.alerts.push(spikeAlert);
+    }
+
+    // Generate idle alert if necessary
+    var lastIdleTimestamp = idleDeviceMap[watchId];
+    if (dataObj.getGradient < 1) {
+      if (!lastIdleTimestamp) {
+        idleDeviceMap[watchId] = dataObj.timestamp;
+      } else if (dataObj.timestamp - lastIdleTimestamp > 300000) {
+        var idleAlert = {
+          timestamp: dataObj.timestamp,
+          watch_id: watchId,
+          alert_type: 'ACC_IDLE',
+          alert_text: 'Device has been idle for more than 5 minutes.'
+        }
+        AlertData.create(idleAlert, function(err, data) {
+          if (err) {
+            console.log('There was an error inserting ' + data + ' into the database');
+          } else {
+            console.log(data.toString() + ' saved to database');
+          }
+        });
+        idleDeviceMap[watchId] = dataObj.timestamp; // update timestamp
+        // This is a big architectural faux pas. If we have time, should fix this
+        database.alerts.push(idleAlert);
+      }
+    } else {
+      idleDeviceMap[watchId] = null;
+    }
 
     // Reset timeout delay if it is in the connectedDevicesMap. Otherwise,
     // append an alert that a new device has connected and insert it into the
