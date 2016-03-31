@@ -57,6 +57,9 @@ public class BroadcastService extends Service {
     /* Use this to show the publish rate */
     public static long publishRateMilliSec = 0;
 
+    /* Use this to lock out connection attempts */
+    public static boolean isConnecting = false;
+
 
     private long lastTimeCheck = System.currentTimeMillis();
     private MqttAndroidClient client;
@@ -111,7 +114,6 @@ public class BroadcastService extends Service {
     // These are the threading components.
     private ScheduledFuture publicationHandle;
     private final Runnable publishData = new Runnable() {
-        private boolean isConnecting = false;
 
         @Override
         /**
@@ -124,8 +126,8 @@ public class BroadcastService extends Service {
          *         in this class in perpetuity at the pre-set intercal.
          */
         public void run() {
+
             if (client.isConnected()) {
-                isConnecting = false;
                 String data = "";
 
                 // Calculate the rate between publish events
@@ -185,20 +187,20 @@ public class BroadcastService extends Service {
                     e.printStackTrace();
                 }
             } else {
-                try {
-                    // Use the connecting flag to ensure that the client is
-                    // not attempting a connection while another thread is
-                    // trying to do so.
-                    if(!isConnecting) {
-                        isConnecting = true;
-
+                // Use the connecting flag to ensure that the client is
+                // not attempting a connection while another thread is
+                // trying to do so.
+                if (!isConnecting) {
+                    isConnecting = true;
+                    try {
                         MQTTConnectionHandler callback =
                                 new MQTTConnectionHandler();
 
                         client.connect(null, callback);
+
+                    } catch (MqttException e) {
+                        e.printStackTrace();
                     }
-                } catch (MqttException e) {
-                    e.printStackTrace();
                 }
             }
         }
