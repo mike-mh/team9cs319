@@ -41,14 +41,11 @@ var sysClient = mqtt.connect(MQTT_BROKER_URL);
 // is received, the device is considered 'disconnected'. If the UUID does not
 // exist in this array, a connection alert is triggered. Each UUID maps to a
 // setTimeout object which must be reset each time a ping is received.
-var connectedDeviceMap = {
-}
+var connectedDeviceMap = {};
 
-var idleDeviceMap = {
-}
+var idleDeviceMap = {};
 
-var batteryDeviceMap = {
-}
+var batteryDeviceMap = {};
 
 // Initialize totalClients value
 sysClient.totalClients = '0';
@@ -79,6 +76,17 @@ var getDataObject = function (stringData){
 // get the magnitude of the vector <x,y,z>
 var getGradient = function (x, y, z) {
   return Math.sqrt(x*x + y*y + z*z);
+}
+
+var createAlert = function (alert) {
+  AlertData.create(alert, function(err, data) {
+    if (err) {
+      console.log('There was an error inserting ' + data + ' into the database');
+    } else {
+      console.log(data.toString() + ' saved to database');
+    }
+  });
+  database.alerts.push(alert);
 }
 
 // Signal dcappClient is listening for watch data
@@ -140,23 +148,12 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
 
     // Generate spike alert if necessary
     if (dataObj.gradient > 20) {
-      var spikeAlert = {
+      createAlert({
           timestamp: dataObj.timestamp,
           watch_id: watchId,
           alert_type: 'ACC_SPIKE',
           alert_text: 'Device has gradient = ' + dataObj.gradient + "."
-      }
-
-      AlertData.create(spikeAlert, function(err, data) {
-        if (err) {
-          console.log('There was an error inserting ' + data + ' into the database');
-        } else {
-          console.log(data.toString() + ' saved to database');
-        }
       });
-
-      // This is a big architectural faux pas. If we have time, should fix this
-      database.alerts.push(spikeAlert);
     }
 
     // Generate idle alert if necessary
@@ -165,25 +162,57 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
       if (!lastIdleTimestamp) {
         idleDeviceMap[watchId] = dataObj.timestamp;
       } else if (dataObj.timestamp - lastIdleTimestamp > 300000) {
-        var idleAlert = {
+        createAlert({
           timestamp: dataObj.timestamp,
           watch_id: watchId,
           alert_type: 'ACC_IDLE',
           alert_text: 'Device has been idle for more than 5 minutes.'
-        }
-        AlertData.create(idleAlert, function(err, data) {
-          if (err) {
-            console.log('There was an error inserting ' + data + ' into the database');
-          } else {
-            console.log(data.toString() + ' saved to database');
-          }
         });
         idleDeviceMap[watchId] = dataObj.timestamp; // update timestamp
-        // This is a big architectural faux pas. If we have time, should fix this
-        database.alerts.push(idleAlert);
       }
     } else {
       idleDeviceMap[watchId] = null;
+    }
+
+    // Generate low battery alert if necessary
+    var lastThreshold = batteryDeviceMap[watchId];
+    if (!lastThreshold) {
+      batteryDeviceMap[watchId] = 1;
+    }
+    if (dataObj.battery > 0.3) {
+      batteryDeviceMap[watchId] = 1;
+    } else if (lastThreshold >= 0.01 && dataObj.battery < 0.01) {
+      batteryDeviceMap[watchId] = dataObj.battery;
+      createAlert({
+        timestamp: dataObj.timestamp,
+        watch_id: watchId,
+        alert_type: 'LOW_BATTERY',
+        alert_text: 'Battery life is under 1%.'
+      });
+    } else if (lastThreshold >= 0.02 && dataObj.battery < 0.02) {
+      batteryDeviceMap[watchId] = dataObj.battery;
+      createAlert({
+        timestamp: dataObj.timestamp,
+        watch_id: watchId,
+        alert_type: 'LOW_BATTERY',
+        alert_text: 'Battery life is under 2%.'
+      });
+    } else if (lastThreshold >= 0.05 && dataObj.battery < 0.05) {
+      batteryDeviceMap[watchId] = dataObj.battery;
+      createAlert({
+        timestamp: dataObj.timestamp,
+        watch_id: watchId,
+        alert_type: 'LOW_BATTERY',
+        alert_text: 'Battery life is under 5%.'
+      });
+    } else if (lastThreshold >= 0.1 && dataObj.battery < 0.1) {
+      batteryDeviceMap[watchId] = dataObj.battery;
+      createAlert({
+        timestamp: dataObj.timestamp,
+        watch_id: watchId,
+        alert_type: 'LOW_BATTERY',
+        alert_text: 'Battery life is under 10%.'
+      });
     }
 
     // Reset timeout delay if it is in the connectedDevicesMap. Otherwise,
@@ -197,30 +226,17 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
                                                CONNECTION_TIMEOUT,
                                                watchId);
     } else {
-
-      var connectionAlert =
-        {
-          timestamp: dataObj.timestamp,
-          watch_id: watchId,
-          alert_type: 'CONNECTION',
-          alert_text: 'Device has connected to DCH.'
-        };
-
-      AlertData.create(connectionAlert, function(err, data) {
-        if (err) {
-          console.log('There was an error inserting ' + data + ' into the database');
-        } else {
-          console.log(data.toString() + ' saved to database');
-        }
+      createAlert({
+        timestamp: dataObj.timestamp,
+        watch_id: watchId,
+        alert_type: 'CONNECTION',
+        alert_text: 'Device has connected to DCH.'
       });
 
       // Reset the timeout
       connectedDeviceMap[watchId] = setTimeout(generateDisconnectionAlert,
                                                CONNECTION_TIMEOUT,
                                                watchId);
-
-      // This is a big architectural faux pas. If we have time, should fix this
-      database.alerts.push(connectionAlert);
     }
 
   } else {
