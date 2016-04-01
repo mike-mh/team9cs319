@@ -16,7 +16,7 @@ public class MQTTConnectionHandler implements IMqttActionListener {
     public void onSuccess(IMqttToken iMqttToken) {
         BroadcastService.connectionStatus = "Connected";
         BroadcastService.isConnecting = false;
-        Log.i("test", "CONNECTED!!!");
+        Log.i("test", "Device has connected to server");
     }
 
     @Override
