@@ -56,6 +56,7 @@
     console.log(vm.alerts);
     CanaryAlertService.regiterCallback(pushConnectionDataToQueue);
 
+
     /**
      * @desc - Use to push data retrieved from the alerts sse 
      *
