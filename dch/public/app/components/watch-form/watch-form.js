@@ -1,6 +1,6 @@
 (function() {
 
-	'use strict';
+  'use strict';
 
   /**
    * @desc - Directive used to create the watch form query. Posts
@@ -8,189 +8,204 @@
    *
    * @example <watch-form></watch-form>
    */
-   angular
+  angular
     .module('dcgui.components')
     .directive('watchForm', watchForm)
-    // This filter is temporary. Will later use the API to directly
-    // retrieve the WatchIDs. Right now it simply removes duplicates
-    // of WatchIDs when populating the list of WatchIDs.
-    .filter('unique', function(){
-      return function(collection, keyname) {
-    	  var output = [],
-    	  keys = [];
 
-    	  angular.forEach(collection, function(item) {
-    	    var key = item[keyname];
-    		if(keys.indexOf(key) === -1) {
-    		keys.push(key);
-    		output.push(item);
-    	  }
-        });
-      return output;
-      }
-    });
+  function watchForm() {
+    var directive = {
+      scope: {
+        watches: '='
+      },
 
-    function watchForm() {
-      var directive = {
-        scope: {
-    		  watches: '='
-    	},
-    	templateUrl: '/app/components/watch-form/watch-form.html',
-    	controller: WatchFormController,
-    	controllerAs: 'watchFormCtrl',
-    	restrict: 'E',
-    	bindToController: true
-      };
+      templateUrl: '/app/components/watch-form/watch-form.html',
+      controller: WatchFormController,
+      controllerAs: 'watchFormCtrl',
+      restrict: 'E',
+      bindToController: true
+    };
 
-    	return directive;
+    return directive;
+  }
+
+  WatchFormController.$inject = ['$http', 'DataGraphService', 'WatchDataService'];
+
+  function WatchFormController($http, DataGraphService, WatchDataService) {
+    var vm = this;
+
+    vm.dataList = [];
+    vm.times = [];
+    vm.intervalOptions = [5, 10, 30];
+
+    // This will store the user selected information.
+    vm.selectedWatch = {
+      id: '',
+      startTime: '',
+      interval: '',
     }
 
-    WatchFormController.$inject = ['$http'];
+    var GET_WATCH_IDS = '/api/get-watch-ids';
 
-    function WatchFormController($http) {
-      var vm = this;
+    var MILLISECONDS_IN_MINUTE = 60000;
+    var DATA_POINTS_IN_GRAPH = 300;
 
-      vm.times = [];
-      vm.watchSelected = false;
-      vm.timeSelected = false;   
-
-      // This will store the user selected information.
-      vm.selectedWatch = {
-        id: '',
-    	startTime: '',
-        interval: '',
-      }
-
-      var NO_DEVICE_DATA_DISPLAY = 'No data';
-      var GET_DATA_QUERY_PATH = '/get_data/';
-
-      vm.watchFormData = NO_DEVICE_DATA_DISPLAY;
-
-     /**
-      * @desc - This function is called when a watch selection
-      *         is updated by the user. It calls populateTimes(watch)
-      *         to populate the correct start times for the selected
-      *         watch.
-      */
-      vm.updateWatch = function() {
-        queryTimes(vm.watches[0])
-        vm.watchSelected = true;
-      }
-
-     /**
-      * @desc - This function is called when a time selection
-      *         is updated by the user. 
-      */
-      vm.updateTime = function() {
-        vm.timeSelected = true;
-      }
-
-     /**
-      * @desc - This function validates and submits the watch form.
-      *
-      * @param - selectedWatch, startTime, interval - Object to post to 
-      *          DCH server to get watch data.
-      */
-      vm.submitForm = function(watch, startTime, interval) {
-        console.log('Watch: ' + watch);   
-        console.log('Start Time: ' + startTime);
-        if (watch == null || watch == '') {
-          alert('Please select a watch.');
-        } 
-        else if (startTime == null || startTime == '') {
-          alert('Please select a start time.');
-        } 
-        else if (interval == null || interval == '') {
-          alert('Please select a time interval.')
-        }
-        else {
-          console.log('Requesting data.');
-        }
-          requestWatchData();
-      }
-
-     /**
-      * @desc - This function populates the start times for a 
-      *         selected watch at 5 minute intervals.
-      *         
-      * @param - watch {object} - the selected watch.
-      */
-
-      function queryTimes(watch) {
-        // For now, this function gets the time of the first element
-        // in watches[]. Once the api call is defined, this will make
-        // a query to the DCH to grab the start time of the selected watch.
-        var milliseconds = watch.TIMESTAMP; 
-        console.log(milliseconds);
-        for (var i=0; i<288; i++) {
-          var dateFromMilliseconds = new Date(milliseconds);
-          vm.times[i] = dateFromMilliseconds.toString();
-          milliseconds = milliseconds + 300000;
-        }
-          console.log(vm.times);
-      }
-
-     /**
-      * @desc - This callback function is called when $http service completes
-      *         its request for total connected devices successfully.
-      *
-      * @param response {object} - Response from the server.
-      */
-      function successCallback(response) {
-    	vm.watches = response.data;
-    	console.log(vm.watches);
-      }
-
-     /**
-      * @desc - This callback function is called when $http service completes
-      *         its request for total connected devices with an error response.
-      *
-      * @param response {object} - Response from the server.
-      */
-      function errorCallback(response) {
-    	console.log(response);
-      }
-
-     /**
-      * @desc - This function is used to request the all the data from the 
-      *         DCH server. Once the request completes, a callback is
-      *         executed based on whether or not the request was successful.
-      */
-      function requestData() {
-    	var responsePromise = $http.get(GET_DATA_QUERY_PATH);
-    	responsePromise.then(successCallback, errorCallback);
-      }
-
-     /**
-      * @desc - This function parses out the query string and requests 
-      *         the data from the DCH server. The watch id, start time,
-      *         and interval is provided by the user. Stop time is the
-      *         current date.       
-      */
-      function requestWatchData() {
-        var watchId = removeSpaces(vm.selectedWatch.id);   
-
-        var startTime = new Date(vm.selectedWatch.startTime);
-        startTime = startTime.getTime();
-
-        var stopTime = new Date();
-        stopTime = stopTime.getTime();
-
-        var interval = vm.selectedWatch.interval * 60000;
-
-        var dataQuery = 'api/getData/:'+watchId+'/:'+startTime+'/:'+stopTime+'/:'+interval;
-        console.log(dataQuery);
-
-      }
-
-      // Helper function to remove the spaces in a string.
-      function removeSpaces(field) {
-        field = field.replace(/\s+/g, '');
-        return field;
-      }
-
-      // Request data from the DCH server.
-      requestData();
+   /**
+    * @desc - This function is called when a watch selection
+    *         is updated by the user. It clears previous data
+    *         in the dropdown menus.
+    */
+    vm.updateWatch = function() {
+      DataGraphService.setWatchIdToMonitor(vm.selectedWatch.id.trim());
+      vm.selectedWatch.interval = '';
+      vm.selectedWatch.startTime = '';
     }
+
+    /**
+     * @desc - This function is used to create timestamps to populate the
+     *         start time selection menu.
+     */
+    vm.queryTimes = function() {
+      var id = vm.selectedWatch.id.trim();
+      var interval = vm.selectedWatch.interval;
+      var intervalInMilliseconds = MILLISECONDS_IN_MINUTE * interval;
+
+      // Used to generate times in dropdown menu
+      var currentTime;
+      var endTime;
+
+      var result = vm.watches.filter(function(watch){
+        return watch._id === id;
+      });
+
+      // Clear out previous times
+      vm.times.splice(0, vm.times.length);
+        
+      // Find the latest timestamp available for current watch
+      endTime = result[0].end;
+      currentTime = result[0].start;
+
+      // Create all necessarry date strings
+      while(currentTime < endTime) {
+        var dateIterationObject = new Date(currentTime);
+        var dateString = dateIterationObject.toString();
+        vm.times.push(dateString);
+        currentTime += intervalInMilliseconds;
+      }
+    }
+
+   /**
+    * @desc - This function validates and submits the watch form.
+    *
+    * @param - selectedWatch, startTime, interval - Object to post to 
+    *          DCH server to get watch data.
+    */
+    vm.submitForm = function() {
+      var currentWatch = vm.selectedWatch
+      if (!currentWatch.id) {
+        alert('Please select a watch.');
+      } 
+      else if (!currentWatch.startTime) {
+        alert('Please select a start time.');
+      } 
+      else if (!currentWatch.interval) {
+        alert('Please select a time interval.')
+      }
+      else {
+        console.log('Requesting data.');
+      }
+
+      requestWatchData();
+    }
+
+
+    /**
+     * @desc - This callback function is called when $http service completes
+     *         its request for watch ids successfully.
+     *
+     * @param response {object} - Response from the server.
+     */
+    function idSuccessCallback(response) {
+      vm.watches = response.data;
+    }
+
+    /**
+     * @desc - This callback function is called when $http service completes
+     *         its request for watch ids with an error response.
+     *
+     * @param response {object} - Response from the server.
+     */
+    function idErrorCallback(response) {
+      console.log(response);
+    }
+
+    /**
+     * @desc - This function is used to request the all the data from the 
+     *         DCH server. Once the request completes, a callback is
+     *         executed based on whether or not the request was successful.
+     */
+    function requestWatchIds() {
+      var responsePromise = $http.get(GET_WATCH_IDS);
+      responsePromise.then(idSuccessCallback, idErrorCallback);
+    }
+
+
+    /**
+     * @desc - This callback function is called when $http service completes
+     *         its request for selected watch data successfully. Proceeds to
+     *         render the chart.
+     *
+     * @param response {object} - Response from the server.
+     */
+    function dataSuccessCallback(response) {
+      vm.dataList = response.data;
+      WatchDataService.putData(vm.dataList);
+      DataGraphService.clearAccelerationGraph();
+      DataGraphService.renderAccelerationGraph();
+    }
+
+    /**
+     * @desc - This callback function is called when $http service completes
+     *         its request for selected watch data with an error response.
+     *
+     * @param response {object} - Response from the server.
+     */
+    function dataErrorCallback(response) {
+      console.log(response);
+    }
+
+    /**
+     * @desc - This function parses out the query string and requests 
+     *         the data from the DCH server. The watch id, start time,
+     *         and interval is provided by the user. Stop time is the
+     *         last one interval away from the time user selected.
+     *
+     *         E.g. If the user selected a five minute interval
+     *              starting from 17:32, 300 data points would be
+     *              collected from between 17:32 and 17:37.
+     */
+    function requestWatchData() {
+      var watchId = removeSpaces(vm.selectedWatch.id);   
+      var startTime = new Date(vm.selectedWatch.startTime);
+      startTime = startTime.getTime();
+      var stopTime = startTime + vm.selectedWatch.interval * 60000;
+      var interval = vm.selectedWatch.interval * 300;
+      var dataQuery = '/api/get-data/' +
+                      watchId + '/' +
+                      startTime + '/' + 
+                      stopTime + '/' + interval;
+
+      var responsePromise = $http.get(dataQuery);
+      responsePromise.then(dataSuccessCallback, dataErrorCallback);
+    }
+
+    // Helper function to remove the spaces in a string.
+    function removeSpaces(field) {
+      field = field.replace(/\s+/g, '');
+      return field;
+    }
+
+    // Request watch ID data from the DCH server to populate drop down menu.
+    requestWatchIds();
+  }
 
 })();

@@ -6,6 +6,8 @@
     <!-- Load css files -->
     <link rel="stylesheet" href="/libs/css/c3.css"  type="text/css">
     <link rel="stylesheet" href="/libs/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/libs/css/font-awesome-4.5.0/css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="/libs/css/custom.css" type="text/css">
     
     <!-- Load javascript files (order mattters!!) -->
     <script src="/libs/javascript/angular-1.4.5.min.js"></script>
@@ -19,19 +21,26 @@
     <script src="/app/shared/shared.js"></script>
     <script src="/app/shared/drop-down-widget/drop-down-widget.js"></script>
     <script src="/app/shared/data-analyzer/data-analyzer-service.js"></script>
+    <script src="/app/shared/watch-data/watch-data-service.js"></script>
     <script src="/app/components/components.js"></script>
     <script src="/app/components/acceleration-alert/acceleration-alert.js"></script>
     <script src="/app/components/connected-devices/connected-devices.js"></script>
+    <script src="/app/components/acceleration-graph/data-graph-service.js"></script>
     <script src="/app/components/acceleration-graph/acceleration-graph.js"></script>
     <script src="/app/components/watch-form/watch-form.js"></script>
+    <script src="/app/components/navbar/canary-alerts/canary-alerts-service.js"></script>
+    <script src="/app/components/navbar/canary-alerts/canary-alerts.js"></script>
+    <script src="/app/components/navbar/navbar.js"></script>
     <script src="/app/app.js"></script>
   </head>
   <body>
 
     <!-- The beauty of AngularJS. A massive payload of HTML in one little package! -->
     <!-- The ids have been added for a protractor testing example -->
-    <connected-devices id="total-devices"></connected-devices>
+    <navbar id="navbar-widget"></navbar>
+    <watch-form id="watch-form"></watch-form>
     <acceleration-graph id="acceleration-graph"></acceleration-graph>
+
   <body>
 </html>
 
