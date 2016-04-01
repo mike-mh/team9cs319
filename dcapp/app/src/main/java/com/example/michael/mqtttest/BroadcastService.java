@@ -1,13 +1,17 @@
 package com.example.michael.mqtttest;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
+import android.os.BatteryManager;
 import android.support.annotation.Nullable;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -86,6 +90,9 @@ public class BroadcastService extends Service {
     private float[] gravity = { 0 , 0 , 0};
     private final float alpha = (float) 0.8;
 
+    // This variable holds the current battery life remaining as a percentage
+    private float batteryLife = (float) 0.0;
+
     // More constants (probably should store in a class)
     private static final String TCP_PREFIX = "tcp://";
 
@@ -99,6 +106,8 @@ public class BroadcastService extends Service {
 
     private static final String WATCH_ID_JSON_INDEX = "watch_id";
     private static final String TIMESTAMP_JSON_INDEX = "timestamp";
+    private static final String BATTERY_LIFE_JSON_INDEX = "battery_life";
+    private static final String PUBLISH_RATE_JSON_INDEX = "publish_rate";
     private static final String ACC_X_JSON_INDEX = "acc_x";
     private static final String ACC_Y_JSON_INDEX = "acc_y";
     private static final String ACC_Z_JSON_INDEX = "acc_z";
@@ -109,6 +118,27 @@ public class BroadcastService extends Service {
     private static final int X_ACCELERATION_INDEX = 0;
     private static final int Y_ACCELERATION_INDEX = 1;
     private static final int Z_ACCELERATION_INDEX = 2;
+
+    // Set the battery level receiver
+    private BroadcastReceiver batteryLevelReceiver = new BroadcastReceiver() {
+
+        /**
+         * @desc - This method is responsible for receiving broadcasts from the
+         *         Android Broadcast Actions and analyze battery data to
+         *         calculate the percentage of battery life remaining.
+         */
+        public void onReceive(Context context, Intent intent) {
+            context.unregisterReceiver(this);
+            int currentLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+            if (currentLevel >= 0 && scale > 0) {
+                batteryLife = currentLevel / (float) scale;
+            }
+        }
+    }; 
+
+    private IntentFilter batteryLevelFilter =
+      new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
 
     private static final int FASTEST_PUBLICATION_RATE = 200;
 
@@ -151,6 +181,12 @@ public class BroadcastService extends Service {
 
                     accelerationJson.put(TIMESTAMP_JSON_INDEX,
                             currentTimeMilliseconds);
+
+                    accelerationJson.put(BATTERY_LIFE_JSON_INDEX,
+                            batteryLife);
+
+                    accelerationJson.put(PUBLISH_RATE_JSON_INDEX,
+                            publishRateMilliSec);
 
                     // Convert JSON to string and publish
                     data = accelerationJson.toString();
@@ -254,6 +290,9 @@ public class BroadcastService extends Service {
         sensorManager.registerListener(accelerationListener,
                 accelerometer,
                 SensorManager.SENSOR_DELAY_NORMAL);
+
+        // Register receiver for battery data from the Android device
+        registerReceiver(batteryLevelReceiver, batteryLevelFilter);
 
         // Create new thread to boradcast data
         publicationHandle = publicationScheduler.scheduleAtFixedRate(
