@@ -47,6 +47,8 @@ var connectedDeviceMap = {
 var idleDeviceMap = {
 }
 
+var batteryDeviceMap = {
+}
 
 // Initialize totalClients value
 sysClient.totalClients = '0';
@@ -159,7 +161,7 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
 
     // Generate idle alert if necessary
     var lastIdleTimestamp = idleDeviceMap[watchId];
-    if (dataObj.getGradient < 1) {
+    if (dataObj.gradient < 1) {
       if (!lastIdleTimestamp) {
         idleDeviceMap[watchId] = dataObj.timestamp;
       } else if (dataObj.timestamp - lastIdleTimestamp > 300000) {
