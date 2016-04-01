@@ -106,15 +106,15 @@
       accelerationStream = new EventSource(ACCELERATION_STREAM_PATH);
       console.log('do it');
       accelerationStream.addEventListener("acceleration-event", function(event) {
-//        try {
+        try {
           var data = JSON.parse(event.data);
-          console.log(data);
+          //console.log(data);
           analyzeRetrievedData(data);
           renderRealtimeAccelerationGraph();
-          console.log('HOLLA!');
-//        } catch(e) {
-//          console.log(e);
-//        }
+          //console.log('HOLLA!');
+        } catch(e) {
+          console.log(e);
+        }
         //console.log(event.data);
       }, false);
 
@@ -157,7 +157,7 @@
 
           average = sum / currentArray.length;
 
-          console.log(accelerationStreamData);
+          //console.log(accelerationStreamData);
 
           if (!accelerationStreamData[watch][currentArrayIndex]) {
             accelerationStreamData[watch][currentArrayIndex] = [];
@@ -234,9 +234,9 @@
         chart = c3.generate(accelerationGraphData);
       }
 
-     console.log(accelerationStreamGraphControl);
-     console.log(accelerationStreamData);
-     console.log(watchData);
+     //console.log(accelerationStreamGraphControl);
+     //console.log(accelerationStreamData);
+     //console.log(watchData);
 
       // Populate columns with data //FIX LATER! TERRIBLE!
       accelerationGraphData.data.columns[X_AXIS_COLUMN_INDEX].push.apply(

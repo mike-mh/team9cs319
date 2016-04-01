@@ -13,7 +13,10 @@ var ALERT_POLLING_INTERVAL = 5000;
 
 // This array will hold all alerts found to be broadcasted. Resets after each
 // broadcast event through SSE
-exports.alerts = [];
+exports.alertsQueue = [];
+
+// Segregates the data to be published for each unique connection
+exports.alertMemoryPool = {};
 
 /*
  * Use these objects to encapsulate data retrieved from watches. This data is
@@ -21,6 +24,8 @@ exports.alerts = [];
  */
 // Acceleration events
 exports.accelerationQueue = [];
+
+// Segregates the data to be published for each unique connection
 exports.accelerationChangeMemoryPool = {};
 
 // Battery stream events
@@ -316,4 +321,24 @@ function pushAccelerationDataToMemoryPool() {
   }
 }
 
+/**
+ * @desc - This function is responsible for pushing all alerts pushed into the
+ *         queue into the shared memory pool for SSE clients.
+ */
+function pushAlertDataToMemoryPool() {
+  var currentAlert = exports.alertsQueue.pop();
+
+  // If there is no data is in the queue, nothing to be done.
+  if (currentAlert === undefined) {
+    return;
+  }
+
+  // Push the alert to each client
+  for (var client in exports.alertMemoryPool) {
+    exports.alertMemoryPool[client].push(currentAlert);
+  }
+}
+
+// Poll acceleration events and alerts
 setInterval(pushAccelerationDataToMemoryPool, 500);
+setInterval(pushAlertDataToMemoryPool, 500);

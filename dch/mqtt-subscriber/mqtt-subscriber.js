@@ -148,7 +148,7 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
       });
 
       // This is a big architectural faux pas. If we have time, should fix this
-      database.alerts.push(spikeAlert);
+      database.alertsQueue.push(spikeAlert);
     }
 
     // Generate idle alert if necessary
@@ -172,7 +172,7 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
         });
         idleDeviceMap[watchId] = dataObj.timestamp; // update timestamp
         // This is a big architectural faux pas. If we have time, should fix this
-        database.alerts.push(idleAlert);
+        database.alertsQueue.push(idleAlert);
       }
     } else {
       idleDeviceMap[watchId] = null;
@@ -212,7 +212,7 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
                                                watchId);
 
       // This is a big architectural faux pas. If we have time, should fix this
-      database.alerts.push(connectionAlert);
+      database.alertsQueue.push(connectionAlert);
     }
 
   } else {
@@ -247,7 +247,7 @@ function generateDisconnectionAlert(uuid) {
   });
 
   // This is a big architectural faux pas. If we have time, we should fix this
-  database.alerts.push(disconnectionAlert);
+  database.alertsQueue.push(disconnectionAlert);
 
   // Remove the uuid timer from connected devices
   connectedDeviceMap[uuid] = undefined;

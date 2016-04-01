@@ -50,6 +50,9 @@ var CLEAR_ACCELERATION_DATA_DELAY = 2000;
 // acceleration data 
 var accelerationUpdateIpMap = {};
 
+// Use this to generate SSE IDs
+var sseIdAccumulator = 1;
+
 function standardCallback(res) {
   return function(err, result) {
     if (err) {
@@ -118,22 +121,20 @@ router.get(ACCELERATION_SSE, function(req, res) {
   var broadcastInterval;
   var data;
   var accelerationDataPool;
-  var clientAddress = req.connection.remoteAddress;
 
-  req.socket.setTimeout(999999999999);
+  // Generate a unique ID for each SSE connection
+  var sseId = sseIdAccumulator++;
 
-  if (db.accelerationChangeMemoryPool[clientAddress] === undefined) {
-    db.accelerationChangeMemoryPool[clientAddress] = {};
+  if (db.accelerationChangeMemoryPool[sseId] === undefined) {
+    db.accelerationChangeMemoryPool[sseId] = {};
   }
 
-  var accelerationDataPool = db.accelerationChangeMemoryPool[clientAddress];
+  var accelerationDataPool = db.accelerationChangeMemoryPool[sseId];
 
   writeSSEHead(res, function() {
     broadcastInterval = setInterval(function() {
       try {
         data = JSON.stringify(accelerationDataPool);
-        console.log("THE DATA");
-        console.log(data);
         writeSSEData(res, ACCELERATION_EVENT, data);
 
         // Reset used data
@@ -144,13 +145,13 @@ router.get(ACCELERATION_SSE, function(req, res) {
           }
         }
       } catch (e) {
-        console.log("Error parsing acceleration data to broadcast");
+        console.log('Error parsing acceleration data to broadcast');
       }
     }, ACCELERATION_BROADCAST_DELAY);
   }); 
 
   // If the connection closes, be sure to unregister interval
-  req.connection.addListener("close", function() {
+  req.connection.addListener('close', function() {
     clearInterval(broadcastInterval);
   });
 });
@@ -164,19 +165,29 @@ router.get(BATTERY_SSE, function(req, res) {
 router.get(ALERT_SSE, function(req, res) {
   var broadcastInterval;
   var data;
+  var alertDataPool;
 
-  req.socket.setTimeout(999999999999);
+  // Generate a unique ID for each SSE connection
+  var sseId = sseIdAccumulator++;
 
-  console.log('broadcasting alerts');
+  if (db.alertMemoryPool[sseId] === undefined) {
+    db.alertMemoryPool[sseId] = [];
+  }
+
+  console.log(alertDataPool);
+  console.log(db.alertMemoryPool);
 
   writeSSEHead(res, function() {
     broadcastInterval = setInterval(function() {
-      try {
-        data = JSON.stringify(db.alerts);
-        writeSSEData(res, ALERT_EVENT, data);
+    alertDataPool = db.alertMemoryPool[sseId];
 
+      try {
+        console.log('THE DATA');
+        data = JSON.stringify(alertDataPool);
+        console.log(data);
+        writeSSEData(res, ALERT_EVENT, data);
         // Alerts have been broadcasted. Clear data.
-        db.alerts = [];
+        db.alertMemoryPool[sseId] = [];
       } catch (e) {
         console.log("Error parsing acceleration data to broadcast");
       }
@@ -228,9 +239,6 @@ function writeSSEData(broadcast, event, data) {
 
   // Two new lines needed to signal end of message
   broadcast.write("data: " + data + "\n\n");
-
-  // After data is broadcast, remove it.
-  //db.resetAccelerationChanges();
 };
 
 /**
