@@ -127,8 +127,8 @@ public class BroadcastService extends Service {
          *         Android Broadcast Actions and analyze battery data to
          *         calculate the percentage of battery life remaining.
          */
+        @Override
         public void onReceive(Context context, Intent intent) {
-            context.unregisterReceiver(this);
             int currentLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
             int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
             if (currentLevel >= 0 && scale > 0) {
@@ -292,7 +292,7 @@ public class BroadcastService extends Service {
                 SensorManager.SENSOR_DELAY_NORMAL);
 
         // Register receiver for battery data from the Android device
-        registerReceiver(batteryLevelReceiver, batteryLevelFilter);
+        this.registerReceiver(batteryLevelReceiver, batteryLevelFilter);
 
         // Create new thread to boradcast data
         publicationHandle = publicationScheduler.scheduleAtFixedRate(
@@ -312,6 +312,7 @@ public class BroadcastService extends Service {
      */
     public void onDestroy() {
         broadcastServiceIsRunning = false;
+        this.unregisterReceiver(batteryLevelReceiver);
         publicationHandle.cancel(true);
         sensorManager.unregisterListener(accelerationListener);
         super.onDestroy();
