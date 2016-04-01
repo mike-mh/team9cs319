@@ -18,50 +18,73 @@
             <div class="tab-pane fade in active" id="unread">
               <table class="table table-striped">
                 <thead>
-                <tr>
-                  <td ng-repeat="columnHeader in canarayAlertsController.tableColumns">
-                    {{columnHeader}}
-                  </td>
-                </tr>
+                  <tr>
+                    <td ng-repeat="columnHeader in canarayAlertsController.tableColumns">
+                      {{columnHeader}}
+                    </td>
+                  </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="alert in canarayAlertsController.alerts.alerts">
-                  <td>
-                    <button>
-                      <i class="fa fa-remove"></i>
-                    </button>
-                  </td>
-                  <td>
-                    {{ alert.timestamp }}
-                  </td>
-                  <td>
-                    {{ alert.watch_id }}
-                  </td>
-                  <td>
-                    {{ alert.alert_type }}
-                  </td>
-                  <td>
-                    {{ alert.alert_text }}
-                  </td>
-                  <td>
-                    <button>
-                      <i class="fa fa-remove"></i>
-                    </button>
-                  </td>
-                </tr>
+                  <tr ng-repeat="(alertIndex, alert) in canarayAlertsController.alerts.alerts">
+                    <td>
+                      <button ng-click="canarayAlertsController.MarkAsRead(alert, alertIndex)">
+                        <i class="glyphicon glyphicon-ok"></i>
+                      </button>
+                    </td>
+                    <td>
+                      {{ alert.timestamp}}
+                    </td>
+                    <td>
+                      {{ alert.watch_id }}
+                    </td>
+                    <td>
+                      {{ alert.alert_type }}
+                    </td>
+                    <td>
+                      {{ alert.alert_text }}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
-
             <!-- Read -->
             <div class="tab-pane fade" id="read">
-              Hello
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <td ng-repeat="columnHeader in canarayAlertsController.readTableColumns">
+                      {{columnHeader}}
+                    </td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="alert in canarayAlertsController.readAlerts">
+                    <td>
+                      {{alert.timestamp}}
+                    </td>
+                    <td>
+                      {{alert.watch_id}}
+                    </td>
+                    <td>
+                      {{alert.alert_type}}
+                    </td>
+                    <td>
+                      {{alert.alert_text}}
+                    </td>
+                    <td>
+                      <button>
+                        <i class="glyphicon glyphicon-remove"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
 
-          <!-- We might not use this, but it's nice that if we need it, we got it. -->
-          <uib-pagination total-items="500" max-size="8" ng-model="bigCurrentPage" class="pagination-sm" boundary-links="true" force-ellipses="true"></uib-pagination>
+          <!-- We might not use this, but it's nice that if we need it, we got it. 
+          <uib-pagination total-items="500" max-size="8" ng-model="bigCurrentPage" class="pagination-sm" boundary-links="true" force-ellipses="true"></uib-pagination> -->
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

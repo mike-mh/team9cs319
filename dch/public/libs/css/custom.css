@@ -5,8 +5,13 @@
 }
 
 .glyphicon-envelope {
-	padding: 15px;
-	font-size: 50px;
+	padding: 15px 15px 15px 0px;
+	font-size: 30px;
+	vertical-align: middle;
+}
+
+#alert {
+	font-size: 15px;
 }
 
 @media (min-width: 992px) {

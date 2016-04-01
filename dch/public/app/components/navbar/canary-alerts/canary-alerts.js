@@ -30,14 +30,17 @@
     return directive;
   }
 
-  CanarayAlertsController.$inject = ['CanaryAlertService', '$interval'];
+  CanarayAlertsController.$inject = ['CanaryAlertService', '$interval', '$scope'];
 
-  function CanarayAlertsController(CanaryAlertService, $interval) {
+  function CanarayAlertsController(CanaryAlertService, $interval, $scope) {
     var vm = this;
 
     var TOAST_DISPLAY_INTERVALS = 5000;
 
-    vm.tableColumns = ['MARK AS READ', 'TIME', 'WATCH ID', 'ALERT TYPE', 'ALERT', 'DELETE'];
+    vm.tableColumns = ['MARK AS READ', 'TIME', 'WATCH ID', 'ALERT TYPE', 'ALERT'];
+
+    vm.readAlerts = [];
+    vm.readTableColumns = ['TIME', 'WATCH ID', 'ALERT TYPE', 'ALERT', 'DELETE'];
 
     vm.showAlertToast = false;
     vm.alertToastTime;
@@ -46,7 +49,6 @@
     vm.alertToastAlertText;
 
     var alertsQueue = [];
-
 
     var displayInterval = $interval(displayConnectionData, TOAST_DISPLAY_INTERVALS);
 
@@ -91,6 +93,18 @@
       console.log(vm.alertToastAlertText);
 
       console.log(data);
+    }
+
+    /**
+     * @desc - This function marks an alert as read
+     *
+     * @param alert {object} - Alert to be marked as read
+     *        index - Index of the alert to be marked as read
+     */
+    vm.MarkAsRead = function(alert, index) {
+      vm.alerts.alerts.splice(index, 1);
+      vm.readAlerts.push(alert)
+      console.log(vm.readAlerts);
     }
 
   }

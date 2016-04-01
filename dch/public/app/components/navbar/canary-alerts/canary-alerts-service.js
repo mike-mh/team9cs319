@@ -19,7 +19,7 @@
   function CanaryAlertService($http) {
     var canaryAlertService = {
       getWatchAlerts: getWatchAlerts,
-      regiterCallback: regiterCallback
+      regiterCallback: regiterCallback,
     };
 
     var ALERT_STREAM_PATH = 'api/alert-sse';
@@ -37,7 +37,7 @@
       alerts: [
        {
           timestamp: testDate.toString(),
-          watch_id: '7982347af7982',
+          watch_id: '111aaa111aaa',
           alert_type: 'Connection',
           alert_text: 'Device has connected to network',
           read: false
@@ -116,6 +116,7 @@
           var convertedDate = new Date(currentData.timestamp)
           currentData.timestamp = convertedDate.toString();
           currentCallback(currentData);
+
         }
       }
     }
