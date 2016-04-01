@@ -24,7 +24,8 @@ function getRandomAccData(multiplier) {
     acc_x: x,
     acc_y: y,
     acc_z: z,
-    gradient: gradient
+    gradient: gradient,
+    battery: 1.0
   };
 }
 
@@ -68,7 +69,8 @@ function genIncreasing(watchId, startTime, endTime, interval, rate) {
       acc_y: i,
       acc_z: i,
       gradient: getGradient(i,i,i),
-      timestamp: ts
+      timestamp: ts,
+      battery: 1.0
     }
     dataArr.push(data);
     i += rate;

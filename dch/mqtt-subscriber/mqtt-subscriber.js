@@ -29,6 +29,7 @@ var TIMESTAMP = 'timestamp';
 var X_ACCELERATION = 'acc_x';
 var Y_ACCELERATION = 'acc_y';
 var Z_ACCELERATION = 'acc_z';
+var BATTERY = 'battery';
 
 var dcappClient = mqtt.connect(MQTT_BROKER_URL);
 var sysClient = mqtt.connect(MQTT_BROKER_URL);
@@ -41,14 +42,15 @@ var getDataObject = function (stringData){
   console.log('Checking format of JSON data');
   try{
     var messageJson = JSON.parse(stringData);
-    
+
     if (
-      Object.keys(messageJson).length === 5 &&
+      Object.keys(messageJson).length === 6 &&
       messageJson[WATCH_ID] &&
       messageJson[TIMESTAMP] &&
       messageJson[X_ACCELERATION] &&
       messageJson[Y_ACCELERATION] &&
-      messageJson[Z_ACCELERATION]) {
+      messageJson[Z_ACCELERATION] &&
+      messageJson[BATTERY]) {
       console.log('The data is correct');
       return messageJson;
     }
