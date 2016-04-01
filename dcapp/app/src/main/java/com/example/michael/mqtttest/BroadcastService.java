@@ -191,8 +191,8 @@ public class BroadcastService extends Service {
                     // Use the connecting flag to ensure that the client is
                     // not attempting a connection while another thread is
                     // trying to do so.
-                if(!isConnecting) {
-                    isConnecting = true;
+                if(!BroadcastService.isConnecting) {
+                    BroadcastService.isConnecting = true;
                     try{
                         MQTTConnectionHandler callback =
                                 new MQTTConnectionHandler();
@@ -272,20 +272,8 @@ public class BroadcastService extends Service {
      *         should be disabled and the accelerationListener unregistered.
      */
     public void onDestroy() {
-        if (client != null) {
-            client.unregisterResources();
-        }
         broadcastServiceIsRunning = false;
-
         publicationHandle.cancel(true);
-        if(client.isConnected()){
-            try {
-                client.disconnect();
-            } catch (MqttException e) {
-                e.printStackTrace();
-            }
-
-        }
         sensorManager.unregisterListener(accelerationListener);
         super.onDestroy();
     }
