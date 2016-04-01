@@ -19,7 +19,7 @@
   function CanaryAlertService($http) {
     var canaryAlertService = {
       getWatchAlerts: getWatchAlerts,
-      regiterCallback: regiterCallback
+      regiterCallback: regiterCallback,
     };
 
     var ALERT_STREAM_PATH = 'api/alert-sse';
@@ -37,88 +37,18 @@
       alerts: [
        {
           timestamp: testDate.toString(),
-          watchId: '7982347af7982',
-          alertType: 'Connection',
-          alertText: 'Device has connected to network',
+          watch_id: '111aaa111aaa',
+          alert_type: 'Connection',
+          alert_text: 'Device has connected to network',
           read: false
         },
         {
           timestamp: testDate.toString(),
-          watchId: '7982347af7982',
-          alertType: 'Connection',
-          alertText: 'Device has connected to network',
+          watch_id: '7982347af7982',
+          alert_type: 'Connection',
+          alert_text: 'Device has connected to network',
           read: false
         },
-        {
-          timestamp: testDate.toString(),
-          watchId: '7982347af7982',
-          alertType: 'Connection',
-          alertText: 'Device has connected to network',
-          read: false
-        },
-        {
-          timestamp: testDate.toString(),
-          watchId: '7982347af7982',
-          alertType: 'Connection',
-          alertText: 'Device has connected to network',
-          read: false
-        },
-        {
-          timestamp: testDate.toString(),
-          watchId: '7982347af7982',
-          alertType: 'Connection',
-          alertText: 'Device has connected to network',
-          read: false
-        },
-        {
-          timestamp: testDate.toString(),
-          watchId: '7982347af7982',
-          alertType: 'Connection',
-          alertText: 'Device has connected to network',
-          read: false
-        },
-        {
-          timestamp: testDate.toString(),
-          watchId: '7982347af7982',
-          alertType: 'Connection',
-          alertText: 'Device has connected to network',
-          read: false
-        },
-        {
-          timestamp: testDate.toString(),
-          watchId: '7982347af7982',
-          alertType: 'Connection',
-          alertText: 'Device has connected to network',
-          read: false
-        },
-        {
-          timestamp: testDate.toString(),
-          watchId: '7982347af7982',
-          alertType: 'Connection',
-          alertText: 'Device has connected to network',
-          read: false
-        },
-        {
-          timestamp: testDate.toString(),
-          watchId: '7982347af7982',
-          alertType: 'Connection',
-
-          read: false
-        },
-        {
-          timestamp: testDate.toString(),
-          watchId: '7982347af7982',
-          alertType: 'Connection',
-          alertText: 'Device has connected to network',
-          read: false
-        },
-        {
-          timestamp: testDate.toString(),
-          watchId: '7982347af7982',
-          alertType: 'Connection',
-          alertText: 'Device has connected to network',
-          read: false
-        }
       ]
     };
 
@@ -183,7 +113,10 @@
           var currentData = data[dataIndex];
           console.log('data!');
           console.log(currentData);
+          var convertedDate = new Date(currentData.timestamp)
+          currentData.timestamp = convertedDate.toString();
           currentCallback(currentData);
+
         }
       }
     }

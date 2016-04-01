@@ -30,23 +30,27 @@
     return directive;
   }
 
-  CanarayAlertsController.$inject = ['CanaryAlertService', '$interval'];
+  CanarayAlertsController.$inject = ['CanaryAlertService', '$interval', '$scope'];
 
-  function CanarayAlertsController(CanaryAlertService, $interval) {
+  function CanarayAlertsController(CanaryAlertService, $interval, $scope) {
     var vm = this;
 
     var TOAST_DISPLAY_INTERVALS = 5000;
 
-    vm.tableColumns = ['MARK AS READ', 'TIME', 'WATCH ID', 'ALERT TYPE', 'ALERT', 'DELETE'];
+    vm.tableColumns = ['MARK AS READ', 'TIME', 'WATCH ID', 'ALERT TYPE', 'ALERT'];
 
-    vm.showAlertToast = false;
+    vm.readAlerts = [];
+    vm.readTableColumns = ['TIME', 'WATCH ID', 'ALERT TYPE', 'ALERT', 'DELETE'];
+
+    vm.showAlertToastConnect = false;
+    vm.showAlertToastDisconnect = false;
+    vm.showAlertToastIdle = false;
     vm.alertToastTime;
     vm.alertToastWatchId;
     vm.alertToastAlertType;
     vm.alertToastAlertText;
 
     var alertsQueue = [];
-
 
     var displayInterval = $interval(displayConnectionData, TOAST_DISPLAY_INTERVALS);
 
@@ -55,6 +59,7 @@
     vm.alerts = CanaryAlertService.getWatchAlerts();
     console.log(vm.alerts);
     CanaryAlertService.regiterCallback(pushConnectionDataToQueue);
+
 
     /**
      * @desc - Use to push data retrieved from the alerts sse 
@@ -67,29 +72,57 @@
     }
 
     /**
-     * @desc - Used to render alert toast. Executes every five seconds
+     * @desc - Used to render alert toast. Executes every five seconds. 
+     *         Green - New device connected
+     *         Yellow - Device disconnected
+     *         Red - Idle device
      */
     function displayConnectionData() {
       if (alertsQueue.length === 0) {
         console.log('NO DATA');
-        vm.showAlertToast = false;
+        vm.showAlertToastConnect = false;
+        vm.showAlertToastDisconnect = false;
+        vm.showAlertToastIdle = false;
         return;
       }
-      vm.showAlertToast = true;
-     
+      
       var data = alertsQueue.shift();
       var dateReceived = new Date(data.timestamp);
       console.log('MAKING TOAST');
- 
+      
       vm.alertToastTime = dateReceived.toString();
       vm.alertToastWatchId = data.watch_id;
       vm.alertToastAlertType = data.alert_type;
       vm.alertToastAlertText = data.alert_text;
 
+      if (vm.alertToastAlertText.indexOf(' connected') >= 0) {
+        vm.showAlertToastConnect = true;
+      }
+
+      if (vm.alertToastAlertText.indexOf('disconnected') >= 0) {
+        vm.showAlertToastDisconnect = true;
+      }
+
+      if (vm.alertToastAlertType.indexOf('ACC_IDLE') >= 0) {
+        vm.showAlertToastIdle = true;
+      }
       console.log(vm.showAlertToast);
       console.log(vm.alertToastAlertText);
 
       console.log(data);
+
+    }
+
+    /**
+     * @desc - This function marks an alert as read
+     *
+     * @param alert {object} - Alert to be marked as read
+     *        index - Index of the alert to be marked as read
+     */
+    vm.MarkAsRead = function(alert, index) {
+      vm.alerts.alerts.splice(index, 1);
+      vm.readAlerts.push(alert)
+      console.log(vm.readAlerts);
     }
 
   }
