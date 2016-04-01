@@ -20,7 +20,8 @@ exports.alerts = [];
  * then broadcast through the SSE 
  */
 // Acceleration events
-exports.accelerationChanges = {};
+accelerationChangesQueue = {};
+exports.accelerationChangeMemoryPool = {};
 
 // Battery stream events
 exports.batteryChanges = {};
@@ -263,3 +264,39 @@ setInterval(function() {
   analyzeForIdleness();
 }, ALERT_POLLING_INTERVAL);
 */
+
+// These should have been saved in a different file but because we don't have
+// time to re-work the architecture, they've been included here. These are
+// threading modules and they will be responsible for copying all data
+// retrieved for different events to be stored in memory pools segregated such
+// that different SSE connection will have access to the same memory. This
+// prevents race conditions from different SSE connection handlers trying to
+// clear data before other handlers could broadcast their data.
+
+/**
+ * @desc - This function is responsible for pushing all data retrieved from
+ *         acceleration events into the SSE shared memory pool.
+ */
+function pushAccelerationDataToMemoryPool() {
+  for (var watch in accelerationChangesQueue) {
+    watchData = accelerationChangesQueue[watch];
+
+    for (var client in accelerationChangeMemoryPool) {
+      var currentClient = accelerationChangeMemoryPool[client];
+
+      if (currentClient[watch] === undefined) {
+        currentClient[watch] = {};
+      }
+
+      for (var accelerationData in watchData) {
+        var watchDataToModify = currentClient[watch];
+        
+        watchDataToModify[accelerationData].push.apply(
+          watchDataToModify[accelerationData],
+          watchData[accelerationData]);          
+      }
+
+      currentClient.push();
+    }
+  }
+}

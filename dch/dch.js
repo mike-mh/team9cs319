@@ -14,6 +14,7 @@ var APP_PORT = 3000;
 var NO_PATH = '/';
 var API_BASE_PATH = '/api';
 var PUBLIC_DIR = 'public';
+
 //API paths
 var DELETE_DATA_PATH = '/delete-data/:watchId';
 var GET_WATCH_IDS = '/get-watch-ids'
@@ -39,6 +40,15 @@ var BATTERY_LIFE_BROADCAST_DELAY = 1000;
 var ALERT_BROADCAST_DELAY = 1000;
 
 var TOTAL_NODEJS_MQTT_CLIENTS = 2;
+
+// Time before elements in the acceleration change object are cleared
+var CLEAR_ACCELERATION_DATA_DELAY = 2000;
+
+// Objects to hold data that has been published and is waiting to be published.
+
+// This map contains the IP address of connected clients as an index and the
+// acceleration data 
+var accelerationUpdateIpMap = {};
 
 function standardCallback(res) {
   return function(err, result) {
@@ -229,3 +239,8 @@ app.use('*', function(req, res){
 app.listen(APP_PORT, function(){
   console.log("The app is now listeing on port 3000");
 });
+
+// This interval is used to remove old acceleration data that should have
+// already been broadcast.
+setInterval(function() {
+}, );

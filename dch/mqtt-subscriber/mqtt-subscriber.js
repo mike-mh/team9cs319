@@ -120,8 +120,8 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
     var watchId = dataObj.watch_id;
 
     // Initialize the acceleration object if it has not yet been set.
-    if(database.accelerationChanges[watchId] === undefined) {
-      database.accelerationChanges[watchId] = {
+    if(database.accelerationQueue[watchId] === undefined) {
+      database.accelerationQueue[watchId] = {
         acc_x: [],
         acc_y: [],
         acc_z: [],
@@ -130,11 +130,11 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
       }
     }
 
-    database.accelerationChanges[watchId].acc_x.push(dataObj.acc_x);
-    database.accelerationChanges[watchId].acc_y.push(dataObj.acc_y);
-    database.accelerationChanges[watchId].acc_z.push(dataObj.acc_z);
-    database.accelerationChanges[watchId].gradient.push(dataObj.gradient);
-    database.accelerationChanges[watchId].timestamp.push(dataObj.timestamp);
+    database.accelerationQueue[watchId].acc_x.push(dataObj.acc_x);
+    database.accelerationQueue[watchId].acc_y.push(dataObj.acc_y);
+    database.accelerationQueue[watchId].acc_z.push(dataObj.acc_z);
+    database.accelerationQueue[watchId].gradient.push(dataObj.gradient);
+    database.accelerationQueue[watchId].timestamp.push(dataObj.timestamp);
 
     // Generate spike alert if necessary
     if (dataObj.gradient > 20) {
