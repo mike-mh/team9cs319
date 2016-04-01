@@ -297,8 +297,9 @@ public class BroadcastService extends Service {
         // Create new thread to boradcast data
         publicationHandle = publicationScheduler.scheduleAtFixedRate(
                                 publishData,
-                                FASTEST_PUBLICATION_RATE + delayValue * FASTEST_PUBLICATION_RATE,
-                                FASTEST_PUBLICATION_RATE + delayValue * FASTEST_PUBLICATION_RATE,
+                                0,
+                                (FASTEST_PUBLICATION_RATE +
+                                    delayValue * FASTEST_PUBLICATION_RATE),
                                 MILLISECONDS);
 
         return START_STICKY;
