@@ -95,11 +95,24 @@
 </div>
 
 
-<div class="alert alert-success fade in" id="canary-alert" style="width:300px;z-index:100;position:absolute;left:75%" ng-hide="!canarayAlertsController.showAlertToast">
+<div class="alert alert-success fade in" id="canary-alert" style="width:300px;z-index:100;position:absolute;left:75%" ng-hide="!canarayAlertsController.showAlertToastConnect">
   <strong>{{ canarayAlertsController.alertToastTime }}</strong><br>
   <strong>{{ canarayAlertsController.alertToastWatchId }}</strong><br>
   <strong>{{ canarayAlertsController.alertToastAlertType }}</strong><br>
   {{ canarayAlertsController.alertToastAlertText }}
 </div>
 
+<div class="alert alert-warning fade in" id="canary-alert" style="width:300px;z-index:100;position:absolute;left:75%" ng-hide="!canarayAlertsController.showAlertToastDisconnect">
+  <strong>{{ canarayAlertsController.alertToastTime }}</strong><br>
+  <strong>{{ canarayAlertsController.alertToastWatchId }}</strong><br>
+  <strong>{{ canarayAlertsController.alertToastAlertType }}</strong><br>
+  {{ canarayAlertsController.alertToastAlertText }}
+</div>
+
+<div class="alert alert-danger fade in" id="canary-alert" style="width:300px;z-index:100;position:absolute;left:75%" ng-hide="!canarayAlertsController.showAlertToastIdle">
+  <strong>{{ canarayAlertsController.alertToastTime }}</strong><br>
+  <strong>{{ canarayAlertsController.alertToastWatchId }}</strong><br>
+  <strong>{{ canarayAlertsController.alertToastAlertType }}</strong><br>
+  {{ canarayAlertsController.alertToastAlertText }}
+</div>
 
