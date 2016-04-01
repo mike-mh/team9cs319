@@ -117,18 +117,32 @@ router.get(TOTAL_CONNECTED_DEVICES, function(req, res){
 router.get(ACCELERATION_SSE, function(req, res) {
   var broadcastInterval;
   var data;
+  var accelerationDataPool;
+  var clientAddress = req.connection.remoteAddress;
 
   req.socket.setTimeout(999999999999);
 
-//  console.log('broadcasting');
+  if (db.accelerationChangeMemoryPool[clientAddress] === undefined) {
+    db.accelerationChangeMemoryPool[clientAddress] = {};
+  }
+
+  var accelerationDataPool = db.accelerationChangeMemoryPool[clientAddress];
 
   writeSSEHead(res, function() {
     broadcastInterval = setInterval(function() {
       try {
-        data = JSON.stringify(db.accelerationChanges);
+        data = JSON.stringify(accelerationDataPool);
+        console.log("THE DATA");
+        console.log(data);
         writeSSEData(res, ACCELERATION_EVENT, data);
 
-        // Average all the data before broadcasting
+        // Reset used data
+        for (var watch in accelerationDataPool) {
+          var currentWatch = accelerationDataPool[watch];
+          for (var accelerationVector in currentWatch) {
+            currentWatch[accelerationVector] = [];
+          }
+        }
       } catch (e) {
         console.log("Error parsing acceleration data to broadcast");
       }
@@ -216,7 +230,7 @@ function writeSSEData(broadcast, event, data) {
   broadcast.write("data: " + data + "\n\n");
 
   // After data is broadcast, remove it.
-  db.resetAccelerationChanges();
+  //db.resetAccelerationChanges();
 };
 
 /**
@@ -240,7 +254,3 @@ app.listen(APP_PORT, function(){
   console.log("The app is now listeing on port 3000");
 });
 
-// This interval is used to remove old acceleration data that should have
-// already been broadcast.
-setInterval(function() {
-}, );

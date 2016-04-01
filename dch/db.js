@@ -20,7 +20,7 @@ exports.alerts = [];
  * then broadcast through the SSE 
  */
 // Acceleration events
-accelerationChangesQueue = {};
+exports.accelerationQueue = [];
 exports.accelerationChangeMemoryPool = {};
 
 // Battery stream events
@@ -278,25 +278,42 @@ setInterval(function() {
  *         acceleration events into the SSE shared memory pool.
  */
 function pushAccelerationDataToMemoryPool() {
-  for (var watch in accelerationChangesQueue) {
-    watchData = accelerationChangesQueue[watch];
+  var currentDataPoint = exports.accelerationQueue.pop();
 
-    for (var client in accelerationChangeMemoryPool) {
-      var currentClient = accelerationChangeMemoryPool[client];
+  // If there is no data is in the queue, nothing to be done.
+  if (currentDataPoint === undefined) {
+    return;
+  }
 
-      if (currentClient[watch] === undefined) {
-        currentClient[watch] = {};
-      }
+  for (var client in exports.accelerationChangeMemoryPool) {
+    var currentClient = exports.accelerationChangeMemoryPool[client];
+    var watchId = currentDataPoint.watch_id
+    var currentClientWatch;
 
-      for (var accelerationData in watchData) {
-        var watchDataToModify = currentClient[watch];
-        
-        watchDataToModify[accelerationData].push.apply(
-          watchDataToModify[accelerationData],
-          watchData[accelerationData]);          
-      }
+    // Sanity check
+    if (watchId === undefined) {
+      console.log("Could not queue. No watch ID.");
+    }
 
-      currentClient.push();
+    // Insert watch ID to object if it does not exist
+    if (currentClient[watchId] === undefined) {
+      currentClient[watchId] = {
+        timestamp: [],
+        acc_x: [],
+        acc_y: [],
+        acc_z: [],
+        gradient: []
+      };
+    }
+
+    currentClientWatch = currentClient[watchId]
+
+    // Push all acceleration data
+    for (var accelerationVector in currentClient[watchId]) {
+      currentClient[watchId][accelerationVector]
+        .push(currentDataPoint[accelerationVector]);
     }
   }
 }
+
+setInterval(pushAccelerationDataToMemoryPool, 500);

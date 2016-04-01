@@ -106,13 +106,15 @@
       accelerationStream = new EventSource(ACCELERATION_STREAM_PATH);
       console.log('do it');
       accelerationStream.addEventListener("acceleration-event", function(event) {
-        try {
+//        try {
           var data = JSON.parse(event.data);
+          console.log(data);
           analyzeRetrievedData(data);
           renderRealtimeAccelerationGraph();
-        } catch(e) {
-          console.log(e);
-        }
+          console.log('HOLLA!');
+//        } catch(e) {
+//          console.log(e);
+//        }
         //console.log(event.data);
       }, false);
 
@@ -155,7 +157,7 @@
 
           average = sum / currentArray.length;
 
-          //console.log(accelerationStreamData);
+          console.log(accelerationStreamData);
 
           if (!accelerationStreamData[watch][currentArrayIndex]) {
             accelerationStreamData[watch][currentArrayIndex] = [];
@@ -232,28 +234,30 @@
         chart = c3.generate(accelerationGraphData);
       }
 
-     // console.log(watchData);
+     console.log(accelerationStreamGraphControl);
+     console.log(accelerationStreamData);
+     console.log(watchData);
 
       // Populate columns with data //FIX LATER! TERRIBLE!
       accelerationGraphData.data.columns[X_AXIS_COLUMN_INDEX].push.apply(
-        accelerationGraphData.data.columns[GRADIENT_COLUMN_INDEX],
-        watchData[3]);
+        accelerationGraphData.data.columns[X_AXIS_COLUMN_INDEX],
+        watchData[X_AXIS_COLUMN_INDEX]);
 
       accelerationGraphData.data.columns[X_ACCELERATION_COLUMN_INDEX].push.apply(
         accelerationGraphData.data.columns[X_ACCELERATION_COLUMN_INDEX],
-        watchData[0]);
+        watchData[X_ACCELERATION_COLUMN_INDEX]);
 
       accelerationGraphData.data.columns[Y_ACCELERATION_COLUMN_INDEX].push.apply(
         accelerationGraphData.data.columns[Y_ACCELERATION_COLUMN_INDEX],
-        watchData[1]);
+        watchData[Y_ACCELERATION_COLUMN_INDEX]);
 
       accelerationGraphData.data.columns[Z_ACCELERATION_COLUMN_INDEX].push.apply(
         accelerationGraphData.data.columns[Z_ACCELERATION_COLUMN_INDEX],
-        watchData[2]);
+        watchData[Z_ACCELERATION_COLUMN_INDEX]);
 
       accelerationGraphData.data.columns[GRADIENT_COLUMN_INDEX].push.apply(
-        accelerationGraphData.data.columns[X_AXIS_COLUMN_INDEX],
-        watchData[4]);
+        accelerationGraphData.data.columns[GRADIENT_COLUMN_INDEX],
+        watchData[GRADIENT_COLUMN_INDEX]);
 
       chart.load({
         columns: [

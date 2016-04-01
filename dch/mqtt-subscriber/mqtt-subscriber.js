@@ -116,25 +116,19 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
       }
     });
 
-    // Modify the accelerationChange object with new data.
-    var watchId = dataObj.watch_id;
-
-    // Initialize the acceleration object if it has not yet been set.
-    if(database.accelerationQueue[watchId] === undefined) {
-      database.accelerationQueue[watchId] = {
-        acc_x: [],
-        acc_y: [],
-        acc_z: [],
-        gradient: [],
-        timestamp: [],
-      }
+    // Push data to the publication queue for realtime updates
+    var accelerationDataToQueue = {
+      watch_id: dataObj.watch_id,
+      timestamp: dataObj.timestamp,
+      acc_x: dataObj.acc_x,
+      acc_y: dataObj.acc_y,
+      acc_z: dataObj.acc_z,
+      gradient: dataObj.gradient
     }
 
-    database.accelerationQueue[watchId].acc_x.push(dataObj.acc_x);
-    database.accelerationQueue[watchId].acc_y.push(dataObj.acc_y);
-    database.accelerationQueue[watchId].acc_z.push(dataObj.acc_z);
-    database.accelerationQueue[watchId].gradient.push(dataObj.gradient);
-    database.accelerationQueue[watchId].timestamp.push(dataObj.timestamp);
+    database.accelerationQueue.push(accelerationDataToQueue);
+
+    var watchId = dataObj.watch_id;
 
     // Generate spike alert if necessary
     if (dataObj.gradient > 20) {
