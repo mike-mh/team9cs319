@@ -87,6 +87,8 @@
         return;
       }
       
+      UpdateInbox();
+
       var data = alertsQueue.shift();
       var dateReceived = new Date(data.timestamp);
       console.log('MAKING TOAST');
@@ -119,6 +121,15 @@
 
     }
 
+    /*
+     * @desc - This function updates the mail inbox badge
+     *
+     */
+    function UpdateInbox() {
+      $scope.$emit('inboxUpdate', vm.alerts.alerts.length);
+      console.log('updating');
+    }
+
     /**
      * @desc - This function marks an alert as read
      *
@@ -129,6 +140,18 @@
       vm.alerts.alerts.splice(index, 1);
       vm.readAlerts.push(alert)
       console.log(vm.readAlerts);
+      UpdateInbox();
+    }
+
+    /*
+     * @desc - This function clears all alerts in alert inbox
+     *
+     */
+    vm.ClearAlerts = function() {
+      vm.readAlerts.push.apply(vm.readAlerts, vm.alerts.alerts);
+      vm.alerts.alerts.splice(0);
+      console.log(vm.alerts.alerts);
+      UpdateInbox();
     }
 
   }
