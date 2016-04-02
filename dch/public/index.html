@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/libs/css/custom.css" type="text/css">
     
     <!-- Load javascript files (order mattters!!) -->
+    <script src="/libs/javascript/eventsource.js"></script>
     <script src="/libs/javascript/angular-1.4.5.min.js"></script>
     <script src="/libs/javascript/jquery.min.js"></script>
     <script src="/libs/javascript/bootstrap.min.js"></script>
@@ -20,13 +21,11 @@
     <!-- Chrome can't read type="application/javascript;version=1.7" need to import javascript without it here -->
     <script src="/app/shared/shared.js"></script>
     <script src="/app/shared/drop-down-widget/drop-down-widget.js"></script>
-    <script src="/app/shared/data-analyzer/data-analyzer-service.js"></script>
     <script src="/app/shared/watch-data/watch-data-service.js"></script>
     <script src="/app/components/components.js"></script>
-    <script src="/app/components/acceleration-alert/acceleration-alert.js"></script>
     <script src="/app/components/connected-devices/connected-devices.js"></script>
-    <script src="/app/components/acceleration-graph/data-graph-service.js"></script>
-    <script src="/app/components/acceleration-graph/acceleration-graph.js"></script>
+    <script src="/app/components/graph/graph-service.js"></script>
+    <script src="/app/components/graph/graph.js"></script>
     <script src="/app/components/watch-form/watch-form.js"></script>
     <script src="/app/components/navbar/canary-alerts/canary-alerts-service.js"></script>
     <script src="/app/components/navbar/canary-alerts/canary-alerts.js"></script>
@@ -39,7 +38,7 @@
     <!-- The ids have been added for a protractor testing example -->
     <navbar id="navbar-widget"></navbar>
     <watch-form id="watch-form"></watch-form>
-    <acceleration-graph id="acceleration-graph"></acceleration-graph>
+    <graph id="graph"></graph>
 
   <body>
 </html>

@@ -83,6 +83,7 @@
         vm.showAlertToastConnect = false;
         vm.showAlertToastDisconnect = false;
         vm.showAlertToastIdle = false;
+        vm.showAlertToastSpike = false;
         return;
       }
       
@@ -106,6 +107,11 @@
       if (vm.alertToastAlertType.indexOf('ACC_IDLE') >= 0) {
         vm.showAlertToastIdle = true;
       }
+
+      if (vm.alertToastAlertType.indexOf('ACC_SPIKE') >= 0) {
+        vm.showAlertToastSpike = true;
+      }
+
       console.log(vm.showAlertToast);
       console.log(vm.alertToastAlertText);
 

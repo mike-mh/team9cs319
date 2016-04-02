@@ -2,20 +2,20 @@
 
 <div class="container">
   <uib-tabset active="active">
-    <uib-tab index="0" id="acceleration-graph-tab" select="dataGraphController.setActiveTab('acceleration')">
+    <uib-tab index="0" id="acceleration-graph-tab" select="graphController.setActiveTab('acceleration')">
       <uib-tab-heading>
         Acceleration Data
       </uib-tab-heading>
       <div class="container">
         </br> Livestream:
         <div class="btn-group">
-          <label class="btn btn-default" uncheckable ng-click="dataGraphController.showAcclerationStream()">On</label>
-          <label class="btn btn-default" uib-uncheckable="uncheckable" ng-click="dataGraphController.stopAcclerationStream()">Off</label>
+          <label class="btn btn-default" uncheckable ng-click="graphController.showAcclerationStream()">On</label>
+          <label class="btn btn-default" uib-uncheckable="uncheckable" ng-click="graphController.stopAcclerationStream()">Off</label>
         </div>
       </div>
     </uib-tab>
     
-    <uib-tab index="1" id="battery-graph-tab" select="dataGraphController.setActiveTab('battery')">
+    <uib-tab index="1" id="battery-graph-tab" select="graphController.setActiveTab('battery')">
       <uib-tab-heading>
         Battery Data
       </uib-tab-heading>

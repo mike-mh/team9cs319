@@ -13,27 +13,56 @@
    */
   angular
     .module('dcgui.shared')
-    .service('DataGraphService', DataGraphService);
+    .service('GraphService', GraphService);
 
-  DataGraphService.$inject = ['WatchDataService'];
+  GraphService.$inject = ['WatchDataService'];
 
-  function DataGraphService(WatchDataService) {
+  function GraphService(WatchDataService) {
     // Use to generate the c3 chart
     var chart;
 
     var ACCELERATION_STREAM_PATH = '/api/acceleration-sse/';
 
-    var Y_AXIS_LABEL_ACCELERATION = 'Acceleration (m/s^2)';
+    // These constants are shared by both battery and acceleration charts
+    var IDENTIFIER_INDEX = 0;
     var Y_AXIS_LABEL_POSITION = 'outer-middle';
-    var Y_AXIS_DEFAULT_RANGE = [0, 12];
     var X_AXIS_TYPE = 'timeseries';
     var LABEL_POSITION = 'inset'
-    var X_AXIS_COLUMN_INDEX = 0;
+    var MAX_X_INDEX_LABELS = 6;
+
+    var Y_AXIS_LABEL_ACCELERATION = 'Acceleration (m/s^2)';
+    var Y_AXIS_DEFAULT_RANGE_ACCELERATION = [0, 12];
+    var X_AXIS_COLUMN_INDEX_ACCELERATION = 0;
     var X_ACCELERATION_COLUMN_INDEX = 1;
     var Y_ACCELERATION_COLUMN_INDEX = 2;
     var Z_ACCELERATION_COLUMN_INDEX = 3;
     var GRADIENT_COLUMN_INDEX = 4;
-    var MAX_X_INDEX_LABELS = 6;
+
+    var X_AXIS_ARRAY_IDENTIFIER = 'x-axis';
+    var X_ACCELERATION_ARRAY_IDENTIFIER = 'x-acceleration';
+    var Y_ACCELERATION_ARRAY_IDENTIFIER = 'y-acceleration';
+    var Z_ACCELERATION_ARRAY_IDENTIFIER = 'z-acceleration';
+    var GRADIENT_ARRAY_IDENTIFIER = 'gradient'
+
+    // Make an array with the identifiers and ensure they are stored in the
+    // proper index. This isn't the cleanest way to handle this data but it's
+    // necessarry to work with the c3 library
+    var ACCLERATION_ARRAY_IDENTIFIERS = [];
+
+    ACCLERATION_ARRAY_IDENTIFIERS[X_AXIS_COLUMN_INDEX_ACCELERATION] =
+      X_AXIS_ARRAY_IDENTIFIER;
+
+    ACCLERATION_ARRAY_IDENTIFIERS[X_ACCELERATION_COLUMN_INDEX] =
+      X_ACCELERATION_ARRAY_IDENTIFIER;
+
+    ACCLERATION_ARRAY_IDENTIFIERS[Y_ACCELERATION_COLUMN_INDEX] =
+      Y_ACCELERATION_ARRAY_IDENTIFIER;
+
+    ACCLERATION_ARRAY_IDENTIFIERS[Z_ACCELERATION_COLUMN_INDEX] =
+      Z_ACCELERATION_ARRAY_IDENTIFIER;
+
+    ACCLERATION_ARRAY_IDENTIFIERS[GRADIENT_COLUMN_INDEX] =
+      GRADIENT_ARRAY_IDENTIFIER;
 
     // These variables are used to handle SSE streams of acceleration data.
     // The accelerationStreamData is an array of no more than 300 bits of data
@@ -53,13 +82,14 @@
     accelerationGraphData.data = {};
     accelerationGraphData.data.x = 'x-axis';
     accelerationGraphData.data.columns = [
-      ['x-axis'],
-      ['x-acceleration'],
-      ['y-acceleration'],
-      ['z-acceleration'],
-      ['gradient']
+      [X_AXIS_ARRAY_IDENTIFIER],
+      [X_ACCELERATION_ARRAY_IDENTIFIER],
+      [Y_ACCELERATION_ARRAY_IDENTIFIER],
+      [Z_ACCELERATION_ARRAY_IDENTIFIER],
+      [GRADIENT_ARRAY_IDENTIFIER]
     ];
-    accelerationGraphData.data.type = 'spline';
+
+   // accelerationGraphData.data.type = 'spline';
     accelerationGraphData.point = {show: false};
     accelerationGraphData.subchart = {show: true};
     accelerationGraphData.axis = {};
@@ -78,12 +108,11 @@
         text: Y_AXIS_LABEL_ACCELERATION,
         position: Y_AXIS_LABEL_POSITION
       },
-      //max: 15,
       min: 0
     };
     accelerationGraphData.legend = {position: LABEL_POSITION};
 
-    var dataGraphService = {
+    var GraphService = {
       renderAccelerationGraph: renderAccelerationGraph,
       clearAccelerationGraph: clearAccelerationGraph,
       setWatchIdToMonitor: setWatchIdToMonitor,
@@ -95,7 +124,7 @@
     intializeStream();
 
     // Return the service as an object. Angular treats it as a Singleton.
-    return dataGraphService;
+    return GraphService;
 
     /**
      * @desc - Initializes the SSE stream conenction for acceleration data
@@ -104,20 +133,21 @@
      */
     function intializeStream() {
       accelerationStream = new EventSource(ACCELERATION_STREAM_PATH);
-      console.log('do it');
-      accelerationStream.addEventListener("acceleration-event", function(event) {
+      accelerationStream.addEventListener('acceleration-event', function(event) {
         try {
           var data = JSON.parse(event.data);
           analyzeRetrievedData(data);
+
+          // Renders real-time data if it's enabled.
           renderRealtimeAccelerationGraph();
+
         } catch(e) {
           console.log(e);
         }
-        //console.log(event.data);
       }, false);
 
-      accelerationStream.addEventListener("open", function(event) {
-        console.log("Connection open!");
+      accelerationStream.addEventListener('open', function(event) {
+        console.log('Accelertion data stream open.');
       }, false);
     }
 
@@ -143,8 +173,9 @@
 
         for(var array in currentWatch) {
           var sum = 0;
-          var average = 0;
           var currentArray = currentWatch[array];
+          var average = 0;
+
           // Don't average an empty array!
           if (!currentArray.length) {
             continue;
@@ -155,21 +186,19 @@
 
           average = sum / currentArray.length;
 
-          //console.log(accelerationStreamData);
-
           if (!accelerationStreamData[watch][currentArrayIndex]) {
             accelerationStreamData[watch][currentArrayIndex] = [];
           }
 
-          // Array should not exceed 300 data points
-          if (accelerationStreamData[watch][currentArrayIndex].length >= 100) {
-            accelerationStreamData[watch][currentArrayIndex].splice(0, 1);
+          // Only show so many points in th stream
+          if (accelerationStreamData[watch][currentArrayIndex].length >= 30) {
+            accelerationStreamData[watch][currentArrayIndex].shift();
+            console.log(accelerationStreamData[watch]);
           }
 
           accelerationStreamData[watch][currentArrayIndex].push(average);
           currentArrayIndex++;
         }
-        
       }
     }
 
@@ -186,31 +215,37 @@
      *         object.
      */
     function renderAccelerationGraph() {
-      clearAccelerationGraph();
       var retrievedData = WatchDataService.getData();
 
-      // Populate columns with data
-      accelerationGraphData.data.columns[X_AXIS_COLUMN_INDEX].push.apply(
-        accelerationGraphData.data.columns[X_AXIS_COLUMN_INDEX],
-        retrievedData[X_AXIS_COLUMN_INDEX]);
+      // Clear out previous data
+      clearAccelerationGraph();
 
-      accelerationGraphData.data.columns[X_ACCELERATION_COLUMN_INDEX].push.apply(
-        accelerationGraphData.data.columns[X_ACCELERATION_COLUMN_INDEX],
-        retrievedData[X_ACCELERATION_COLUMN_INDEX]);
+      // Identifiers are stored in the proper index which allows for direct
+      // insertion into the array. Again, this isn't the cleanest solution but
+      // is needed to run c3
+      for(var index in ACCLERATION_ARRAY_IDENTIFIERS) {
+       // retrievedData[index].unshift(ACCLERATION_ARRAY_IDENTIFIERS[index]);
+       // accelerationGraphData.data.columns[index] = retrievedData[index];
+        accelerationGraphData.data.columns[index].push.apply(
+          accelerationGraphData.data.columns[index],
+          retrievedData[index]);
+      }
 
-      accelerationGraphData.data.columns[Y_ACCELERATION_COLUMN_INDEX].push.apply(
-        accelerationGraphData.data.columns[Y_ACCELERATION_COLUMN_INDEX],
-        retrievedData[Y_ACCELERATION_COLUMN_INDEX]);
+      if (chart === undefined) {
+        chart = c3.generate(accelerationGraphData);
+      }
 
-      accelerationGraphData.data.columns[Z_ACCELERATION_COLUMN_INDEX].push.apply(
-        accelerationGraphData.data.columns[Z_ACCELERATION_COLUMN_INDEX],
-        retrievedData[Z_ACCELERATION_COLUMN_INDEX]);
-
-      accelerationGraphData.data.columns[GRADIENT_COLUMN_INDEX].push.apply(
-        accelerationGraphData.data.columns[GRADIENT_COLUMN_INDEX],
-        retrievedData[GRADIENT_COLUMN_INDEX]);
-
-      chart = c3.generate(accelerationGraphData);
+      else {
+        chart.load({
+          columns: [
+            accelerationGraphData.data.columns[X_AXIS_COLUMN_INDEX_ACCELERATION],
+            accelerationGraphData.data.columns[X_ACCELERATION_COLUMN_INDEX],
+            accelerationGraphData.data.columns[Y_ACCELERATION_COLUMN_INDEX],
+            accelerationGraphData.data.columns[Z_ACCELERATION_COLUMN_INDEX],
+            accelerationGraphData.data.columns[GRADIENT_COLUMN_INDEX]
+          ]
+        });
+      }
     }
 
     /**
@@ -223,41 +258,28 @@
         return;
       }
 
-      clearAccelerationGraph();
-
       var currentWatch = accelerationStreamGraphControl.watchId;
       var watchData = accelerationStreamData[currentWatch];
 
-      if (!chart) {
+      // Clear out previous data
+      clearAccelerationGraph();
+
+      // Identifiers are stored in the proper index which allows for direct
+      // insertion into the array. Again, this isn't the cleanest solution but
+      // is needed to run c3
+      for(var index in ACCLERATION_ARRAY_IDENTIFIERS) {
+        accelerationGraphData.data.columns[index].push.apply(
+          accelerationGraphData.data.columns[index],
+          watchData[index]);
+      }
+
+      if (chart === undefined) {
         chart = c3.generate(accelerationGraphData);
       }
 
-     // console.log(watchData);
-
-      // Populate columns with data //FIX LATER! TERRIBLE!
-      accelerationGraphData.data.columns[X_AXIS_COLUMN_INDEX].push.apply(
-        accelerationGraphData.data.columns[GRADIENT_COLUMN_INDEX],
-        watchData[3]);
-
-      accelerationGraphData.data.columns[X_ACCELERATION_COLUMN_INDEX].push.apply(
-        accelerationGraphData.data.columns[X_ACCELERATION_COLUMN_INDEX],
-        watchData[0]);
-
-      accelerationGraphData.data.columns[Y_ACCELERATION_COLUMN_INDEX].push.apply(
-        accelerationGraphData.data.columns[Y_ACCELERATION_COLUMN_INDEX],
-        watchData[1]);
-
-      accelerationGraphData.data.columns[Z_ACCELERATION_COLUMN_INDEX].push.apply(
-        accelerationGraphData.data.columns[Z_ACCELERATION_COLUMN_INDEX],
-        watchData[2]);
-
-      accelerationGraphData.data.columns[GRADIENT_COLUMN_INDEX].push.apply(
-        accelerationGraphData.data.columns[X_AXIS_COLUMN_INDEX],
-        watchData[4]);
-
       chart.load({
         columns: [
-          accelerationGraphData.data.columns[X_AXIS_COLUMN_INDEX],
+          accelerationGraphData.data.columns[X_AXIS_COLUMN_INDEX_ACCELERATION],
           accelerationGraphData.data.columns[X_ACCELERATION_COLUMN_INDEX],
           accelerationGraphData.data.columns[Y_ACCELERATION_COLUMN_INDEX],
           accelerationGraphData.data.columns[Z_ACCELERATION_COLUMN_INDEX],
@@ -267,24 +289,32 @@
     }
 
     /**
-     * @desc - This function clears the data in the c3 chart.
+     * @desc - This function clears the data in the c3 chart. Arrays can't
+     *         simply be reset because the first index contains the name data
+     *         for the c3 chart.
      */
     function clearAccelerationGraph() {
-      accelerationGraphData.data.columns[X_AXIS_COLUMN_INDEX] = 
-        accelerationGraphData.data.columns[X_AXIS_COLUMN_INDEX].splice(0, 1);
+      accelerationGraphData.data.columns[X_AXIS_COLUMN_INDEX_ACCELERATION] =
+        accelerationGraphData.data.columns[X_AXIS_COLUMN_INDEX_ACCELERATION]
+          .splice(0, 1);
 
       accelerationGraphData.data.columns[X_ACCELERATION_COLUMN_INDEX] =
-        accelerationGraphData.data.columns[X_ACCELERATION_COLUMN_INDEX].splice(0, 1);
+        accelerationGraphData.data.columns[X_ACCELERATION_COLUMN_INDEX]
+          .splice(0, 1);
 
       accelerationGraphData.data.columns[Y_ACCELERATION_COLUMN_INDEX] =
-        accelerationGraphData.data.columns[Y_ACCELERATION_COLUMN_INDEX].splice(0, 1);
+        accelerationGraphData.data.columns[Y_ACCELERATION_COLUMN_INDEX]
+          .splice(0, 1);
 
       accelerationGraphData.data.columns[Z_ACCELERATION_COLUMN_INDEX] =
-        accelerationGraphData.data.columns[Z_ACCELERATION_COLUMN_INDEX].splice(0, 1);
+        accelerationGraphData.data.columns[Z_ACCELERATION_COLUMN_INDEX]
+          .splice(0, 1);
 
       accelerationGraphData.data.columns[GRADIENT_COLUMN_INDEX] =
-        accelerationGraphData.data.columns[GRADIENT_COLUMN_INDEX].splice(0, 1);
+        accelerationGraphData.data.columns[GRADIENT_COLUMN_INDEX]
+          .splice(0, 1);
     }
+
 
     /**
      * @desc - This function is used during the c3 chart rendering to convert
@@ -294,8 +324,8 @@
      * @return {string} - The translated datetime string.
      */
     function convertMillisecondsToDateString(milliseconds) {
-          var dateFromMilliseconds = new Date(milliseconds);
-          return dateFromMilliseconds.toString();
+      var dateFromMilliseconds = new Date(milliseconds);
+      return dateFromMilliseconds.toString();
     }
 
     /**

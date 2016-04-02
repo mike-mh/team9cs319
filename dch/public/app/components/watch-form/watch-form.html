@@ -6,7 +6,7 @@
 	  
       <div class="panel-heading">
         <label for="watchSelect">Select a watch ID:</label>
-        <select name="watchSelect" ng-model="watchFormCtrl.selectedWatch.id" ng-change="watchFormCtrl.updateWatch()">
+        <select name="watchSelect" ng-model="watchFormCtrl.selectedWatch.id" ng-change="watchFormCtrl.updateWatch()" class="form-control">
           <option ng-repeat="watch in watchFormCtrl.watches">
             {{watch._id}}
           </option>
@@ -15,7 +15,7 @@
 
       <div class="panel-heading">
         <label for="intervalSelect">Pick a time interval:</label>
-        <select name="intervalSelect" ng-model="watchFormCtrl.selectedWatch.interval" ng-change="watchFormCtrl.queryTimes()">
+        <select name="intervalSelect" ng-model="watchFormCtrl.selectedWatch.interval" ng-change="watchFormCtrl.queryTimes()" class="form-control">
           <option ng-repeat="interval in watchFormCtrl.intervalOptions" value="{{interval}}">
             {{'Every ' + interval + ' minutes'}}
           </option>
@@ -24,7 +24,7 @@
 
       <div class="panel-heading">
         <label for="timeSelect">Pick start time:</label>
-        <select name="timeSelect" ng-model="watchFormCtrl.selectedWatch.startTime" ng-disabled="!watchFormCtrl.selectedWatch.interval">
+        <select name="timeSelect" ng-model="watchFormCtrl.selectedWatch.startTime" ng-disabled="!watchFormCtrl.selectedWatch.interval" class="form-control">
           <option ng-repeat="time in watchFormCtrl.times">
             {{time}}
           </option>
@@ -34,7 +34,7 @@
 
  
       <div class="panel-heading">
-        <button type="submit" class="btn btn-success" ng-click="watchFormCtrl.createChart()">Get Data</button>
+        <button type="submit" class="btn btn-success">Get Data</button>
       </div>
     </form> 
   </div>

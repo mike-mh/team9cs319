@@ -14,6 +14,7 @@ var APP_PORT = 3000;
 var NO_PATH = '/';
 var API_BASE_PATH = '/api';
 var PUBLIC_DIR = 'public';
+
 //API paths
 var DELETE_DATA_PATH = '/delete-data/:watchId';
 var GET_WATCH_IDS = '/get-watch-ids'
@@ -22,6 +23,8 @@ var GET_DATA_PATH = '/get-data/:watchId/:startTime/:stopTime/:frequency';
 var GET_IDLE_ALERT_PATH = '/get-idle-alert/:watchId/:startTime/:stopTime';
 var GET_SPIKE_ALERT_PATH = '/get-spike-alert/:watchId/:startTime/:stopTime';
 var GET_RECENT = '/get-recent';
+var GET_ALERTS_PATH = '/get-alerts';
+var DELETE_ALERT_PATH = '/delete-alert/:alertId';
 
 // These are SSE paths
 var ACCELERATION_SSE = '/acceleration-sse';
@@ -39,6 +42,18 @@ var BATTERY_LIFE_BROADCAST_DELAY = 1000;
 var ALERT_BROADCAST_DELAY = 1000;
 
 var TOTAL_NODEJS_MQTT_CLIENTS = 2;
+
+// Time before elements in the acceleration change object are cleared
+var CLEAR_ACCELERATION_DATA_DELAY = 2000;
+
+// Objects to hold data that has been published and is waiting to be published.
+
+// This map contains the IP address of connected clients as an index and the
+// acceleration data 
+var accelerationUpdateIpMap = {};
+
+// Use this to generate SSE IDs
+var sseIdAccumulator = 1;
 
 function standardCallback(res) {
   return function(err, result) {
@@ -103,30 +118,50 @@ router.get(TOTAL_CONNECTED_DEVICES, function(req, res){
   return res.end(totalWatches.toString());
 });
 
+router.get(GET_ALERTS_PATH, function(req, res){
+  db.getAlerts(standardCallback(res));
+});
+
+router.get(DELETE_ALERT_PATH, function(req, res){
+  db.removeAlert(req.params.alertId, standardCallback(res));
+});
+
 // SSE connections start here
 router.get(ACCELERATION_SSE, function(req, res) {
   var broadcastInterval;
   var data;
+  var accelerationDataPool;
 
-  req.socket.setTimeout(999999999999);
+  // Generate a unique ID for each SSE connection
+  var sseId = sseIdAccumulator++;
 
-//  console.log('broadcasting');
+  if (db.accelerationChangeMemoryPool[sseId] === undefined) {
+    db.accelerationChangeMemoryPool[sseId] = {};
+  }
+
+  var accelerationDataPool = db.accelerationChangeMemoryPool[sseId];
 
   writeSSEHead(res, function() {
     broadcastInterval = setInterval(function() {
       try {
-        data = JSON.stringify(db.accelerationChanges);
+        data = JSON.stringify(accelerationDataPool);
         writeSSEData(res, ACCELERATION_EVENT, data);
 
-        // Average all the data before broadcasting
+        // Reset used data
+        for (var watch in accelerationDataPool) {
+          var currentWatch = accelerationDataPool[watch];
+          for (var accelerationVector in currentWatch) {
+            currentWatch[accelerationVector] = [];
+          }
+        }
       } catch (e) {
-        console.log("Error parsing acceleration data to broadcast");
+        console.log('Error parsing acceleration data to broadcast');
       }
     }, ACCELERATION_BROADCAST_DELAY);
   }); 
 
   // If the connection closes, be sure to unregister interval
-  req.connection.addListener("close", function() {
+  req.connection.addListener('close', function() {
     clearInterval(broadcastInterval);
   });
 });
@@ -140,19 +175,24 @@ router.get(BATTERY_SSE, function(req, res) {
 router.get(ALERT_SSE, function(req, res) {
   var broadcastInterval;
   var data;
+  var alertDataPool;
 
-  req.socket.setTimeout(999999999999);
+  // Generate a unique ID for each SSE connection
+  var sseId = sseIdAccumulator++;
 
-  console.log('broadcasting alerts');
+  if (db.alertMemoryPool[sseId] === undefined) {
+    db.alertMemoryPool[sseId] = [];
+  }
 
   writeSSEHead(res, function() {
     broadcastInterval = setInterval(function() {
-      try {
-        data = JSON.stringify(db.alerts);
-        writeSSEData(res, ALERT_EVENT, data);
+    alertDataPool = db.alertMemoryPool[sseId];
 
+      try {
+        data = JSON.stringify(alertDataPool);
+        writeSSEData(res, ALERT_EVENT, data);
         // Alerts have been broadcasted. Clear data.
-        db.alerts = [];
+        db.alertMemoryPool[sseId] = [];
       } catch (e) {
         console.log("Error parsing acceleration data to broadcast");
       }
@@ -204,9 +244,6 @@ function writeSSEData(broadcast, event, data) {
 
   // Two new lines needed to signal end of message
   broadcast.write("data: " + data + "\n\n");
-
-  // After data is broadcast, remove it.
-  db.resetAccelerationChanges();
 };
 
 /**
@@ -229,3 +266,4 @@ app.use('*', function(req, res){
 app.listen(APP_PORT, function(){
   console.log("The app is now listeing on port 3000");
 });
+

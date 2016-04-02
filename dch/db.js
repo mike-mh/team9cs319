@@ -13,14 +13,20 @@ var ALERT_POLLING_INTERVAL = 5000;
 
 // This array will hold all alerts found to be broadcasted. Resets after each
 // broadcast event through SSE
-exports.alerts = [];
+exports.alertsQueue = [];
+
+// Segregates the data to be published for each unique connection
+exports.alertMemoryPool = {};
 
 /*
  * Use these objects to encapsulate data retrieved from watches. This data is
  * then broadcast through the SSE 
  */
 // Acceleration events
-exports.accelerationChanges = {};
+exports.accelerationQueue = [];
+
+// Segregates the data to be published for each unique connection
+exports.accelerationChangeMemoryPool = {};
 
 // Battery stream events
 exports.batteryChanges = {};
@@ -178,12 +184,25 @@ exports.getRecent = function(callback){
 };
 
 /**
+ * @desc - Use this function to retrieve all alerts from Mongo.
+ *
+ * @param callback {function} - Function to execute after mongo process is
+ *         complete.
+ */
+exports.getAlerts = function(callback) {
+  AlertData.find({}, callback);
+};
+
+
+/**
  * @desc - This funtion will delete an alert from the alert collection.
  *
- * @param alertId {string} - Id of the alert to be removed from MongoDB.
+ * @param alertId {string} -    Id of the alert to be removed from MongoDB.
+ * @param callback {function} - Function to execute after mongo process is
+ *         complete
  */
-exports.removeAlert = function(alertId) {
-  // TO-DO
+exports.removeAlert = function(alertId, callback) {
+  AlertData.remove({_id: alertId}, callback);
 };
 
 /**
@@ -263,3 +282,76 @@ setInterval(function() {
   analyzeForIdleness();
 }, ALERT_POLLING_INTERVAL);
 */
+
+// These should have been saved in a different file but because we don't have
+// time to re-work the architecture, they've been included here. These are
+// threading modules and they will be responsible for copying all data
+// retrieved for different events to be stored in memory pools segregated such
+// that different SSE connection will have access to the same memory. This
+// prevents race conditions from different SSE connection handlers trying to
+// clear data before other handlers could broadcast their data.
+
+/**
+ * @desc - This function is responsible for pushing all data retrieved from
+ *         acceleration events into the SSE shared memory pool.
+ */
+function pushAccelerationDataToMemoryPool() {
+  var currentDataPoint = exports.accelerationQueue.pop();
+
+  // If there is no data is in the queue, nothing to be done.
+  if (currentDataPoint === undefined) {
+    return;
+  }
+
+  for (var client in exports.accelerationChangeMemoryPool) {
+    var currentClient = exports.accelerationChangeMemoryPool[client];
+    var watchId = currentDataPoint.watch_id
+    var currentClientWatch;
+
+    // Sanity check
+    if (watchId === undefined) {
+      console.log("Could not queue. No watch ID.");
+    }
+
+    // Insert watch ID to object if it does not exist
+    if (currentClient[watchId] === undefined) {
+      currentClient[watchId] = {
+        timestamp: [],
+        acc_x: [],
+        acc_y: [],
+        acc_z: [],
+        gradient: []
+      };
+    }
+
+    currentClientWatch = currentClient[watchId]
+
+    // Push all acceleration data
+    for (var accelerationVector in currentClient[watchId]) {
+      currentClient[watchId][accelerationVector]
+        .push(currentDataPoint[accelerationVector]);
+    }
+  }
+}
+
+/**
+ * @desc - This function is responsible for pushing all alerts pushed into the
+ *         queue into the shared memory pool for SSE clients.
+ */
+function pushAlertDataToMemoryPool() {
+  var currentAlert = exports.alertsQueue.shift();
+
+  // If there is no data is in the queue, nothing to be done.
+  if (currentAlert === undefined) {
+    return;
+  }
+
+  // Push the alert to each client
+  for (var client in exports.alertMemoryPool) {
+    exports.alertMemoryPool[client].push(currentAlert);
+  }
+}
+
+// Poll acceleration events and alerts
+setInterval(pushAccelerationDataToMemoryPool, 500);
+setInterval(pushAlertDataToMemoryPool, 500);
