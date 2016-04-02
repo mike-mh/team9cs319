@@ -41,7 +41,8 @@ var dataSchema = mongoose.Schema({
   acc_z: Number,
   gradient: Number,
   timestamp: Number,
-  battery: Number
+  battery: Number,
+  publish_rate: Number
 });
 
 //create a model for the accelration data
