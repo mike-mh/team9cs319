@@ -10,6 +10,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.BatteryManager;
 import android.os.IBinder;
 import android.os.BatteryManager;
 import android.support.annotation.Nullable;
@@ -106,8 +107,8 @@ public class BroadcastService extends Service {
 
     private static final String WATCH_ID_JSON_INDEX = "watch_id";
     private static final String TIMESTAMP_JSON_INDEX = "timestamp";
-    private static final String BATTERY_LIFE_JSON_INDEX = "battery_life";
     private static final String PUBLISH_RATE_JSON_INDEX = "publish_rate";
+    private static final String BATTERY_PERCENTAGE_JSON_INDEX = "battery";
     private static final String ACC_X_JSON_INDEX = "acc_x";
     private static final String ACC_Y_JSON_INDEX = "acc_y";
     private static final String ACC_Z_JSON_INDEX = "acc_z";
@@ -157,6 +158,11 @@ public class BroadcastService extends Service {
          *         in this class in perpetuity at the pre-set intercal.
          */
         public void run() {
+            int level = Integer.parseInt(BatteryManager.EXTRA_LEVEL);
+            int scale = Integer.parseInt(BatteryManager.EXTRA_SCALE);
+
+            float Battery_Percentage = level / (float)scale;
+
             if (client.isConnected()) {
                 String data = "";
 
@@ -182,7 +188,7 @@ public class BroadcastService extends Service {
                     accelerationJson.put(TIMESTAMP_JSON_INDEX,
                             currentTimeMilliseconds);
 
-                    accelerationJson.put(BATTERY_LIFE_JSON_INDEX,
+                    accelerationJson.put(BATTERY_PERCENTAGE_JSON_INDEX,
                             batteryLife);
 
                     accelerationJson.put(PUBLISH_RATE_JSON_INDEX,

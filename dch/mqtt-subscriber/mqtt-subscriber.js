@@ -26,7 +26,7 @@ var SYS_CLIENT_INIT_MESSAGE = 'Listening for total devices';
 
 var WATCH_ID = 'watch_id';
 var TIMESTAMP = 'timestamp';
-var BATTERY_LIFE = 'battery_life';
+var BATTERY = 'battery';
 var PUBLISH_RATE = 'publish_rate';
 var X_ACCELERATION = 'acc_x';
 var Y_ACCELERATION = 'acc_y';
@@ -43,7 +43,7 @@ var getDataObject = function (stringData){
   console.log('Checking format of JSON data');
   try{
     var messageJson = JSON.parse(stringData);
-    
+
     if (
       Object.keys(messageJson).length === 7 &&
       messageJson[WATCH_ID] &&
@@ -51,8 +51,9 @@ var getDataObject = function (stringData){
       messageJson[X_ACCELERATION] &&
       messageJson[Y_ACCELERATION] &&
       messageJson[Z_ACCELERATION] &&
-      messageJson[BATTERY_LIFE] &&
+      messageJson[BATTERY] &&
       messageJson[PUBLISH_RATE]) {
+      messageJson[BATTERY]) {
       console.log('The data is correct');
       return messageJson;
     }
