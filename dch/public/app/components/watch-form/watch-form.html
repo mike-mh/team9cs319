@@ -1,0 +1,36 @@
+<div class="container" style='align:left'>
+  <form name = "myWatchForm" ng-submit="watchFormCtrl.submitForm(watchFormCtrl.selectedWatch.id, watchFormCtrl.selectedWatch.startTime, watchFormCtrl.selectedWatch.interval)">
+	  
+    <div>
+      <label for="watchSelect">Select a watch ID:</label>
+ 	    <select name="watchSelect" ng-model="watchFormCtrl.selectedWatch.id" ng-change="watchFormCtrl.updateWatch()">
+  	    <option ng-repeat="watch in watchFormCtrl.watches | unique: 'WATCH_ID'">
+        {{watch.WATCH_ID}}
+        </option>
+      </select>
+    </div>
+
+  	<div ng-show="watchFormCtrl.watchSelected">
+  	  <label for="timeSelect">Pick start time:</label>
+  		<select name="timeSelect" ng-model="watchFormCtrl.selectedWatch.startTime" ng-change="watchFormCtrl.updateTime()">
+        <option ng-repeat="time in watchFormCtrl.times">
+          {{time}}
+        </option>
+  		</select>
+  	</div>
+
+    <div ng-show="watchFormCtrl.timeSelected">
+      <label for="intervalSelect">Pick a time interval:</label>
+      <select name="intervalSelect" ng-model="watchFormCtrl.selectedWatch.interval">
+        <option value="5">Every 5 minutes</option>
+        <option value="10">Every 10 minutes</option>
+        <option value="30">Every 30 minutes</option>
+      </select>
+    </div>
+ 
+	  <div>
+		  <button type="submit" class="btn btn-success" >Get Data</button>
+	  </div>
+
+  </form>
+</div>
