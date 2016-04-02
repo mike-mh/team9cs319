@@ -57,6 +57,7 @@
     console.log(CanaryAlertService);
     console.log(CanaryAlertService.getWatchAlerts());
     vm.alerts = CanaryAlertService.getWatchAlerts();
+    UpdateInbox();
     console.log(vm.alerts);
     CanaryAlertService.regiterCallback(pushConnectionDataToQueue);
 
@@ -127,7 +128,6 @@
      */
     function UpdateInbox() {
       $scope.$emit('inboxUpdate', vm.alerts.alerts.length);
-      console.log('updating');
     }
 
     /**
