@@ -24,6 +24,8 @@
 
     var ALERT_STREAM_PATH = 'api/alert-sse';
     var ALERT_EVENT = 'alert-event';
+    var GET_ALERTS_PATH = '/get-alerts';
+    var DELETE_ALERT_PATH = '/delete-alert';
 
     var callbacks = [];
 

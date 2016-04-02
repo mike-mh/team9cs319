@@ -84,9 +84,11 @@ var createAlert = function (alert) {
       console.log('There was an error inserting ' + data + ' into the database');
     } else {
       console.log(data.toString() + ' saved to database');
+
+      alert['mongo_id'] = data._id
+      database.alertsQueue.push(alert);
     }
   });
-  database.alerts.push(alert);
 }
 
 // Signal dcappClient is listening for watch data
@@ -148,9 +150,6 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
           alert_type: 'ACC_SPIKE',
           alert_text: 'Device has gradient = ' + dataObj.gradient + "."
       });
-
-      // This is a big architectural faux pas. If we have time, should fix this
-      database.alertsQueue.push(spikeAlert);
     }
 
     // Generate idle alert if necessary
@@ -166,9 +165,6 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
           alert_text: 'Device has been idle for more than 5 minutes.'
         });
         idleDeviceMap[watchId] = dataObj.timestamp; // update timestamp
-
-        // This is a big architectural faux pas. If we have time, should fix this
-        database.alertsQueue.push(idleAlert);
       }
     } else {
       idleDeviceMap[watchId] = null;
@@ -237,9 +233,6 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
       connectedDeviceMap[watchId] = setTimeout(generateDisconnectionAlert,
                                                CONNECTION_TIMEOUT,
                                                watchId);
-
-      // This is a big architectural faux pas. If we have time, should fix this
-      database.alertsQueue.push(connectionAlert);
     }
 
   } else {
@@ -272,9 +265,6 @@ function generateDisconnectionAlert(uuid) {
       console.log(data.toString() + ' saved to database');
     }
   });
-
-  // This is a big architectural faux pas. If we have time, we should fix this
-  database.alertsQueue.push(disconnectionAlert);
 
   // Remove the uuid timer from connected devices
   connectedDeviceMap[uuid] = undefined;

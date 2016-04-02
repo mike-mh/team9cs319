@@ -23,6 +23,8 @@ var GET_DATA_PATH = '/get-data/:watchId/:startTime/:stopTime/:frequency';
 var GET_IDLE_ALERT_PATH = '/get-idle-alert/:watchId/:startTime/:stopTime';
 var GET_SPIKE_ALERT_PATH = '/get-spike-alert/:watchId/:startTime/:stopTime';
 var GET_RECENT = '/get-recent';
+var GET_ALERTS_PATH = '/get-alerts';
+var DELETE_ALERT_PATH = '/delete-alert/:alertId';
 
 // These are SSE paths
 var ACCELERATION_SSE = '/acceleration-sse';
@@ -116,6 +118,14 @@ router.get(TOTAL_CONNECTED_DEVICES, function(req, res){
   return res.end(totalWatches.toString());
 });
 
+router.get(GET_ALERTS_PATH, function(req, res){
+  db.getAlerts(standardCallback(res));
+});
+
+router.get(DELETE_ALERT_PATH, function(req, res){
+  db.removeAlert(req.params.alertId, standardCallback(res));
+});
+
 // SSE connections start here
 router.get(ACCELERATION_SSE, function(req, res) {
   var broadcastInterval;
@@ -174,17 +184,12 @@ router.get(ALERT_SSE, function(req, res) {
     db.alertMemoryPool[sseId] = [];
   }
 
-  console.log(alertDataPool);
-  console.log(db.alertMemoryPool);
-
   writeSSEHead(res, function() {
     broadcastInterval = setInterval(function() {
     alertDataPool = db.alertMemoryPool[sseId];
 
       try {
-        console.log('THE DATA');
         data = JSON.stringify(alertDataPool);
-        console.log(data);
         writeSSEData(res, ALERT_EVENT, data);
         // Alerts have been broadcasted. Clear data.
         db.alertMemoryPool[sseId] = [];

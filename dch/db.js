@@ -184,12 +184,25 @@ exports.getRecent = function(callback){
 };
 
 /**
+ * @desc - Use this function to retrieve all alerts from Mongo.
+ *
+ * @param callback {function} - Function to execute after mongo process is
+ *         complete.
+ */
+exports.getAlerts = function(callback) {
+  AlertData.find({}, callback);
+};
+
+
+/**
  * @desc - This funtion will delete an alert from the alert collection.
  *
- * @param alertId {string} - Id of the alert to be removed from MongoDB.
+ * @param alertId {string} -    Id of the alert to be removed from MongoDB.
+ * @param callback {function} - Function to execute after mongo process is
+ *         complete
  */
-exports.removeAlert = function(alertId) {
-  // TO-DO
+exports.removeAlert = function(alertId, callback) {
+  AlertData.remove({_id: alertId}, callback);
 };
 
 /**
@@ -326,7 +339,7 @@ function pushAccelerationDataToMemoryPool() {
  *         queue into the shared memory pool for SSE clients.
  */
 function pushAlertDataToMemoryPool() {
-  var currentAlert = exports.alertsQueue.pop();
+  var currentAlert = exports.alertsQueue.shift();
 
   // If there is no data is in the queue, nothing to be done.
   if (currentAlert === undefined) {

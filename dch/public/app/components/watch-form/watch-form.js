@@ -28,9 +28,11 @@
     return directive;
   }
 
-  WatchFormController.$inject = ['$http', 'DataGraphService', 'WatchDataService'];
+  WatchFormController.$inject = ['$http', 'GraphService', 'WatchDataService'];
 
-  function WatchFormController($http, DataGraphService, WatchDataService) {
+  function WatchFormController($http, GraphService, WatchDataService) {
+    console.log('SERVICE');
+    console.log(GraphService);
     var vm = this;
 
     vm.dataList = [];
@@ -55,7 +57,7 @@
     *         in the dropdown menus.
     */
     vm.updateWatch = function() {
-      DataGraphService.setWatchIdToMonitor(vm.selectedWatch.id.trim());
+      GraphService.setWatchIdToMonitor(vm.selectedWatch.id.trim());
       vm.selectedWatch.interval = '';
       vm.selectedWatch.startTime = '';
     }
@@ -159,8 +161,8 @@
     function dataSuccessCallback(response) {
       vm.dataList = response.data;
       WatchDataService.putData(vm.dataList);
-      DataGraphService.clearAccelerationGraph();
-      DataGraphService.renderAccelerationGraph();
+      GraphService.clearAccelerationGraph();
+      GraphService.renderAccelerationGraph();
     }
 
     /**
@@ -195,6 +197,10 @@
                       stopTime + '/' + interval;
 
       var responsePromise = $http.get(dataQuery);
+
+      // If the user was watching live stream data, stop stream.
+      GraphService.stopAccelerationStream();
+
       responsePromise.then(dataSuccessCallback, dataErrorCallback);
     }
 
