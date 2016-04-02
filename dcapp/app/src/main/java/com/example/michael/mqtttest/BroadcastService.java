@@ -283,6 +283,9 @@ public class BroadcastService extends Service {
                 intent.getIntExtra(SPEED_SETTING_INTENT_EXTRA, 0) :
                 NO_USER_SPEED_INPUT;
 
+        // Ensure that the connection lock is reset
+        isConnecting = false;
+
         client = new MqttAndroidClient(this, TCP_PREFIX + hostIp, androidId);
 
         sensorManager = (SensorManager) getApplicationContext()
