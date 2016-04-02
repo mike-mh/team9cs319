@@ -25,7 +25,8 @@ function getRandomAccData(multiplier) {
     acc_y: y,
     acc_z: z,
     gradient: gradient,
-    battery: 1.0
+    battery: 1.0,
+    publish_rate: 400
   };
 }
 
