@@ -59,7 +59,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr ng-repeat="alert in canarayAlertsController.readAlerts">
+                  <tr ng-repeat="(alertIndex, alert) in canarayAlertsController.readAlerts">
                     <td>
                       {{alert.timestamp}}
                     </td>
@@ -73,7 +73,7 @@
                       {{alert.alert_text}}
                     </td>
                     <td>
-                      <button>
+                      <button ng-click="canarayAlertsController.DeleteAlert(alert, alertIndex)">
                         <i class="glyphicon glyphicon-remove"></i>
                       </button>
                     </td>

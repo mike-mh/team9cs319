@@ -154,6 +154,15 @@
       UpdateInbox();
     }
 
+    /*
+     * @desc - This function deletes alerts in inbox and in db
+     *
+     */
+    vm.DeleteAlert = function(alert, index) {
+      CanaryAlertService.deleteWatchAlert(alert);
+      vm.readAlerts.splice(index, 1);
+    }
+
   }
 
 })();

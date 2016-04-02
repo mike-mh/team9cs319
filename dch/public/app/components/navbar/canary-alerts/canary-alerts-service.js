@@ -20,12 +20,13 @@
     var canaryAlertService = {
       getWatchAlerts: getWatchAlerts,
       regiterCallback: regiterCallback,
+      deleteWatchAlert: deleteWatchAlert
     };
 
     var ALERT_STREAM_PATH = 'api/alert-sse';
     var ALERT_EVENT = 'alert-event';
     var GET_ALERTS_PATH = '/get-alerts';
-    var DELETE_ALERT_PATH = '/delete-alert';
+    var DELETE_ALERT_PATH = '/api/delete-alert';
 
     var callbacks = [];
 
@@ -62,8 +63,12 @@
      *
      * @return {object} - The watch alerts object
      */
-     function getWatchAlerts() {
-       return watchAlerts;
+    function getWatchAlerts() {
+      return watchAlerts;
+    }
+
+    function deleteWatchAlert(alert) {
+      $http.get(DELETE_ALERT_PATH + '/:' + alert.mongo_id)
     }
 
     /**
