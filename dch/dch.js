@@ -25,6 +25,7 @@ var GET_SPIKE_ALERT_PATH = '/get-spike-alert/:watchId/:startTime/:stopTime';
 var GET_RECENT = '/get-recent';
 var GET_ALERTS_PATH = '/get-alerts';
 var DELETE_ALERT_PATH = '/delete-alert/:alertId';
+var GET_ALL_BATTERY_DATA_PATH = '/get-battery-data/:watchId';
 
 // These are SSE paths
 var ACCELERATION_SSE = '/acceleration-sse';
@@ -124,6 +125,10 @@ router.get(GET_ALERTS_PATH, function(req, res){
 
 router.get(DELETE_ALERT_PATH, function(req, res){
   db.removeAlert(req.params.alertId, standardCallback(res));
+});
+
+router.get(GET_ALL_BATTERY_DATA_PATH, function(req, res){
+  db.getAllBatteryData(req.params.watchId, standardCallback(res));
 });
 
 // SSE connections start here

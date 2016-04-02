@@ -33,6 +33,8 @@ var TIMESTAMP = 'timestamp';
 var X_ACCELERATION = 'acc_x';
 var Y_ACCELERATION = 'acc_y';
 var Z_ACCELERATION = 'acc_z';
+var BATTERY = 'battery';
+var PUBLISH_RATE = 'publish_rate';
 
 var dcappClient = mqtt.connect(MQTT_BROKER_URL);
 var sysClient = mqtt.connect(MQTT_BROKER_URL);
@@ -56,12 +58,14 @@ var getDataObject = function (stringData){
     var messageJson = JSON.parse(stringData);
 
     if (
-      Object.keys(messageJson).length === 5 &&
+      Object.keys(messageJson).length === 7 &&
       messageJson[WATCH_ID] &&
       messageJson[TIMESTAMP] &&
       messageJson[X_ACCELERATION] &&
       messageJson[Y_ACCELERATION] &&
-      messageJson[Z_ACCELERATION]) {
+      messageJson[Z_ACCELERATION] &&
+      messageJson[BATTERY] &&
+      messageJson[PUBLISH_RATE]) {
       //console.log('The data is correct');
       return messageJson;
     }
@@ -258,13 +262,7 @@ function generateDisconnectionAlert(uuid) {
       alert_text: 'Device has disconnected from DCH.'
     };
 
-  AlertData.create(disconnectionAlert, function(err, data) {
-    if (err) {
-      console.log('There was an error inserting ' + data + ' into the database');
-    } else {
-      console.log(data.toString() + ' saved to database');
-    }
-  });
+  createAlert(disconnectionAlert);
 
   // Remove the uuid timer from connected devices
   connectedDeviceMap[uuid] = undefined;

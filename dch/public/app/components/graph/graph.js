@@ -41,13 +41,10 @@
     }
 
     /**
-     * @desc - This function is triggered when the user clicks the 'Get Data'
-     *         button with real time updates disabled. It first removes
-     *         previous data from the graph then re-renders the chart.
+     * @desc - Renders the battery graph to contain all known data for a
+     *         battery.
      */
-    function populateAccelerationGraph() {
-      GraphService.renderAccelerationGraph();
-      GraphService.renderBatteryGraph();
+    vm.getAllBatteryData = function() {
     }
 
     /**
