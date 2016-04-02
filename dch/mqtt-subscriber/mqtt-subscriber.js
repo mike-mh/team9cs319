@@ -53,7 +53,6 @@ var getDataObject = function (stringData){
       messageJson[Z_ACCELERATION] &&
       messageJson[BATTERY] &&
       messageJson[PUBLISH_RATE]) {
-      messageJson[BATTERY]) {
       console.log('The data is correct');
       return messageJson;
     }
