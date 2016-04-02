@@ -71,7 +71,8 @@ function genIncreasing(watchId, startTime, endTime, interval, rate) {
       acc_z: i,
       gradient: getGradient(i,i,i),
       timestamp: ts,
-      battery: 1.0
+      battery: 1.0,
+      publish_rate: 400
     }
     dataArr.push(data);
     i += rate;
