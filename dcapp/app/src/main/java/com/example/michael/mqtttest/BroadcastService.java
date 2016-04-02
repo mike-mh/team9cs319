@@ -158,10 +158,6 @@ public class BroadcastService extends Service {
          *         in this class in perpetuity at the pre-set intercal.
          */
         public void run() {
-            int level = Integer.parseInt(BatteryManager.EXTRA_LEVEL);
-            int scale = Integer.parseInt(BatteryManager.EXTRA_SCALE);
-
-            float Battery_Percentage = level / (float)scale;
 
             if (client.isConnected()) {
                 String data = "";
