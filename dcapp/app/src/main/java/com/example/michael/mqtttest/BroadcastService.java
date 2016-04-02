@@ -314,6 +314,9 @@ public class BroadcastService extends Service {
      *         should be disabled and the accelerationListener unregistered.
      */
     public void onDestroy() {
+        if(client != null) {
+            client.unregisterResources();
+        }
         broadcastServiceIsRunning = false;
         this.unregisterReceiver(batteryLevelReceiver);
         publicationHandle.cancel(true);

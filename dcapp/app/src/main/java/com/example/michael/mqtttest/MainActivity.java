@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Intent startBroadcastService;
 
     private String androidId;
-    private TelephonyManager telephonyManager;
 
     private String hostIpAddress;
     private String connectionStatus;
@@ -200,6 +199,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         androidId);
                 startBroadcastService.putExtra(HOST_IP_INTENT_EXTRA,
                         hostIpAddress);
+                startBroadcastService.putExtra(SPEED_SETTING_INTENT_EXTRA,
+                        speedSetting);
                 startService(startBroadcastService);
                 hostIpView.setText(HOST_IP_DISPLAY_PREFIX + hostIpAddress);
             }

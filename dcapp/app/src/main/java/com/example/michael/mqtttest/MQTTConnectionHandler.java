@@ -3,7 +3,6 @@ package com.example.michael.mqtttest;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import android.util.Log;
-import org.eclipse.paho.android.service.MqttService;
 
 /**
  * @desc - This is the callback class used to handle connection events from a
