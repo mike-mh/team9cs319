@@ -161,8 +161,8 @@
     function dataSuccessCallback(response) {
       vm.dataList = response.data;
       WatchDataService.putData(vm.dataList);
-      GraphService.clearAccelerationGraph();
       GraphService.renderAccelerationGraph();
+      GraphService.renderBatteryGraph();
     }
 
     /**

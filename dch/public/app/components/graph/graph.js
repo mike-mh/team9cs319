@@ -46,19 +46,8 @@
      *         previous data from the graph then re-renders the chart.
      */
     function populateAccelerationGraph() {
-      //Clear previous data
-      GraphService.clearAccelerationGraph();
       GraphService.renderAccelerationGraph();
-    }
-
-    /**
-     * @desc - Set active tab so that it is known whether to render
-     *         acceleration or battery graph.
-     *
-     * @param tabName {string} - The name of the tab selected.
-     */
-    vm.setActiveTab = function(tabName) {
-      //chartRenderFunctionMap(tabName);
+      GraphService.renderBatteryGraph();
     }
 
     /**
