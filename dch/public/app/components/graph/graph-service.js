@@ -15,14 +15,15 @@
     .module('dcgui.shared')
     .service('GraphService', GraphService);
 
-  GraphService.$inject = ['WatchDataService'];
+  GraphService.$inject = ['WatchDataService', '$http'];
 
-  function GraphService(WatchDataService) {
+  function GraphService(WatchDataService, $http) {
     // Use to generate the c3 chart
     var accelerationChart;
     var batteryChart;
 
     var ACCELERATION_STREAM_PATH = '/api/acceleration-sse/';
+    var BATTERY_REPORT_PATH = '/api/get-battery-data/';
 
     // These constants are shared by both battery and acceleration charts
     var IDENTIFIER_INDEX = 0;
@@ -45,7 +46,7 @@
     var X_ACCELERATION_ARRAY_IDENTIFIER = 'x-acceleration';
     var Y_ACCELERATION_ARRAY_IDENTIFIER = 'y-acceleration';
     var Z_ACCELERATION_ARRAY_IDENTIFIER = 'z-acceleration';
-    var GRADIENT_ARRAY_IDENTIFIER = 'gradient'
+    var GRADIENT_ARRAY_IDENTIFIER = 'gradient';
 
     // Make an array with the identifiers and ensure they are stored in the
     // proper index. This isn't the cleanest way to handle this data but it's
@@ -99,8 +100,13 @@
     var accelerationStreamData = {};
     var accelerationStreamGraphControl = {
       'watchId' : '',
-      'enabled' : false,
+      'enabled' : false
     }
+
+    // If the oppurtunity ever presents, please get rid of this.
+    var batteryToQuery = {
+      'watchId': ''
+    };
 
     var accelerationGraphData = {};
     var batteryGraphData = {};
@@ -191,7 +197,8 @@
       clearBatteryGraph: clearBatteryGraph,
       setWatchIdToMonitor: setWatchIdToMonitor,
       startAccelerationStream: startAccelerationStream,
-      stopAccelerationStream: stopAccelerationStream
+      stopAccelerationStream: stopAccelerationStream,
+      renderBatteryReport: renderBatteryReport
     };
 
     // Initialize SSE stream
@@ -276,13 +283,6 @@
     }
 
     /**
-     * @desc - This function uses the data retrieved from data source to
-     *         generate realtime updates of the c3 chart.
-     */
-    function rednerBatteryChart() {
-    }
-
-    /**
      * @desc - This function generates the data to populate the acceleration
      *         c3 chart with data passed in from a successful 'get-data'
      *         object.
@@ -330,8 +330,6 @@
       // Clear out previous data
       clearBatteryGraph();
 
-      console.log('RENDERING BATTERY CHART');
-      console.log(retrievedData);
       // Identifiers are stored in the proper index which allows for direct
       // insertion into the array. Again, this isn't the cleanest solution but
       // is needed to run c3
@@ -354,6 +352,67 @@
           ]
         });
       }
+    }
+
+    /**
+     * @desc - This function generates the battery report for the entire life
+     *         of a connected device. This should be merged with
+     *         'renderBatteryGraph' but architectural and time constraints
+     *         make this impossible for now.
+     */
+    function renderBatteryReport() {
+      /* Sanity check */
+      if (!batteryToQuery.watchId) {
+        console.log('Id of the watch to query is not set.');
+        return;
+      }
+
+      var data = [];
+      data[X_AXIS_COLUMN_INDEX_BATTERY] = [];
+      data[BATTERY_COLUMN_INDEX] = [];
+      data[PUBLISH_RATE_COLUMN_INDEX] = [];
+
+      var responsePromise = $http.get(BATTERY_REPORT_PATH + batteryToQuery.watchId);
+      responsePromise.success(function(response) {
+        for(var index in response) {
+          var dataPoint = response[index];
+          data[X_AXIS_COLUMN_INDEX_BATTERY].push(dataPoint._id);
+          data[BATTERY_COLUMN_INDEX].push(dataPoint.battery);
+          data[PUBLISH_RATE_COLUMN_INDEX].push(dataPoint.publish_rate);
+        }
+      });
+
+      responsePromise.then(function() {
+        if (data.length === 0) {
+          return;
+        }
+
+        // Clear out previous data
+        clearBatteryGraph();
+
+        // Identifiers are stored in the proper index which allows for direct
+        // insertion into the array. Again, this isn't the cleanest solution but
+        // is needed to run c3
+        for(var index in BATTERY_ARRAY_IDENTIFIERS) {
+          batteryGraphData.data.columns[index].push.apply(
+            batteryGraphData.data.columns[index],
+            data[index]);
+        }
+
+        if (batteryChart === undefined) {
+          batteryChart = c3.generate(batteryGraphData);
+        }
+
+        else {
+          batteryChart.load({
+            columns: [
+              batteryGraphData.data.columns[X_AXIS_COLUMN_INDEX_ACCELERATION],
+              batteryGraphData.data.columns[BATTERY_COLUMN_INDEX],
+              batteryGraphData.data.columns[PUBLISH_RATE_COLUMN_INDEX]
+            ]
+          });
+        }
+      });
     }
 
     /**
@@ -461,6 +520,7 @@
      */
     function setWatchIdToMonitor(uuid) {
       accelerationStreamGraphControl.watchId = uuid;
+      batteryToQuery.watchId = uuid;
     }
 
 
@@ -481,5 +541,16 @@
       accelerationStreamGraphControl.enabled = false;
     }
 
+    /**
+     * @desc - This funciton is responsible for fetching and rendering a
+     *         complete battery report for the entire lifetime of a watch.
+     *         Will return c3 formatted arrays. See comments for the
+     *         'renderBatteryReport' function. Ideally, this should be
+     *         re-factored.
+     *
+     * @return promise - Promise resolves with c3 data.
+     */
+    function getBatteryReportPromise() {
+    }
   }
 })();

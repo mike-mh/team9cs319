@@ -30,21 +30,17 @@
 
   }
 
-  GraphController.$inject = ['GraphService', 'WatchDataService', '$scope', '$window'];
+  GraphController.$inject = ['GraphService'];
 
-  function GraphController(GraphService, WatchDataService, $scope, $window) {
+  function GraphController(GraphService) {
     var vm = this;
-
-    var chartRenderFunctionMap = {
-      'acceleration': GraphService.renderAccelerationGraph,
-      'battery': GraphService.renderBatteryChart
-    }
 
     /**
      * @desc - Renders the battery graph to contain all known data for a
      *         battery.
      */
     vm.getAllBatteryData = function() {
+      GraphService.renderBatteryReport();
     }
 
     /**

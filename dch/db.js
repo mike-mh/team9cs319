@@ -177,7 +177,7 @@ exports.getAllBatteryData = function(watchID, callback) {
     }
   }, {
     $group: {
-      _id: {$subtract: ['$timestamp', { $mod: ['$timestamp', 60000]}]},
+      _id: {$subtract: ['$timestamp', { $mod: ['$timestamp', 144000]}]},
       battery: {$avg: '$battery'},
       publish_rate: {$avg: '$publish_rate'},
     }
