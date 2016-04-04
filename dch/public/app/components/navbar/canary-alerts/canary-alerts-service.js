@@ -19,13 +19,14 @@
   function CanaryAlertService($http) {
     var canaryAlertService = {
       getWatchAlerts: getWatchAlerts,
+      requestWatchAlerts: requestWatchAlerts,
       regiterCallback: regiterCallback,
-      deleteWatchAlert: deleteWatchAlert
+      deleteWatchAlert: deleteWatchAlert,
     };
 
     var ALERT_STREAM_PATH = 'api/alert-sse';
     var ALERT_EVENT = 'alert-event';
-    var GET_ALERTS_PATH = '/get-alerts';
+    var GET_ALERTS_PATH = '/api/get-alerts';
     var DELETE_ALERT_PATH = '/api/delete-alert';
 
     var callbacks = [];
@@ -36,24 +37,7 @@
     initializeStream();
 
     var testDate = new Date();
-    var watchAlerts = {
-      alerts: [
-       {
-          timestamp: testDate.toString(),
-          watch_id: '111aaa111aaa',
-          alert_type: 'Connection',
-          alert_text: 'Device has connected to network',
-          read: false
-        },
-        {
-          timestamp: testDate.toString(),
-          watch_id: '7982347af7982',
-          alert_type: 'Connection',
-          alert_text: 'Device has connected to network',
-          read: false
-        },
-      ]
-    };
+    var watchAlerts = { alerts : []};
 
     // Return the service as an object. Angular treats it as a Singleton.
     return canaryAlertService;
@@ -67,8 +51,31 @@
       return watchAlerts;
     }
 
+    /**
+     * @desc - Responsible for fetching watch alerts from server. Inserts
+     *         retrieved data into the watchAlerts object. Executes a callback
+     *         function upon success.
+     *
+     * @param callback {function} - Function to execute when data is retrieved.
+     */
+    function requestWatchAlerts(callback) {
+      var responsePromise = $http.get(GET_ALERTS_PATH);
+
+      responsePromise.success(function(response) {
+        console.log(response);
+        watchAlerts.alerts = response;
+        callback(response);
+      });
+
+      responsePromise.error(function(error) {
+        console.log('Request for alerts failed.');
+        console.log(error);
+      });
+    }
+
+
     function deleteWatchAlert(alert) {
-      $http.get(DELETE_ALERT_PATH + '/:' + alert.mongo_id)
+      $http.get(DELETE_ALERT_PATH + '/' + alert.mongo_id)
     }
 
     /**

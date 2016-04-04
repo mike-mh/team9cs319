@@ -56,8 +56,11 @@
 
     console.log(CanaryAlertService);
     console.log(CanaryAlertService.getWatchAlerts());
+    // Fetch all alerts from server.
+    CanaryAlertService.requestWatchAlerts(UpdateInbox);
+
     vm.alerts = CanaryAlertService.getWatchAlerts();
-    UpdateInbox();
+
     console.log(vm.alerts);
     CanaryAlertService.regiterCallback(pushConnectionDataToQueue);
 
@@ -122,7 +125,7 @@
 
     }
 
-    /*
+    /**
      * @desc - This function updates the mail inbox badge
      *
      */
