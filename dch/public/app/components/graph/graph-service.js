@@ -117,7 +117,8 @@
       clearAccelerationGraph: clearAccelerationGraph,
       setWatchIdToMonitor: setWatchIdToMonitor,
       startAccelerationStream: startAccelerationStream,
-      stopAccelerationStream: stopAccelerationStream
+      stopAccelerationStream: stopAccelerationStream,
+      checkHasLivestream: checkHasLivestream
     };
 
     // Initialize SSE stream
@@ -126,8 +127,18 @@
     // Return the service as an object. Angular treats it as a Singleton.
     return GraphService;
 
+
+    /*
+     * @desc - Returns an array of the incoming livestream data.
+     *
+     */
+    function checkHasLivestream() {
+      return accelerationStreamData;
+    }
+
+
     /**
-     * @desc - Initializes the SSE stream conenction for acceleration data
+     * @desc - Initializes the SSE stream connection for acceleration data
      *         and configures the on message event to perpetually update the
      *         accelerationStreamData with retreived data.
      */
@@ -137,7 +148,7 @@
         try {
           var data = JSON.parse(event.data);
           analyzeRetrievedData(data);
-
+          
           // Renders real-time data if it's enabled.
           renderRealtimeAccelerationGraph();
 
@@ -193,7 +204,7 @@
           // Only show so many points in th stream
           if (accelerationStreamData[watch][currentArrayIndex].length >= 30) {
             accelerationStreamData[watch][currentArrayIndex].shift();
-            console.log(accelerationStreamData[watch]);
+            //console.log(accelerationStreamData[watch]);
           }
 
           accelerationStreamData[watch][currentArrayIndex].push(average);
@@ -354,6 +365,7 @@
     function stopAccelerationStream() {
       accelerationStreamGraphControl.enabled = false;
     }
+
 
   }
 })();

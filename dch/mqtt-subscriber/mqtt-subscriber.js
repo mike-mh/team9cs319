@@ -54,7 +54,7 @@ var getDataObject = function (stringData){
   //console.log('Checking format of JSON data');
   try{
     var messageJson = JSON.parse(stringData);
-
+    return messageJson
     if (
       Object.keys(messageJson).length === 5 &&
       messageJson[WATCH_ID] &&
