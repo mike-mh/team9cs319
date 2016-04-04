@@ -75,7 +75,7 @@
 
 
     function deleteWatchAlert(alert) {
-      $http.get(DELETE_ALERT_PATH + '/' + alert.mongo_id)
+      $http.get(DELETE_ALERT_PATH + '/' + alert._id)
     }
 
     /**
