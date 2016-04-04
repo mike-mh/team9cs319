@@ -4,7 +4,7 @@
   "description": "The DCH server",
   "main": "dch.js",
   "scripts": {
-    "test": "karma start karma.conf.js && mocha ./dch-test.js"
+    "test": "karma start karma.conf.js; mocha ./dch-test.js "
   },
   "keywords": [
     "DCH",
@@ -20,6 +20,7 @@
     "angular-mocks": "latest",
     "assert": "latest",
     "chai": "latest",
+    "chai-http": "latest",
     "express": "latest",
     "jasmine-core": "~2.4.1",
     "karma": "latest",
@@ -29,7 +30,6 @@
     "karma-ie-launcher": "~0.2.0",
     "karma-firefox-launcher": "~0.1.7",
     "karma-ng-html2js-preprocessor": "latest",
-    "karma-phantomjs2-launcher": "~0.5.0",
     "mqtt": "latest",
     "mocha": "latest",
     "mongodb": "latest",
