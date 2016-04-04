@@ -25,7 +25,7 @@ var TEST_WATCH = ['Watch 1', 'Watch 2', 'Watch 3','Watch 4', 'Watch 5', 'Watch 6
 
   //API paths
 var DELETE_DATA_PATH = '/delete-data/';
-var GET_WATCH_IDS = '/get-watch-ids/'
+var GET_WATCH_IDS = '/get-watch-ids'
 var TOTAL_CONNECTED_DEVICES = '/total-connected-devices';
 var GET_DATA_PATH = '/get-data/';
 var GET_IDLE_ALERT_PATH = '/get-idle-alert/:watchId/:startTime/:stopTime';
@@ -56,9 +56,9 @@ describe('DCH API', function(){
        done();   
       });
      
-           for(var i = 0; i < TEST_WATCH.length; i++){
-            data = data.concat(test_data.genIncreasing(TEST_WATCH[i] , START_DATE.getTime(), END_DATE.getTime() , 2000, 9));
-         }
+      for(var i = 0; i < TEST_WATCH.length; i++){
+        data = data.concat(test_data.genIncreasing(TEST_WATCH[i] , START_DATE.getTime(), END_DATE.getTime() , 2000, 9));
+      }
       /*  dcappClient.on(MQTT_CONNECT_EVENT, function () {
           console.log('We are subscribing');
           dcappClient.subscribe(DCAPP_CHANNEL);
@@ -87,7 +87,7 @@ describe('DCH API', function(){
 
     it('Test get watchId api', function(done){
       chai.request(BASE_URL)
-      .get("/get-watch-ids")
+      .get(GET_WATCH_IDS)
       .end(function(err,res){
         res.should.be.json; 
         res.body.should.be.a('array');
