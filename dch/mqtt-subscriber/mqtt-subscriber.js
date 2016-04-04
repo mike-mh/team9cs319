@@ -258,13 +258,7 @@ function generateDisconnectionAlert(uuid) {
       alert_text: 'Device has disconnected from DCH.'
     };
 
-  AlertData.create(disconnectionAlert, function(err, data) {
-    if (err) {
-      console.log('There was an error inserting ' + data + ' into the database');
-    } else {
-      console.log(data.toString() + ' saved to database');
-    }
-  });
+  createAlert(disconnectionAlert);
 
   // Remove the uuid timer from connected devices
   connectedDeviceMap[uuid] = undefined;
