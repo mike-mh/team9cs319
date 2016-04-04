@@ -19,9 +19,12 @@
       <uib-tab-heading>
         Battery Data
       </uib-tab-heading>
-      <button ng-click="graphController.getAllBatteryData()">GET ALL DATA</button>
-      <div class="chart">
-        <div id="battery-chart"></div>
+      <div class="container">
+        </br>
+        <button ng-click="graphController.getAllBatteryData()" class="btn btn-warning">Create Battery Life Report</button>
+        <div class="chart">
+          <div id="battery-chart"></div>
+        </div>
       </div>
     </uib-tab>
   </uib-tabset>
