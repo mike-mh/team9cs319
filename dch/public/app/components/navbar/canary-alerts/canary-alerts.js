@@ -56,7 +56,11 @@
 
     console.log(CanaryAlertService);
     console.log(CanaryAlertService.getWatchAlerts());
+    // Fetch all alerts from server.
+    CanaryAlertService.requestWatchAlerts(UpdateInbox);
+
     vm.alerts = CanaryAlertService.getWatchAlerts();
+
     console.log(vm.alerts);
     CanaryAlertService.regiterCallback(pushConnectionDataToQueue);
 
@@ -87,6 +91,8 @@
         return;
       }
       
+      UpdateInbox();
+
       var data = alertsQueue.shift();
       var dateReceived = new Date(data.timestamp);
       console.log('MAKING TOAST');
@@ -120,6 +126,14 @@
     }
 
     /**
+     * @desc - This function updates the mail inbox badge
+     *
+     */
+    function UpdateInbox() {
+      $scope.$emit('inboxUpdate', vm.alerts.alerts.length);
+    }
+
+    /**
      * @desc - This function marks an alert as read
      *
      * @param alert {object} - Alert to be marked as read
@@ -129,6 +143,27 @@
       vm.alerts.alerts.splice(index, 1);
       vm.readAlerts.push(alert)
       console.log(vm.readAlerts);
+      UpdateInbox();
+    }
+
+    /*
+     * @desc - This function clears all alerts in alert inbox
+     *
+     */
+    vm.ClearAlerts = function() {
+      vm.readAlerts.push.apply(vm.readAlerts, vm.alerts.alerts);
+      vm.alerts.alerts.splice(0);
+      console.log(vm.alerts.alerts);
+      UpdateInbox();
+    }
+
+    /*
+     * @desc - This function deletes alerts in inbox and in db
+     *
+     */
+    vm.DeleteAlert = function(alert, index) {
+      CanaryAlertService.deleteWatchAlert(alert);
+      vm.readAlerts.splice(index, 1);
     }
 
   }

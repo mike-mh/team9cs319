@@ -124,6 +124,7 @@ router.get(GET_ALERTS_PATH, function(req, res){
 });
 
 router.get(DELETE_ALERT_PATH, function(req, res){
+  console.log('deleted alert');
   db.removeAlert(req.params.alertId, standardCallback(res));
 });
 

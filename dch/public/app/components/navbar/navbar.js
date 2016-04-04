@@ -28,9 +28,15 @@
     return directive;
   }
 
-  NavbarController.$inject = [];
+  NavbarController.$inject = ['$scope'];
 
-  function NavbarController() {
+  function NavbarController($scope) {
+    var vm = this;
+
+    // Listens for inbox updates from Canaray Alerts Controller
+    $scope.$on('inboxUpdate', function(event, data) {
+      vm.numberOfAlerts = data;
+    })
   }
 
 })();
