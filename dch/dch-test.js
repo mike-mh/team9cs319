@@ -59,7 +59,7 @@ describe('DCH API', function(){
            for(var i = 0; i < TEST_WATCH.length; i++){
             data = data.concat(test_data.genIncreasing(TEST_WATCH[i] , START_DATE.getTime(), END_DATE.getTime() , 2000, 9));
          }
-        dcappClient.on(MQTT_CONNECT_EVENT, function () {
+      /*  dcappClient.on(MQTT_CONNECT_EVENT, function () {
           console.log('We are subscribing');
           dcappClient.subscribe(DCAPP_CHANNEL);
           sysClient.publish(DCAPP_CHANNEL, "HELLLOO");
@@ -68,7 +68,7 @@ describe('DCH API', function(){
           console.log('We are subscribing');
           dcappClient.subscribe(DCAPP_CHANNEL);
           sysClient.publish(DCAPP_CHANNEL, "HELLLOO");
-      });        
+      });        */
 });
 
 
@@ -96,7 +96,7 @@ describe('DCH API', function(){
       });
     });
 
-    it('Get the total connected devices', function(done){
+ /*   it('Get the total connected devices', function(done){
       chai.request(BASE_URL)
       .get(TOTAL_CONNECTED_DEVICES)
       .end(function(err,res){
@@ -106,13 +106,12 @@ describe('DCH API', function(){
         done();
       });      
     });
-
+*/
 
     it('Testing api to get data of a watch', function(done){
         chai.request(BASE_URL)
         .get(GET_DATA_PATH+TEST_WATCH[0]+'/'+START_DATE.getTime()+'/'+END_DATE.getTime()+'/24000') //get data for every  24 seconds
         .end(function(err, res){
-          console.log("The body is: "+ res.body.length);          
           res.body.should.be.a('array');
           res.body.length.should.equal(150);
           done();
@@ -132,7 +131,6 @@ describe('DCH API', function(){
       .end(function(err,res){
         res.should.be.json; 
         res.body.should.be.a('array');
-        console.log('THe length of the body is: '+JSON.stringify(res.body));
         res.body.length.should.equal(9);
         done();
       });        
