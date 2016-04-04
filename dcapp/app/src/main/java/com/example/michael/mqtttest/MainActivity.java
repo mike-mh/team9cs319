@@ -8,6 +8,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -65,6 +66,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private float lastReadY = 0;
     private float lastReadZ = 0;
 
+    /* This handler is needed to introduce a delay to resolve a time race
+     * condtition when the user changes the IP address to connect to.
+     */
+    private final Handler ipChangeHandler = new Handler();
+
     // Maybe we should consider making a constants class
     private static final String IP_NEEDED_ALERT_MESSAGE = "Please enter " +
             "the IP address of the host including the port. e.g. " +
@@ -86,6 +92,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static final int X_ACCELERATION_INDEX = 0;
     private static final int Y_ACCELERATION_INDEX = 1;
     private static final int Z_ACCELERATION_INDEX = 2;
+
+    /* This delay is introduced to counteract the race  */
+    private static final int CONNECTION_DELAY = 3000;
 
     private float[] gravity = { 0 , 0 , 0};
     private final float alpha = (float) 0.8;
@@ -146,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onStopTrackingTouch(SeekBar seekBar) {
                 // Start BroadcastService and pass data via Intent
                 if (progress != speedSetting) {
-                    if(BroadcastService.broadcastServiceIsRunning) {
+                    if (BroadcastService.broadcastServiceIsRunning) {
                         stopService(startBroadcastService);
                     }
                     startBroadcastService = new Intent(mainActivity, BroadcastService.class);
@@ -201,7 +210,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         hostIpAddress);
                 startBroadcastService.putExtra(SPEED_SETTING_INTENT_EXTRA,
                         speedSetting);
-                startService(startBroadcastService);
+
+                /* Used due to time constraints but not an ideal solution */
+                BroadcastService.connectionStatus = "Connecting...";
+
+                ipChangeHandler.postDelayed(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        startService(startBroadcastService);
+                    }
+                }, CONNECTION_DELAY);
                 hostIpView.setText(HOST_IP_DISPLAY_PREFIX + hostIpAddress);
             }
         });

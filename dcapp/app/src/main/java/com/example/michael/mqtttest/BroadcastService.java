@@ -160,6 +160,7 @@ public class BroadcastService extends Service {
         public void run() {
 
             if (client.isConnected()) {
+                connectionStatus = "Connected";
                 String data = "";
 
                 // Calculate the rate between publish events
@@ -266,6 +267,8 @@ public class BroadcastService extends Service {
      *         killed.
      */
     public int onStartCommand(Intent intent, int flags, int startId) {
+        // Ensure that the connection lock is reset
+        isConnecting = false;
 
         broadcastServiceIsRunning = true;
 
@@ -282,9 +285,6 @@ public class BroadcastService extends Service {
         delayValue = (intent != null) ?
                 intent.getIntExtra(SPEED_SETTING_INTENT_EXTRA, 0) :
                 NO_USER_SPEED_INPUT;
-
-        // Ensure that the connection lock is reset
-        isConnecting = false;
 
         client = new MqttAndroidClient(this, TCP_PREFIX + hostIp, androidId);
 
@@ -317,9 +317,10 @@ public class BroadcastService extends Service {
      *         should be disabled and the accelerationListener unregistered.
      */
     public void onDestroy() {
-        if(client != null) {
+        if (client != null) {
             client.unregisterResources();
         }
+
         broadcastServiceIsRunning = false;
         this.unregisterReceiver(batteryLevelReceiver);
         publicationHandle.cancel(true);
