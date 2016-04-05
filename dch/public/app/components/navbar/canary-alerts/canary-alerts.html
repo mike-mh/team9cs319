@@ -1,0 +1,126 @@
+<div class="container">
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Alerts Received</h4>
+        </div>
+        <div class="modal-body">
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#unread" data-toggle="tab">Unread</a></li>
+            <li><a href="#read" data-toggle="tab">Read</a></li>
+          </ul>
+          <!-- Unread -->
+          <div class="tab-content">
+            <div class="tab-pane fade in active" id="unread">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <td ng-repeat="columnHeader in canarayAlertsController.tableColumns">
+                      {{columnHeader}}
+                    </td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="(alertIndex, alert) in canarayAlertsController.alerts.alerts">
+                    <td>
+                      <button ng-click="canarayAlertsController.MarkAsRead(alert, alertIndex)">
+                        <i class="glyphicon glyphicon-ok"></i>
+                      </button>
+                    </td>
+                    <td>
+                      {{ alert.timestamp}}
+                    </td>
+                    <td>
+                      {{ alert.watch_id }}
+                    </td>
+                    <td>
+                      {{ alert.alert_type }}
+                    </td>
+                    <td>
+                      {{ alert.alert_text }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <button type="button" class="btn btn-info" ng-show="canarayAlertsController.alerts.alerts.length" ng-click="canarayAlertsController.ClearAlerts()">Clear All</button>
+            </div>
+            <!-- Read -->
+            <div class="tab-pane fade" id="read">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <td ng-repeat="columnHeader in canarayAlertsController.readTableColumns">
+                      {{columnHeader}}
+                    </td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="(alertIndex, alert) in canarayAlertsController.readAlerts">
+                    <td>
+                      {{alert.timestamp}}
+                    </td>
+                    <td>
+                      {{alert.watch_id}}
+                    </td>
+                    <td>
+                      {{alert.alert_type}}
+                    </td>
+                    <td>
+                      {{alert.alert_text}}
+                    </td>
+                    <td>
+                      <button ng-click="canarayAlertsController.DeleteAlert(alert, alertIndex)">
+                        <i class="glyphicon glyphicon-remove"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+
+          <!-- We might not use this, but it's nice that if we need it, we got it. 
+          <uib-pagination total-items="500" max-size="8" ng-model="bigCurrentPage" class="pagination-sm" boundary-links="true" force-ellipses="true"></uib-pagination> -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="alert alert-success fade in" id="canary-alert" style="width:300px;z-index:100;position:absolute;left:75%" ng-hide="!canarayAlertsController.showAlertToastConnect">
+  <strong>{{ canarayAlertsController.alertToastTime }}</strong><br>
+  <strong>{{ canarayAlertsController.alertToastWatchId }}</strong><br>
+  <strong>{{ canarayAlertsController.alertToastAlertType }}</strong><br>
+  {{ canarayAlertsController.alertToastAlertText }}
+</div>
+
+<div class="alert alert-warning fade in" id="canary-alert" style="width:300px;z-index:100;position:absolute;left:75%" ng-hide="!canarayAlertsController.showAlertToastDisconnect">
+  <strong>{{ canarayAlertsController.alertToastTime }}</strong><br>
+  <strong>{{ canarayAlertsController.alertToastWatchId }}</strong><br>
+  <strong>{{ canarayAlertsController.alertToastAlertType }}</strong><br>
+  {{ canarayAlertsController.alertToastAlertText }}
+</div>
+
+<div class="alert alert-danger fade in" id="canary-alert" style="width:300px;z-index:100;position:absolute;left:75%" ng-hide="!canarayAlertsController.showAlertToastIdle">
+  <strong>{{ canarayAlertsController.alertToastTime }}</strong><br>
+  <strong>{{ canarayAlertsController.alertToastWatchId }}</strong><br>
+  <strong>{{ canarayAlertsController.alertToastAlertType }}</strong><br>
+  {{ canarayAlertsController.alertToastAlertText }}
+</div>
+
+<div class="alert alert-danger fade in" id="canary-alert" style="width:300px;z-index:100;position:absolute;left:75%" ng-hide="!canarayAlertsController.showAlertToastSpike">
+  <strong>{{ canarayAlertsController.alertToastTime }}</strong><br>
+  <strong>{{ canarayAlertsController.alertToastWatchId }}</strong><br>
+  <strong>{{ canarayAlertsController.alertToastAlertType }}</strong><br>
+  {{ canarayAlertsController.alertToastAlertText }}
+</div>
+
