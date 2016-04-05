@@ -1,13 +1,18 @@
 package com.example.michael.mqtttest;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.BatteryManager;
 import android.os.IBinder;
+import android.os.BatteryManager;
 import android.support.annotation.Nullable;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -51,11 +56,18 @@ public class BroadcastService extends Service {
     /* Use this to determine if the service is running */
     public static Boolean broadcastServiceIsRunning = false;
 
+    /* Use this to fetch the IP address being broadcast to */
+    public static String broadcastAddress = "";
+
     /* Use this to show the connection status */
     public static String connectionStatus = "Disconnected";
 
     /* Use this to show the publish rate */
     public static long publishRateMilliSec = 0;
+
+    /* Use this to lock out connection attempts */
+    public static boolean isConnecting = false;
+
 
 
     private long lastTimeCheck = System.currentTimeMillis();
@@ -82,6 +94,9 @@ public class BroadcastService extends Service {
     private float[] gravity = { 0 , 0 , 0};
     private final float alpha = (float) 0.8;
 
+    // This variable holds the current battery life remaining as a percentage
+    private float batteryLife = (float) 0.0;
+
     // More constants (probably should store in a class)
     private static final String TCP_PREFIX = "tcp://";
 
@@ -95,6 +110,8 @@ public class BroadcastService extends Service {
 
     private static final String WATCH_ID_JSON_INDEX = "watch_id";
     private static final String TIMESTAMP_JSON_INDEX = "timestamp";
+    private static final String PUBLISH_RATE_JSON_INDEX = "publish_rate";
+    private static final String BATTERY_PERCENTAGE_JSON_INDEX = "battery";
     private static final String ACC_X_JSON_INDEX = "acc_x";
     private static final String ACC_Y_JSON_INDEX = "acc_y";
     private static final String ACC_Z_JSON_INDEX = "acc_z";
@@ -106,12 +123,32 @@ public class BroadcastService extends Service {
     private static final int Y_ACCELERATION_INDEX = 1;
     private static final int Z_ACCELERATION_INDEX = 2;
 
+    // Set the battery level receiver
+    private BroadcastReceiver batteryLevelReceiver = new BroadcastReceiver() {
+
+        /**
+         * @desc - This method is responsible for receiving broadcasts from the
+         *         Android Broadcast Actions and analyze battery data to
+         *         calculate the percentage of battery life remaining.
+         */
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int currentLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+            if (currentLevel >= 0 && scale > 0) {
+                batteryLife = currentLevel / (float) scale;
+            }
+        }
+    }; 
+
+    private IntentFilter batteryLevelFilter =
+      new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+
     private static final int FASTEST_PUBLICATION_RATE = 200;
 
     // These are the threading components.
     private ScheduledFuture publicationHandle;
     private final Runnable publishData = new Runnable() {
-        private boolean isConnecting = false;
 
         @Override
         /**
@@ -124,8 +161,9 @@ public class BroadcastService extends Service {
          *         in this class in perpetuity at the pre-set intercal.
          */
         public void run() {
+
             if (client.isConnected()) {
-                isConnecting = false;
+                connectionStatus = "Connected";
                 String data = "";
 
                 // Calculate the rate between publish events
@@ -149,6 +187,12 @@ public class BroadcastService extends Service {
 
                     accelerationJson.put(TIMESTAMP_JSON_INDEX,
                             currentTimeMilliseconds);
+
+                    accelerationJson.put(BATTERY_PERCENTAGE_JSON_INDEX,
+                            batteryLife);
+
+                    accelerationJson.put(PUBLISH_RATE_JSON_INDEX,
+                            publishRateMilliSec);
 
                     // Convert JSON to string and publish
                     data = accelerationJson.toString();
@@ -185,20 +229,20 @@ public class BroadcastService extends Service {
                     e.printStackTrace();
                 }
             } else {
-                try {
+
                     // Use the connecting flag to ensure that the client is
                     // not attempting a connection while another thread is
                     // trying to do so.
-                    if(!isConnecting) {
-                        isConnecting = true;
-
+                if(!BroadcastService.isConnecting) {
+                    BroadcastService.isConnecting = true;
+                    try{
                         MQTTConnectionHandler callback =
                                 new MQTTConnectionHandler();
 
                         client.connect(null, callback);
+                    } catch (MqttException e) {
+                        e.printStackTrace();
                     }
-                } catch (MqttException e) {
-                    e.printStackTrace();
                 }
             }
         }
@@ -226,6 +270,8 @@ public class BroadcastService extends Service {
      *         killed.
      */
     public int onStartCommand(Intent intent, int flags, int startId) {
+        // Ensure that the connection lock is reset
+        isConnecting = false;
 
         broadcastServiceIsRunning = true;
 
@@ -243,6 +289,8 @@ public class BroadcastService extends Service {
                 intent.getIntExtra(SPEED_SETTING_INTENT_EXTRA, 0) :
                 NO_USER_SPEED_INPUT;
 
+        broadcastAddress = hostIp;
+
         client = new MqttAndroidClient(this, TCP_PREFIX + hostIp, androidId);
 
         sensorManager = (SensorManager) getApplicationContext()
@@ -253,11 +301,15 @@ public class BroadcastService extends Service {
                 accelerometer,
                 SensorManager.SENSOR_DELAY_NORMAL);
 
+        // Register receiver for battery data from the Android device
+        this.registerReceiver(batteryLevelReceiver, batteryLevelFilter);
+
         // Create new thread to boradcast data
         publicationHandle = publicationScheduler.scheduleAtFixedRate(
                                 publishData,
-                                FASTEST_PUBLICATION_RATE + delayValue * FASTEST_PUBLICATION_RATE,
-                                FASTEST_PUBLICATION_RATE + delayValue * FASTEST_PUBLICATION_RATE,
+                                0,
+                                (FASTEST_PUBLICATION_RATE +
+                                    delayValue * FASTEST_PUBLICATION_RATE),
                                 MILLISECONDS);
 
         return START_STICKY;
@@ -273,8 +325,9 @@ public class BroadcastService extends Service {
         if (client != null) {
             client.unregisterResources();
         }
-        broadcastServiceIsRunning = false;
 
+        broadcastServiceIsRunning = false;
+        this.unregisterReceiver(batteryLevelReceiver);
         publicationHandle.cancel(true);
         sensorManager.unregisterListener(accelerationListener);
         super.onDestroy();

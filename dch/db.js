@@ -7,6 +7,7 @@ var IDLE_TIME_THRESHOLD = 300000;
 var IDLE_ACC_THRESHOLD = 2;
 var SPIKE_ACC_THRESHOLD = 20;
 
+
 mongoose.connect(MONGODB_URL);
 
 // CONNECTION EVENTS
@@ -39,7 +40,9 @@ var dataSchema = mongoose.Schema({
   acc_y: Number,
   acc_z: Number,
   gradient: Number,
-  timestamp: Number
+  timestamp: Number,
+  battery: Number,
+  publish_rate: Number
 });
 
 //create a model for the accelration data

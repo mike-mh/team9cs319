@@ -8,6 +8,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -42,7 +43,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Intent startBroadcastService;
 
     private String androidId;
-    private TelephonyManager telephonyManager;
 
     private String hostIpAddress;
     private String connectionStatus;
@@ -66,6 +66,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private float lastReadY = 0;
     private float lastReadZ = 0;
 
+    /* This handler is needed to introduce a delay to resolve a time race
+     * condtition when the user changes the IP address to connect to.
+     */
+    private final Handler ipChangeHandler = new Handler();
+
     // Maybe we should consider making a constants class
     private static final String IP_NEEDED_ALERT_MESSAGE = "Please enter " +
             "the IP address of the host including the port. e.g. " +
@@ -87,6 +92,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static final int X_ACCELERATION_INDEX = 0;
     private static final int Y_ACCELERATION_INDEX = 1;
     private static final int Z_ACCELERATION_INDEX = 2;
+
+    /* This delay is introduced to counteract the race  */
+    private static final int CONNECTION_DELAY = 3000;
 
     private float[] gravity = { 0 , 0 , 0};
     private final float alpha = (float) 0.8;
@@ -147,8 +155,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onStopTrackingTouch(SeekBar seekBar) {
                 // Start BroadcastService and pass data via Intent
                 if (progress != speedSetting) {
-                    if(BroadcastService.broadcastServiceIsRunning) {
-                        stopService(startBroadcastService);
+                    if (BroadcastService.broadcastServiceIsRunning) {
+                        if (startBroadcastService != null) {
+                            stopService(startBroadcastService);
+                        } else {
+                            stopService(new Intent(mainActivity, BroadcastService.class));
+                        }
                     }
                     startBroadcastService = new Intent(mainActivity, BroadcastService.class);
                     speedSetting = progress;
@@ -166,9 +178,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-        // Display alert menu to user to inpt IP address
-        openIpDialogBox(this.findViewById(android.R.id.content));
-
+        // Display alert menu to user to input IP address if the broadcast
+        // service hasn't been initialized yet
+        if(!BroadcastService.broadcastServiceIsRunning) {
+            openIpDialogBox(this.findViewById(android.R.id.content));
+        } else {
+            hostIpAddress = BroadcastService.broadcastAddress;
+            hostIpView.setText(HOST_IP_DISPLAY_PREFIX + hostIpAddress);
+        }
     }
 
     /**
@@ -192,7 +209,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             // reset BoradcastService and pass in all relevant data.
             public void onClick(DialogInterface dialog, int which) {
                 if(BroadcastService.broadcastServiceIsRunning) {
-                    stopService(startBroadcastService);
+                    if (startBroadcastService != null) {
+                        stopService(startBroadcastService);
+                    } else {
+                        stopService(new Intent(mainActivity, BroadcastService.class));
+                    }
                 }
                 hostIpAddress = input.getText().toString();
                 startBroadcastService = new Intent(mainActivity, BroadcastService.class);
@@ -200,7 +221,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         androidId);
                 startBroadcastService.putExtra(HOST_IP_INTENT_EXTRA,
                         hostIpAddress);
-                startService(startBroadcastService);
+                startBroadcastService.putExtra(SPEED_SETTING_INTENT_EXTRA,
+                        speedSetting);
+
+                /* Used due to time constraints but not an ideal solution */
+                BroadcastService.connectionStatus = "Connecting...";
+
+                ipChangeHandler.postDelayed(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        startService(startBroadcastService);
+                    }
+                }, CONNECTION_DELAY);
                 hostIpView.setText(HOST_IP_DISPLAY_PREFIX + hostIpAddress);
             }
         });
