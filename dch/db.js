@@ -382,4 +382,3 @@ function pushAlertDataToMemoryPool() {
 // Poll acceleration events and alerts
 setInterval(pushAccelerationDataToMemoryPool, 500);
 setInterval(pushAlertDataToMemoryPool, 500);
-};

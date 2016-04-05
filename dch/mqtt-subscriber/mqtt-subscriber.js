@@ -59,7 +59,7 @@ var getDataObject = function (stringData){
   try{
     var messageJson = JSON.parse(stringData);
 
-      Object.keys(messageJson).length === 7 &&
+      if (Object.keys(messageJson).length === 7 &&
       messageJson[WATCH_ID] &&
       messageJson[TIMESTAMP] &&
       messageJson[X_ACCELERATION] &&
