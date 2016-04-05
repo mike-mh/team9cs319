@@ -67,6 +67,7 @@ var getDataObject = function (stringData){
       messageJson[Z_ACCELERATION] &&
       messageJson[BATTERY] &&
       messageJson[PUBLISH_RATE]) {
+
       console.log('The data is correct');
       return messageJson;
     }
@@ -158,21 +159,21 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
     }
 
     // Generate idle alert if necessary
-    var lastIdleTimestamp = idleDeviceMap[watchId];
+    var idleInfo = idleDeviceMap[watchId];
     if (dataObj.gradient < 1) {
-      if (!lastIdleTimestamp) {
-        idleDeviceMap[watchId] = dataObj.timestamp;
-      } else if (dataObj.timestamp - lastIdleTimestamp > 300000) {
+      if (idleInfo === undefined) {
+        idleDeviceMap[watchId] = {begin: dataObj.timestamp, threshold: 5};
+      } else if ((dataObj.timestamp - idleInfo.begin) > (idleInfo.threshold * 60000)) {
+        idleDeviceMap[watchId].threshold += 5; // update threshold
         createAlert({
           timestamp: dataObj.timestamp,
           watch_id: watchId,
           alert_type: 'ACC_IDLE',
-          alert_text: 'Device has been idle for more than 5 minutes.'
+          alert_text: 'Device has been idle for more than ' +  idleInfo.threshold + ' minutes.'
         });
-        idleDeviceMap[watchId] = dataObj.timestamp; // update timestamp
       }
     } else {
-      idleDeviceMap[watchId] = null;
+      idleDeviceMap[watchId] = undefined;
     }
 
     // Generate low battery alert if necessary

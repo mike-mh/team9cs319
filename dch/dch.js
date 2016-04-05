@@ -88,7 +88,7 @@ router.delete(DELETE_DATA_PATH, function(req, res) {
   });
 });
 
-router.get(GET_DATA_PATH, function(req, res){
+router.get(GET_DATA_PATH, function(req, res) {
   db.getData(req.params.watchId, parseInt(req.params.startTime),
     parseInt(req.params.stopTime), parseInt(req.params.frequency),
     standardCallback(res));

@@ -8,6 +8,7 @@ var IDLE_TIME_THRESHOLD = 300000;
 var IDLE_ACC_THRESHOLD = 2;
 var SPIKE_ACC_THRESHOLD = 20;
 
+// Alert polling interval in milliseconds
 var ALERT_POLLING_INTERVAL = 5000;
 
 // This array will hold all alerts found to be broadcasted. Resets after each
