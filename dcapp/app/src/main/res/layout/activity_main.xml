@@ -131,6 +131,10 @@
             android:layout_height="wrap_content"
             android:onClick="openIpDialogBox"
             android:text="@string/changeIp"
-            android:layout_weight="0.33" />
+            android:layout_weight="0.41" />
     </LinearLayout>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></TableLayout>
 </LinearLayout>
