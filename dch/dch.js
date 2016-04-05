@@ -169,7 +169,9 @@ router.get(ACCELERATION_SSE, function(req, res) {
 
   // If the connection closes, be sure to unregister interval
   req.connection.addListener('close', function() {
-    clearInterval(broadcastInterval);
+    if(broadcastInterval !== undefined) {
+      clearInterval(broadcastInterval);
+    }
   });
 });
 
@@ -208,7 +210,9 @@ router.get(ALERT_SSE, function(req, res) {
 
   // If the connection closes, be sure to unregister interval
   req.connection.addListener("close", function() {
-    clearInterval(broadcastInterval);
+    if (broadcastInterval !== undefined) {
+      clearInterval(broadcastInterval);
+    }
   });
 });
 
