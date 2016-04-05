@@ -158,7 +158,7 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
       if (!idleInfo) {
         idleDeviceMap[watchId] = {begin: dataObj.timestamp, threshold: 5};
       } else if ((dataObj.timestamp - idleInfo.begin) > (idleInfo.threshold * 60000)) {
-        idleDeviceMap[watchId][threshold] += 5; // update threshold
+        idleDeviceMap[watchId][idleInfo.threshold] += 5; // update threshold
         createAlert({
           timestamp: dataObj.timestamp,
           watch_id: watchId,
