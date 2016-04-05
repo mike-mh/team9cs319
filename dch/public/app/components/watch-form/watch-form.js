@@ -246,4 +246,13 @@
     requestWatchIds();
   }
 
+  /**
+   * @desc - Renders the battery graph to contain all known data for a
+   *         battery. If time permits, architecture should change and this
+   *         should be moved.
+   */
+  vm.getAllBatteryData = function() {
+    console.log('GETTING DATA');
+    GraphService.renderBatteryReport();
+  };
 })();

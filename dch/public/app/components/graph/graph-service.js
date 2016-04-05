@@ -410,6 +410,10 @@
             data[index]);
         }
 
+        console.log('DATA:');
+
+        console.log(data);
+
         if (batteryChart === undefined) {
           batteryChart = c3.generate(batteryGraphData);
         }

@@ -4,14 +4,7 @@
       <uib-tab-heading>
         Acceleration Data
       </uib-tab-heading>
-      <div class="container">
-        </br> Livestream:
-        <div class="btn-group">
-          <label class="btn btn-default" uncheckable ng-click="graphController.showAcclerationStream()">On</label>
-          <label class="btn btn-default" uib-uncheckable="uncheckable" ng-click="graphController.stopAcclerationStream()">Off</label>
-        </div>
-      </div>
-      <div class="chart" ng-show="true">
+      <div class="chart">
         <div id="chart"></div>
       </div>
     </uib-tab>
@@ -21,7 +14,6 @@
       </uib-tab-heading>
       <div class="container">
         </br>
-        <button ng-click="graphController.getAllBatteryData()" class="btn btn-warning">Create Battery Life Report</button>
         <div class="chart">
           <div id="battery-chart"></div>
         </div>

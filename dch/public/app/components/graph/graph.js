@@ -36,14 +36,6 @@
     var vm = this;
 
     /**
-     * @desc - Renders the battery graph to contain all known data for a
-     *         battery.
-     */
-    vm.getAllBatteryData = function() {
-      GraphService.renderBatteryReport();
-    }
-
-    /**
      * @desc - This function initializes the rendering of the acceleration
      *         stream.
      */

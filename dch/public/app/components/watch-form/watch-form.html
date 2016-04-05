@@ -34,6 +34,7 @@
       <div class="panel-heading">
         <button type="submit" class="btn btn-success" ng-show="watchFormCtrl.selectedWatch.startTime">Get Data</button>
         <button type="button" ng-click="watchFormCtrl.showAcclerationStream()" ng-show="watchFormCtrl.hasLivestreamData" class="btn btn-info">Livestream</button>
+        <button type="button" ng-show="watchFormCtrl.selectedWatch.id" ng-click="watchFormCtrl.getAllBatteryData()" class="btn btn-warning">Create Battery Life Report</button>
       </div>
     </form>    
     <div class="panel-heading" ng-show="watchFormCtrl.livestreamControls">
