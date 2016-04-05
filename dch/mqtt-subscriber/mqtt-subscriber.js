@@ -35,6 +35,8 @@ var PUBLISH_RATE = 'publish_rate';
 var X_ACCELERATION = 'acc_x';
 var Y_ACCELERATION = 'acc_y';
 var Z_ACCELERATION = 'acc_z';
+var BATTERY = 'battery';
+var PUBLISH_RATE = 'publish_rate';
 
 var dcappClient = mqtt.connect(MQTT_BROKER_URL);
 var sysClient = mqtt.connect(MQTT_BROKER_URL);
@@ -57,8 +59,7 @@ var getDataObject = function (stringData){
   try{
     var messageJson = JSON.parse(stringData);
 
-    if (
-      Object.keys(messageJson).length === 7 &&
+      if (Object.keys(messageJson).length === 7 &&
       messageJson[WATCH_ID] &&
       messageJson[TIMESTAMP] &&
       messageJson[X_ACCELERATION] &&
@@ -66,6 +67,8 @@ var getDataObject = function (stringData){
       messageJson[Z_ACCELERATION] &&
       messageJson[BATTERY] &&
       messageJson[PUBLISH_RATE]) {
+
+      console.log('The data is correct');
       return messageJson;
     }
   }catch(e){

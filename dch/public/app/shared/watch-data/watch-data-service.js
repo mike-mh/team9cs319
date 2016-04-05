@@ -19,12 +19,21 @@
   WatchDataService.$inject = ['$http'];
 
   function WatchDataService() {
-    var graphData = [];
+    var ACCELERATION_DATA_INDEX = 0;
+    var ACCELERATION_DATA_SIZE = 0;
+
+    var BATTERY_DATA_INDEX = 0;
+    var BATTERY_DATA_SIZE = 0;
+
+    var accelerationGraphData = [];
+    var batteryGraphData = [];
+
     var dataList = [];
 
     var watchDataService = {
       putData: putData,
-      getData: getData,
+      getAccelerationData: getAccelerationData,
+      getBatteryData: getBatteryData,
     };
 
     var currentDate = new Date();
@@ -43,27 +52,44 @@
     function putData(data) {
       dataList = data;
 
-      var storage = {};
+      // Use these objects to store data retrieved from the DCH server
+      var accelerationStorage = {};
+      var batteryStorage = {};
 
-      storage.xAxis = [];
-      storage.xAcceleration = [];
-      storage.yAcceleration = [];
-      storage.zAcceleration = [];
-      storage.gradient = [];
+      accelerationStorage.xAxis = [];
+      accelerationStorage.xAcceleration = [];
+      accelerationStorage.yAcceleration = [];
+      accelerationStorage.zAcceleration = [];
+      accelerationStorage.gradient = [];
+
+      batteryStorage.xAxis = [];
+      batteryStorage.battery = [];
+      batteryStorage.publishRate = [];
 
       for (var i = 0; i<dataList.length; i++) {
-        storage.xAxis[i] = dataList[i]._id;
-        storage.xAcceleration[i] = dataList[i].acc_x;
-        storage.yAcceleration[i] = dataList[i].acc_y;
-        storage.zAcceleration[i] = dataList[i].acc_z;
-        storage.gradient[i] = dataList[i].gradient;
+        accelerationStorage.xAxis[i] = dataList[i]._id;
+        accelerationStorage.xAcceleration[i] = dataList[i].acc_x;
+        accelerationStorage.yAcceleration[i] = dataList[i].acc_y;
+        accelerationStorage.zAcceleration[i] = dataList[i].acc_z;
+        accelerationStorage.gradient[i] = dataList[i].gradient;
+
+        batteryStorage.xAxis[i] = dataList[i]._id;
+        batteryStorage.battery[i] = dataList[i].battery;
+        batteryStorage.publishRate[i] = dataList[i].publish_rate;
       };
 
       var index = 0;
-      for(var array in storage) {
-        graphData[index] = storage[array];
-        index++
+      for(var array in accelerationStorage) {
+        accelerationGraphData[index] = accelerationStorage[array];
+        index++;
       };
+
+      index = 0;
+      for(var array in batteryStorage) {
+        batteryGraphData[index] = batteryStorage[array];
+        index++;
+      };
+
     }
 
     /**
@@ -72,8 +98,18 @@
      * 
      * @return [array] - Array containing arrays of data.
      */
-    function getData() {
-      return graphData;
+    function getAccelerationData() {
+      return accelerationGraphData;
+    }
+
+    /**
+     * @desc - This function is called by the battery graph to get the data
+     *         list for display.
+     * 
+     * @return [array] - Array containing arrays of data.
+     */
+    function getBatteryData() {
+      return batteryGraphData;
     }
   }
 })();

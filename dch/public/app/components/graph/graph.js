@@ -30,42 +30,18 @@
 
   }
 
-  GraphController.$inject = ['GraphService', 'WatchDataService', '$scope', '$window'];
+  GraphController.$inject = ['GraphService'];
 
-  function GraphController(GraphService, WatchDataService, $scope, $window) {
+  function GraphController(GraphService) {
     var vm = this;
-
-    var chartRenderFunctionMap = {
-      'acceleration': GraphService.renderAccelerationGraph,
-      'battery': GraphService.renderBatteryChart
-    }
-
-    /**
-     * @desc - This function is triggered when the user clicks the 'Get Data'
-     *         button with real time updates disabled. It first removes
-     *         previous data from the graph then re-renders the chart.
-     */
-    function populateAccelerationGraph() {
-      //Clear previous data
-      GraphService.clearAccelerationGraph();
-      GraphService.renderAccelerationGraph();
-    }
-
-    /**
-     * @desc - Set active tab so that it is known whether to render
-     *         acceleration or battery graph.
-     *
-     * @param tabName {string} - The name of the tab selected.
-     */
-    vm.setActiveTab = function(tabName) {
-      //chartRenderFunctionMap(tabName);
-    }
 
     /**
      * @desc - This function initializes the rendering of the acceleration
      *         stream.
      */
     vm.showAcclerationStream = function() {
+      vm.livestreamControls = true;
+      console.log(vm.livestreamControls);
       GraphService.startAccelerationStream();
     }
 

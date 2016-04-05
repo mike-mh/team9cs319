@@ -31,12 +31,29 @@
         </select>
       </div>
 
-
- 
       <div class="panel-heading">
-        <button type="submit" class="btn btn-success">Get Data</button>
+        <button type="submit" class="btn btn-success" ng-show="watchFormCtrl.selectedWatch.startTime">Get Data</button>
+        <button type="button" ng-click="watchFormCtrl.showAcclerationStream()" ng-show="watchFormCtrl.hasLivestreamData" class="btn btn-info">Livestream</button>
+        <button type="button" ng-show="watchFormCtrl.selectedWatch.id" ng-click="watchFormCtrl.getAllBatteryData()" class="btn btn-warning">Create Battery Life Report</button>
       </div>
-    </form> 
+    </form>    
+    <div class="panel-heading" ng-show="watchFormCtrl.livestreamControls">
+       <div id="controlstream" class="container">
+        <div class="button-group">
+          <button type="button" class="btn btn-default" ng-click="watchFormCtrl.stopAcclerationStream()">
+            <span class="glyphicon glyphicon-pause">
+            </span>
+          </button>
+          <button type="button" class="btn btn-default" ng-click="watchFormCtrl.showAcclerationStream()">
+            <span class="glyphicon glyphicon-play">
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>   
   </div>
 </div>
+
+
+     
 

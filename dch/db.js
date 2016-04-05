@@ -159,12 +159,35 @@ exports.getData = function(watchID, startTime, stopTime, freq, callback) {
       acc_x: {$avg: '$acc_x'},
       acc_y: {$avg: '$acc_y'},
       acc_z: {$avg: '$acc_z'},
-      gradient: {$avg: '$gradient'}
+      gradient: {$avg: '$gradient'},
+      battery: {$avg: '$battery'},
+      publish_rate: {$avg: '$publish_rate'},
     }
   }, {
     $limit: 300,
   }, callback);
 };
+
+/**
+ * @desc - Used to fetch all battery life entries to render a single battery
+ *         life chart.
+ */
+exports.getAllBatteryData = function(watchID, callback) {
+  Data.aggregate({
+    $match: {
+      watch_id: watchID,
+    }
+  }, {
+    $group: {
+      _id: {$subtract: ['$timestamp', { $mod: ['$timestamp', 144000]}]},
+      battery: {$avg: '$battery'},
+      publish_rate: {$avg: '$publish_rate'},
+    }
+  }, {
+    $limit: 300,
+  }, callback);
+};
+
 
 // The callback takes in an error parameter
 exports.deleteData = function(watchId, callback){

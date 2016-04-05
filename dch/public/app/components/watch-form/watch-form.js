@@ -35,6 +35,9 @@
     console.log(GraphService);
     var vm = this;
 
+    vm.livestreamControls = false;
+    vm.hasLivestreamData = false;
+
     vm.dataList = [];
     vm.times = [];
     vm.intervalOptions = [5, 10, 30];
@@ -54,10 +57,23 @@
    /**
     * @desc - This function is called when a watch selection
     *         is updated by the user. It clears previous data
-    *         in the dropdown menus.
+    *         in the dropdown menus. Checks if livestream is available.
     */
     vm.updateWatch = function() {
       GraphService.setWatchIdToMonitor(vm.selectedWatch.id.trim());
+      var livestreamData = GraphService.checkHasLivestream();
+      console.log(livestreamData);
+
+      for (var watch in livestreamData) {
+        if (watch == vm.selectedWatch.id.trim()) {
+          vm.hasLivestreamData = true;
+          return;
+        } else {
+          vm.hasLivestreamData = false;
+        }
+      }
+
+      console.log(livestreamData)
       vm.selectedWatch.interval = '';
       vm.selectedWatch.startTime = '';
     }
@@ -114,6 +130,7 @@
       }
       else {
         console.log('Requesting data.');
+        vm.livestreamControls = false;
       }
 
       requestWatchData();
@@ -161,8 +178,8 @@
     function dataSuccessCallback(response) {
       vm.dataList = response.data;
       WatchDataService.putData(vm.dataList);
-      GraphService.clearAccelerationGraph();
       GraphService.renderAccelerationGraph();
+      GraphService.renderBatteryGraph();
     }
 
     /**
@@ -210,8 +227,32 @@
       return field;
     }
 
+   /**
+     * @desc - This function initializes the rendering of the acceleration
+     *         stream.
+     */
+    vm.showAcclerationStream = function() {
+      vm.livestreamControls = true;
+      GraphService.startAccelerationStream();
+    }
+
+   /**
+     * @desc - This function stops the rendering of the acceleration stream.
+     */
+    vm.stopAcclerationStream = function() {
+      GraphService.stopAccelerationStream()
+    }
+
     // Request watch ID data from the DCH server to populate drop down menu.
     requestWatchIds();
-  }
 
+    /**
+     * @desc - Renders the battery graph to contain all known data for a
+     *         battery. If time permits, architecture should change and this
+     *         should be moved.
+     */
+    vm.getAllBatteryData = function() {
+      GraphService.renderBatteryReport();
+    };
+  }
 })();

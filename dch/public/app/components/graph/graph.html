@@ -1,27 +1,23 @@
-<!-- This is where the c3 chart is rendered -->
-
 <div class="container">
   <uib-tabset active="active">
-    <uib-tab index="0" id="acceleration-graph-tab" select="graphController.setActiveTab('acceleration')">
+    <uib-tab index="0" id="acceleration-graph-tab">
       <uib-tab-heading>
         Acceleration Data
       </uib-tab-heading>
-      <div class="container">
-        </br> Livestream:
-        <div class="btn-group">
-          <label class="btn btn-default" uncheckable ng-click="graphController.showAcclerationStream()">On</label>
-          <label class="btn btn-default" uib-uncheckable="uncheckable" ng-click="graphController.stopAcclerationStream()">Off</label>
-        </div>
+      <div class="chart">
+        <div id="chart"></div>
       </div>
     </uib-tab>
-    
-    <uib-tab index="1" id="battery-graph-tab" select="graphController.setActiveTab('battery')">
+    <uib-tab index="1" id="battery-graph-tab">
       <uib-tab-heading>
         Battery Data
       </uib-tab-heading>
+      <div class="container">
+        </br>
+        <div class="chart">
+          <div id="battery-chart"></div>
+        </div>
+      </div>
     </uib-tab>
   </uib-tabset>
-  <div class="chart">
-    <div id="chart"></div>
-  </div>
-</div>		
+</div>

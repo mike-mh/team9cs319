@@ -64,6 +64,10 @@
       responsePromise.success(function(response) {
         console.log(response);
         watchAlerts.alerts = response;
+        angular.forEach(watchAlerts.alerts, function(alert) {
+          var convertedDate = new Date(alert.timestamp);
+          alert.timestamp = convertedDate.toString();
+        })
         callback(response);
       });
 

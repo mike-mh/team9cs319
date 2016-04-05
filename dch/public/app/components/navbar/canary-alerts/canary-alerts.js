@@ -39,6 +39,7 @@
 
     vm.tableColumns = ['MARK AS READ', 'TIME', 'WATCH ID', 'ALERT TYPE', 'ALERT'];
 
+    vm.alerts = [];
     vm.readAlerts = [];
     vm.readTableColumns = ['TIME', 'WATCH ID', 'ALERT TYPE', 'ALERT', 'DELETE'];
 
@@ -88,6 +89,7 @@
         vm.showAlertToastDisconnect = false;
         vm.showAlertToastIdle = false;
         vm.showAlertToastSpike = false;
+        vm.showAlertToastBattery = false;
         return;
       }
       
@@ -116,6 +118,10 @@
 
       if (vm.alertToastAlertType.indexOf('ACC_SPIKE') >= 0) {
         vm.showAlertToastSpike = true;
+      }
+
+      if (vm.alertToastAlertType.indexOf('LOW_BATTERY') >= 0) {
+        vm.showAlertToastBattery = true;
       }
 
       console.log(vm.showAlertToast);
