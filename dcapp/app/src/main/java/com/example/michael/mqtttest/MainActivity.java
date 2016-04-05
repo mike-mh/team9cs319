@@ -156,7 +156,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 // Start BroadcastService and pass data via Intent
                 if (progress != speedSetting) {
                     if (BroadcastService.broadcastServiceIsRunning) {
-                        stopService(startBroadcastService);
+                        if (startBroadcastService != null) {
+                            stopService(startBroadcastService);
+                        } else {
+                            stopService(new Intent(mainActivity, BroadcastService.class));
+                        }
                     }
                     startBroadcastService = new Intent(mainActivity, BroadcastService.class);
                     speedSetting = progress;
@@ -205,7 +209,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             // reset BoradcastService and pass in all relevant data.
             public void onClick(DialogInterface dialog, int which) {
                 if(BroadcastService.broadcastServiceIsRunning) {
-                    stopService(startBroadcastService);
+                    if (startBroadcastService != null) {
+                        stopService(startBroadcastService);
+                    } else {
+                        stopService(new Intent(mainActivity, BroadcastService.class));
+                    }
                 }
                 hostIpAddress = input.getText().toString();
                 startBroadcastService = new Intent(mainActivity, BroadcastService.class);
