@@ -67,7 +67,9 @@ var dataSchema = mongoose.Schema({
   acc_y: Number,
   acc_z: Number,
   gradient: Number,
-  timestamp: Number
+  timestamp: Number,
+  battery: Number,
+  publish_rate: Number
 });
 
 var alertSchema = mongoose.Schema({
@@ -90,6 +92,8 @@ exports.alertModel = AlertData
 exports.disconnect = function(){
   mongoose.disconnect();
 };
+
+exports.DbConnection = mongoose.connection;
 
 // bulkInsert an array of data points (no validation checks)
 exports.bulkInsert = function(arr, callback) {
@@ -164,7 +168,8 @@ exports.getData = function(watchID, startTime, stopTime, freq, callback) {
 
 // The callback takes in an error parameter
 exports.deleteData = function(watchId, callback){
-  Data.remove({watch_id: watch_id}, callback);
+  console.log('The watch id to delete is '+watchId);
+  Data.remove({watch_id: watchId}, callback);
 };
 
 // callback takes in err, result as params

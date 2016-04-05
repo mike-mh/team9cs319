@@ -115,6 +115,7 @@ router.get(TOTAL_CONNECTED_DEVICES, function(req, res){
   console.log('Total watch clients: ' + mqttSubscriber.sysClient.totalClients);
   var totalClients = parseInt(mqttSubscriber.sysClient.totalClients);
   var totalWatches = totalClients - TOTAL_NODEJS_MQTT_CLIENTS;
+  console.log("The total watches are: "+totalWatches);
   return res.end(totalWatches.toString());
 });
 

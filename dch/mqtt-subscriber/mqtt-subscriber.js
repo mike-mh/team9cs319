@@ -30,6 +30,8 @@ var CONNECTION_TIMEOUT = 5000;
 
 var WATCH_ID = 'watch_id';
 var TIMESTAMP = 'timestamp';
+var BATTERY = 'battery';
+var PUBLISH_RATE = 'publish_rate';
 var X_ACCELERATION = 'acc_x';
 var Y_ACCELERATION = 'acc_y';
 var Z_ACCELERATION = 'acc_z';
@@ -56,13 +58,14 @@ var getDataObject = function (stringData){
     var messageJson = JSON.parse(stringData);
 
     if (
-      Object.keys(messageJson).length === 5 &&
+      Object.keys(messageJson).length === 7 &&
       messageJson[WATCH_ID] &&
       messageJson[TIMESTAMP] &&
       messageJson[X_ACCELERATION] &&
       messageJson[Y_ACCELERATION] &&
-      messageJson[Z_ACCELERATION]) {
-      //console.log('The data is correct');
+      messageJson[Z_ACCELERATION] &&
+      messageJson[BATTERY] &&
+      messageJson[PUBLISH_RATE]) {
       return messageJson;
     }
   }catch(e){
