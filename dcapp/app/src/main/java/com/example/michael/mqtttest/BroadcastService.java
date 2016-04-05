@@ -56,6 +56,9 @@ public class BroadcastService extends Service {
     /* Use this to determine if the service is running */
     public static Boolean broadcastServiceIsRunning = false;
 
+    /* Use this to fetch the IP address being broadcast to */
+    public static String broadcastAddress = "";
+
     /* Use this to show the connection status */
     public static String connectionStatus = "Disconnected";
 
@@ -285,6 +288,8 @@ public class BroadcastService extends Service {
         delayValue = (intent != null) ?
                 intent.getIntExtra(SPEED_SETTING_INTENT_EXTRA, 0) :
                 NO_USER_SPEED_INPUT;
+
+        broadcastAddress = hostIp;
 
         client = new MqttAndroidClient(this, TCP_PREFIX + hostIp, androidId);
 

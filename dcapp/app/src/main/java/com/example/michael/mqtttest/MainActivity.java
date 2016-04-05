@@ -174,9 +174,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-        // Display alert menu to user to inpt IP address
-        openIpDialogBox(this.findViewById(android.R.id.content));
-
+        // Display alert menu to user to input IP address if the broadcast
+        // service hasn't been initialized yet
+        if(!BroadcastService.broadcastServiceIsRunning) {
+            openIpDialogBox(this.findViewById(android.R.id.content));
+        } else {
+            hostIpAddress = BroadcastService.broadcastAddress;
+            hostIpView.setText(HOST_IP_DISPLAY_PREFIX + hostIpAddress);
+        }
     }
 
     /**
