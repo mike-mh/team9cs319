@@ -164,13 +164,13 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
       if (idleInfo === undefined) {
         idleDeviceMap[watchId] = {begin: dataObj.timestamp, threshold: 5};
       } else if ((dataObj.timestamp - idleInfo.begin) > (idleInfo.threshold * 60000)) {
-        idleDeviceMap[watchId].threshold += 5; // update threshold
         createAlert({
           timestamp: dataObj.timestamp,
           watch_id: watchId,
           alert_type: 'ACC_IDLE',
-          alert_text: 'Device has been idle for more than ' +  idleInfo.threshold - 5 + ' minutes.'
+          alert_text: 'Device has been idle for more than ' +  idleInfo.threshold + ' minutes.'
         });
+        idleDeviceMap[watchId].threshold += 5; // update threshold
       }
     } else {
       idleDeviceMap[watchId] = undefined;
