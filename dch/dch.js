@@ -88,7 +88,7 @@ router.delete(DELETE_DATA_PATH, function(req, res) {
   });
 });
 
-router.get(GET_DATA_PATH, function(req, res) {
+router.get(GET_DATA_PATH, function(req, res){
   db.getData(req.params.watchId, parseInt(req.params.startTime),
     parseInt(req.params.stopTime), parseInt(req.params.frequency),
     standardCallback(res));
@@ -116,6 +116,7 @@ router.get(TOTAL_CONNECTED_DEVICES, function(req, res){
   console.log('Total watch clients: ' + mqttSubscriber.sysClient.totalClients);
   var totalClients = parseInt(mqttSubscriber.sysClient.totalClients);
   var totalWatches = totalClients - TOTAL_NODEJS_MQTT_CLIENTS;
+  console.log("The total watches are: "+totalWatches);
   return res.end(totalWatches.toString());
 });
 

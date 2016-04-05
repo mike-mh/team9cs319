@@ -8,7 +8,6 @@ var IDLE_TIME_THRESHOLD = 300000;
 var IDLE_ACC_THRESHOLD = 2;
 var SPIKE_ACC_THRESHOLD = 20;
 
-// Alert polling interval in milliseconds
 var ALERT_POLLING_INTERVAL = 5000;
 
 // This array will hold all alerts found to be broadcasted. Resets after each
@@ -92,6 +91,8 @@ exports.alertModel = AlertData
 exports.disconnect = function(){
   mongoose.disconnect();
 };
+
+exports.DbConnection = mongoose.connection;
 
 // bulkInsert an array of data points (no validation checks)
 exports.bulkInsert = function(arr, callback) {
@@ -189,7 +190,8 @@ exports.getAllBatteryData = function(watchID, callback) {
 
 // The callback takes in an error parameter
 exports.deleteData = function(watchId, callback){
-  Data.remove({watch_id: watch_id}, callback);
+  console.log('The watch id to delete is '+watchId);
+  Data.remove({watch_id: watchId}, callback);
 };
 
 // callback takes in err, result as params
@@ -380,3 +382,4 @@ function pushAlertDataToMemoryPool() {
 // Poll acceleration events and alerts
 setInterval(pushAccelerationDataToMemoryPool, 500);
 setInterval(pushAlertDataToMemoryPool, 500);
+};
