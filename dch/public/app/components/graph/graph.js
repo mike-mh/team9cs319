@@ -48,6 +48,8 @@
      *         stream.
      */
     vm.showAcclerationStream = function() {
+      vm.livestreamControls = true;
+      console.log(vm.livestreamControls);
       GraphService.startAccelerationStream();
     }
 
