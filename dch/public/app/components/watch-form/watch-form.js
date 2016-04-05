@@ -62,11 +62,12 @@
     vm.updateWatch = function() {
       GraphService.setWatchIdToMonitor(vm.selectedWatch.id.trim());
       var livestreamData = GraphService.checkHasLivestream();
+      console.log(livestreamData);
 
       for (var watch in livestreamData) {
         if (watch == vm.selectedWatch.id.trim()) {
           vm.hasLivestreamData = true;
-          console.log('Has livestream data')
+          return;
         } else {
           vm.hasLivestreamData = false;
         }
@@ -244,15 +245,14 @@
 
     // Request watch ID data from the DCH server to populate drop down menu.
     requestWatchIds();
-  }
 
-  /**
-   * @desc - Renders the battery graph to contain all known data for a
-   *         battery. If time permits, architecture should change and this
-   *         should be moved.
-   */
-  vm.getAllBatteryData = function() {
-    console.log('GETTING DATA');
-    GraphService.renderBatteryReport();
-  };
+    /**
+     * @desc - Renders the battery graph to contain all known data for a
+     *         battery. If time permits, architecture should change and this
+     *         should be moved.
+     */
+    vm.getAllBatteryData = function() {
+      GraphService.renderBatteryReport();
+    };
+  }
 })();
