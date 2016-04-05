@@ -169,7 +169,7 @@ dcappClient.on(MQTT_MESSAGE_EVENT, function (topic, message) {
           timestamp: dataObj.timestamp,
           watch_id: watchId,
           alert_type: 'ACC_IDLE',
-          alert_text: 'Device has been idle for more than ' +  idleInfo.threshold + ' minutes.'
+          alert_text: 'Device has been idle for more than ' +  idleInfo.threshold - 5 + ' minutes.'
         });
       }
     } else {
